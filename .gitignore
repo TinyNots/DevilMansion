@@ -1,6 +1,9 @@
 # Visual Studio 2015 user specific files
 .vs/
 
+# Visual Studio 2015 database file
+*.VC.db
+
 # Compiled Object files
 *.slo
 *.lo
@@ -48,6 +51,11 @@ SourceArt/**/*.tga
 # Binary Files
 Binaries/*
 Plugins/*/Binaries/*
+
+#Asset Files
+Fantasy_Dungeon/
+ModularRPGHeroesPBR/
+RPGMonsterWavePBR
 
 # Builds
 Build/*
