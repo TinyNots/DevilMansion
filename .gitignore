@@ -55,7 +55,8 @@ Plugins/*/Binaries/*
 #Asset Files
 Fantasy_Dungeon/
 ModularRPGHeroesPBR/
-RPGMonsterWavePBR
+RPGMonsterWavePBR/
+InfinityBladeEffects/
 
 # Builds
 Build/*
