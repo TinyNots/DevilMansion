@@ -11,6 +11,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -67,6 +69,7 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveSide", this, &ABetterPlayer::MoveSide);
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ABetterPlayer::Attack);
+	PlayerInputComponent->BindAction("DebugEquip", EInputEvent::IE_Pressed, this, &ABetterPlayer::DebugEquip);
 }
 
 void ABetterPlayer::MoveForward(float Value)
@@ -107,5 +110,19 @@ void ABetterPlayer::Attack()
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.35f);
 		AnimInstance->Montage_JumpToSection(FName("Combo01"), CombatMontage);
+	}
+}
+
+void ABetterPlayer::DebugEquip()
+{
+	const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName("RightWeaponShield");
+	if (RightHandSocket)
+	{
+		AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
+		if (Weapon)
+		{
+			Weapon->VisualMesh->SetStaticMesh(DebugWeaponMesh);
+			Weapon->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RightWeaponShield");
+		}
 	}
 }

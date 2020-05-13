@@ -66,7 +66,7 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		Destroy();
+		//Destroy();
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
 	}
 }
