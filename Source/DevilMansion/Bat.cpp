@@ -2,9 +2,9 @@
 
 
 #include "Bat.h"
-//#include "Main.h"
 #include "Components/SphereComponent.h"
-//#include "AIController.h"
+#include "BetterPlayer.h"
+#include "AIController.h"
 
 // Sets default values
 ABat::ABat()
@@ -14,7 +14,7 @@ ABat::ABat()
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetRootComponent());
-	AgroSphere->InitSphereRadius(600.f);
+	AgroSphere->InitSphereRadius(250.f);
 
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
@@ -26,7 +26,13 @@ void ABat::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AIController = Cast<AAIController>(GetController());
+	AIController = Cast<AAIController>(GetController());
+
+	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &ABat::AgroSphereOnOverlapBegin);
+	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &ABat::AgroSphereOnOverlapEnd);
+
+	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABat::CombatSphereOnOverlapBegin);
+	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABat::CombatSphereOnOverlapEnd);
 }
 
 // Called every frame
@@ -47,17 +53,16 @@ void ABat::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (OtherActor)
 	{
-	/*	AMain* Main = Cast<AMain>(OtherActor);
+		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
 			MoveToTarget(Main);
-		}*/
+		}
 	}
 }
 
 void ABat::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 }
 
 void ABat::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -70,12 +75,19 @@ void ABat::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 
 }
 
-//void ABat::MoveToTarget(class AMain* Target)
-//{
-//	EEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
-//
-//	if (AIController)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("MoveToTarget()"));
-//	}
-//}
+void ABat::MoveToTarget(ABetterPlayer* Target)
+{
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
+
+	if (AIController)
+	{
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalActor(Target);
+		MoveRequest.SetAcceptanceRadius(25.f);
+
+		FNavPathSharedPtr NavPath;
+		AIController->MoveTo(MoveRequest, &NavPath);
+		
+		UE_LOG(LogTemp, Warning, TEXT("MoveToTarget()"));
+	}
+}
