@@ -33,6 +33,8 @@ void ABat::BeginPlay()
 
 	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABat::CombatSphereOnOverlapBegin);
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABat::CombatSphereOnOverlapEnd);
+
+	bOverlappingCombatSphere = false;
 }
 
 // Called every frame
@@ -63,16 +65,49 @@ void ABat::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AA
 
 void ABat::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherActor)
+	{
+		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
+		if (Main)
+		{
+			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+			if (AIController)
+			{
+				AIController->StopMovement();
+				CombatTarget = nullptr;
+			}
+		}
+	}
 }
 
 void ABat::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
+	if (OtherActor)
+	{
+		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
+		if (Main)
+		{
+			CombatTarget = Main;
+			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
+			bOverlappingCombatSphere = true;
+		}
+	}
 }
 
 void ABat::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	if (OtherActor)
+	{
+		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
+		if (Main)
+		{
+			bOverlappingCombatSphere = false;
+			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			{
+				MoveToTarget(Main);
+			}
+		}
+	}
 }
 
 void ABat::MoveToTarget(ABetterPlayer* Target)
