@@ -13,6 +13,7 @@
 #include "Animation/AnimInstance.h"
 #include "Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -108,21 +109,25 @@ void ABetterPlayer::Attack()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
-		AnimInstance->Montage_Play(CombatMontage, 1.35f);
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection(FName("Combo01"), CombatMontage);
 	}
 }
 
 void ABetterPlayer::DebugEquip()
 {
-	const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName("RightWeaponShield");
-	if (RightHandSocket)
+	if (EquippedWeapon != nullptr)
 	{
-		AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
-		if (Weapon)
-		{
-			Weapon->VisualMesh->SetStaticMesh(DebugWeaponMesh);
-			Weapon->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RightWeaponShield");
-		}
+		return;
+	}
+
+	AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
+	if (Weapon)
+	{
+		Weapon->CollisionVolume->SetSphereRadius(0.0f);
+		Weapon->VisualMesh->SetStaticMesh(DebugWeaponMesh);
+		Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Weapon->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RightWeaponShield");
+		SetEquippedWeapon(Weapon);
 	}
 }

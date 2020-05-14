@@ -62,15 +62,10 @@ public:
 	class AWeapon* EquippedWeapon;
 
 	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
+	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
 
 	void DebugEquip();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UStaticMesh* DebugWeaponMesh;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
-	class UAnimMontage* CombatMontage2;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-	bool bAttacking32;
 };

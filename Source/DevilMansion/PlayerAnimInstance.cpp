@@ -8,6 +8,7 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 	if (Pawn == nullptr)
 	{
 		Pawn = TryGetPawnOwner();
+		Player = (ABetterPlayer*)Pawn;
 	}
 }
 
