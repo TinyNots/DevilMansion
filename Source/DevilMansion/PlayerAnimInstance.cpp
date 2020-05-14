@@ -2,6 +2,7 @@
 
 
 #include "PlayerAnimInstance.h"
+#include "BetterPlayer.h"
 
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -23,4 +24,9 @@ void UPlayerAnimInstance::UpdateAnimationProperties()
 		FVector Speed = Pawn->GetVelocity();
 		MovementSpeed = FVector(Speed.X, Speed.Y, 0.f).Size();
 	}
+}
+
+void UPlayerAnimInstance::AttackEnd()
+{
+	Player->AttackEnd();
 }

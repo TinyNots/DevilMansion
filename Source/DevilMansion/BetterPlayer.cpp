@@ -44,6 +44,8 @@ ABetterPlayer::ABetterPlayer()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
 	bAttacking = false;
+	MaxComboCount = 3;
+	ComboCount = 0;
 }
 
 // Called when the game starts or when spawned
@@ -107,11 +109,33 @@ void ABetterPlayer::Attack()
 	bAttacking = true;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && CombatMontage)
+	if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 	{
+		ComboCount++;
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
-		AnimInstance->Montage_JumpToSection(FName("Combo01"), CombatMontage);
+		FName SectionName;
+		switch (ComboCount)
+		{
+		case 1:
+			SectionName = FName("Combo01");
+			break;
+		case 2:
+			SectionName = FName("Combo02");
+			break;
+		case 3:
+			SectionName = FName("Combo03");
+			break;
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
 	}
+}
+
+void ABetterPlayer::AttackEnd()
+{
+	bAttacking = false;
+	ComboCount = 0;
 }
 
 void ABetterPlayer::DebugEquip()

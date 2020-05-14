@@ -28,4 +28,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	class ABetterPlayer* Player;
+
+	UFUNCTION(BlueprintCallable, Category = "AnimationProperties")
+	void AttackEnd();
 };
