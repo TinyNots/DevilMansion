@@ -122,7 +122,5 @@ void ABat::MoveToTarget(ABetterPlayer* Target)
 
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
-		
-		UE_LOG(LogTemp, Warning, TEXT("MoveToTarget()"));
 	}
 }

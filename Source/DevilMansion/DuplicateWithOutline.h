@@ -15,8 +15,8 @@ public:
 	// Sets default values for this actor's properties
 	ADuplicateWithOutline();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
-	class UStaticMeshComponent* VisualMesh;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
+	//class UStaticMeshComponent* VisualMesh;
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,9 +26,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-		virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	//UFUNCTION()
+	//	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	//UFUNCTION()
+	//	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 };
