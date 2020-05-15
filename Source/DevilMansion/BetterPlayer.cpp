@@ -77,7 +77,7 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void ABetterPlayer::MoveForward(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -89,7 +89,7 @@ void ABetterPlayer::MoveForward(float Value)
 
 void ABetterPlayer::MoveSide(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -106,29 +106,32 @@ void ABetterPlayer::TurnAtRate(float Rate)
 
 void ABetterPlayer::Attack()
 {
-	bAttacking = true;
-
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+	if (EquippedWeapon)
 	{
-		ComboCount++;
-		AnimInstance->Montage_Play(CombatMontage, 1.0f);
-		FName SectionName;
-		switch (ComboCount)
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
-		case 1:
-			SectionName = FName("Combo01");
-			break;
-		case 2:
-			SectionName = FName("Combo02");
-			break;
-		case 3:
-			SectionName = FName("Combo03");
-			break;
-		default:
-			break;
+			ComboCount++;
+			AnimInstance->Montage_Play(CombatMontage);
+			FName SectionName;
+			switch (ComboCount)
+			{
+			case 1:
+				SectionName = FName("Combo01");
+				break;
+			case 2:
+				SectionName = FName("Combo02");
+				break;
+			case 3:
+				SectionName = FName("Combo03");
+				break;
+			default:
+				break;
+			}
+			AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
 		}
-		AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
 	}
 }
 
@@ -140,18 +143,22 @@ void ABetterPlayer::AttackEnd()
 
 void ABetterPlayer::DebugEquip()
 {
-	if (EquippedWeapon != nullptr)
+	if (EquippedWeapon == nullptr)
 	{
-		return;
-	}
+		AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
+		if (Weapon)
+		{
+			const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName("RightWeaponShield");
+			if (RightHandSocket)
+			{
+				RightHandSocket->AttachActor(Weapon, GetMesh());
+			}
 
-	AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
-	if (Weapon)
-	{
-		Weapon->CollisionVolume->SetSphereRadius(0.0f);
-		Weapon->VisualMesh->SetStaticMesh(DebugWeaponMesh);
-		Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Weapon->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RightWeaponShield");
-		SetEquippedWeapon(Weapon);
+			Weapon->SetActorRelativeLocation(FVector(6.0f, 0, 0));
+			Weapon->CollisionVolume->SetSphereRadius(0.0f);
+			Weapon->VisualMesh->SetStaticMesh(DebugWeaponMesh);
+			Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			SetEquippedWeapon(Weapon);
+		}
 	}
 }

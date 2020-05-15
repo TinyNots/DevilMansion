@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "BetterPlayer.h"
+#include "Weapon.h"
 #include "PlayerAnimInstance.generated.h"
 
 /**

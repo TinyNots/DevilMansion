@@ -2,7 +2,6 @@
 
 
 #include "PlayerAnimInstance.h"
-#include "BetterPlayer.h"
 
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
