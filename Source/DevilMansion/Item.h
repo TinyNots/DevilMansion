@@ -41,6 +41,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	float RotationRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	bool bCanOutline;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	TSubclassOf<class AObjectOutline> Outline;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Outline")
+	uint8 OutlineMaterialIndex;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

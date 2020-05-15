@@ -7,6 +7,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ObjectOutline.h"
 #include "Sound/SoundCue.h"
 #include "Engine/World.h"
 
@@ -27,6 +28,8 @@ AItem::AItem()
 
 	bRotate = false;
 	RotationRate = 45.f;
+	bCanOutline = true;
+	OutlineMaterialIndex = 1;
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +38,15 @@ void AItem::BeginPlay()
 	Super::BeginPlay();
 	CollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
+	if (bCanOutline && Outline)
+	{
+		AObjectOutline* OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
+		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 }
 
 // Called every frame
@@ -66,7 +78,7 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		//Destroy();
+		Destroy();
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
 	}
 }
