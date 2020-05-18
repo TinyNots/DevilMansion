@@ -64,7 +64,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Item)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	class AWeapon* EquippedWeapon;
 
 	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
@@ -77,5 +77,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	int MaxComboCount;
+
+	void Defend();
+	void DefendEnd();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bDefending;
 private:
+	UPROPERTY()
+	UAnimInstance* AnimInstance;
 };

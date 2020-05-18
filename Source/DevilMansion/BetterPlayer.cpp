@@ -46,6 +46,8 @@ ABetterPlayer::ABetterPlayer()
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
+
+	bDefending = false;
 }
 
 // Called when the game starts or when spawned
@@ -53,6 +55,7 @@ void ABetterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 // Called every frame
@@ -73,11 +76,14 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ABetterPlayer::Attack);
 	PlayerInputComponent->BindAction("DebugEquip", EInputEvent::IE_Pressed, this, &ABetterPlayer::DebugEquip);
+
+	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Pressed, this, &ABetterPlayer::Defend);
+	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Released, this, &ABetterPlayer::DefendEnd);
 }
 
 void ABetterPlayer::MoveForward(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -89,7 +95,7 @@ void ABetterPlayer::MoveForward(float Value)
 
 void ABetterPlayer::MoveSide(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -110,7 +116,6 @@ void ABetterPlayer::Attack()
 	{
 		bAttacking = true;
 
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
 			ComboCount++;
@@ -160,5 +165,25 @@ void ABetterPlayer::DebugEquip()
 			Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SetEquippedWeapon(Weapon);
 		}
+	}
+}
+
+void ABetterPlayer::Defend()
+{
+	if (AnimInstance)
+	{
+		AttackEnd();
+		bDefending = true;
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Defend");
+	}
+}
+
+void ABetterPlayer::DefendEnd()
+{
+	if (AnimInstance && bDefending)
+	{
+		bDefending = false;
+		AnimInstance->Montage_Stop(0.25f);
 	}
 }
