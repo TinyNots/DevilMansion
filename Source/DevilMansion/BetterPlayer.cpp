@@ -12,6 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Weapon.h"
+#include "ObjectOutline.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
 
@@ -43,6 +44,9 @@ ABetterPlayer::ABetterPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
+	ItemCollisionVolume = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionVolume"));
+	ItemCollisionVolume->SetupAttachment(GetRootComponent());
+
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
@@ -52,7 +56,8 @@ ABetterPlayer::ABetterPlayer()
 void ABetterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	ItemCollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &ABetterPlayer::OnOverlapBegin);
+	ItemCollisionVolume->OnComponentEndOverlap.AddDynamic(this, &ABetterPlayer::OnOverlapEnd);
 }
 
 // Called every frame
@@ -161,4 +166,40 @@ void ABetterPlayer::DebugEquip()
 			SetEquippedWeapon(Weapon);
 		}
 	}
+}
+
+
+void ABetterPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		TArray<AActor*> ItemActors;
+		ItemCollisionVolume->GetOverlappingActors(ItemActors,TSubclassOf<AObjectOutline>());
+		float nearestDistance = FLT_MAX;
+		AObjectOutline* HighlightActor = nullptr;
+		for (auto actor : ItemActors)
+		{
+			float dist = FVector::Dist(GetActorLocation(), actor->GetActorLocation());
+			if (dist < nearestDistance)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Dist Renew"));
+				nearestDistance = dist;
+				HighlightActor = Cast<AObjectOutline>(actor);
+			}
+			if (HighlightActor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Debug"));
+			}
+		}
+		if (HighlightActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NearestObjectAcquired"));
+			HighlightActor->bOutlining = true;
+		}
+	}
+}
+
+void ABetterPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
