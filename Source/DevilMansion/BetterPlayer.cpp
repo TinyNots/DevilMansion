@@ -79,6 +79,8 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Pressed, this, &ABetterPlayer::Defend);
 	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Released, this, &ABetterPlayer::DefendEnd);
+
+	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 }
 
 void ABetterPlayer::MoveForward(float Value)
@@ -186,4 +188,11 @@ void ABetterPlayer::DefendEnd()
 		bDefending = false;
 		AnimInstance->Montage_Stop(0.25f);
 	}
+}
+
+void ABetterPlayer::Skill()
+{
+	AttackEnd();
+	AnimInstance->Montage_Play(CombatMontage);
+	AnimInstance->Montage_JumpToSection("Skill");
 }

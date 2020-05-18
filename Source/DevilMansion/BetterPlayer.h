@@ -86,4 +86,6 @@ public:
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
+
+	void Skill();
 };
