@@ -20,6 +20,21 @@ ABetterPlayer::ABetterPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Face = CreateDefaultSubobject<USkeletalMeshComponent>("Face");
+	Face->SetupAttachment(GetMesh());
+	Hair = CreateDefaultSubobject<USkeletalMeshComponent>("Hair");
+	Hair->SetupAttachment(GetMesh());
+	Gloves = CreateDefaultSubobject<USkeletalMeshComponent>("Gloves");
+	Gloves->SetupAttachment(GetMesh());
+	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>("Shoes");
+	Shoes->SetupAttachment(GetMesh());
+	HeadGears = CreateDefaultSubobject<USkeletalMeshComponent>("HeadGears");
+	HeadGears->SetupAttachment(GetMesh());
+	ShoulderPad = CreateDefaultSubobject<USkeletalMeshComponent>("ShoulderPad");
+	ShoulderPad->SetupAttachment(GetMesh());
+	Belt = CreateDefaultSubobject<USkeletalMeshComponent>("Belt");
+	Belt->SetupAttachment(GetMesh());
 	
 	// Create camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));

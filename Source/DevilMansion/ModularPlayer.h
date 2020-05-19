@@ -29,25 +29,25 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Face;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Hair;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Gloves;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Shoes;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* HeadGears;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* ShoulderPad;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Belt;
 
 	UPROPERTY(EditAnywhere, Category = "Mesh")
@@ -62,7 +62,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Mesh")
 	UStaticMeshComponent* Backpack;
 
-	UFUNCTION()
-	void AttachMeshToSocket(USkeletalMeshComponent* SkeletalMesh,FName SocketName);
-	void AttachMeshToSocket(UStaticMeshComponent* StaticMesh,FName SocketName);
+	UPROPERTY(EditAnywhere, Category = "Stat")
+	float Health;
+	UPROPERTY(EditAnywhere, Category = "Stat")
+	float Stamina;
+	UPROPERTY(EditAnywhere, Category = "Stat")
+	float Mana;
+	UPROPERTY(EditAnywhere, Category = "Stat")
+	float Armor;
 };
