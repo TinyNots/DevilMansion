@@ -27,5 +27,5 @@ public:
 	class APawn* Pawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-	class ABat* Bat;
+	class ABadGuy* Bat;
 };
