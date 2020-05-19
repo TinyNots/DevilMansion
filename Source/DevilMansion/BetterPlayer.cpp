@@ -7,14 +7,15 @@
 #include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Weapon.h"
 #include "ObjectOutline.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/ShapeComponent.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -44,7 +45,9 @@ ABetterPlayer::ABetterPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
-	ItemCollisionVolume = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionVolume"));
+	EnemyCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("EnemyCollisionVolume"));
+	EnemyCollisionVolume->SetupAttachment(GetRootComponent());
+	ItemCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollisionVolume"));
 	ItemCollisionVolume->SetupAttachment(GetRootComponent());
 
 	bAttacking = false;
@@ -56,14 +59,14 @@ ABetterPlayer::ABetterPlayer()
 void ABetterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	ItemCollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &ABetterPlayer::OnOverlapBegin);
-	ItemCollisionVolume->OnComponentEndOverlap.AddDynamic(this, &ABetterPlayer::OnOverlapEnd);
 }
 
 // Called every frame
 void ABetterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	OutlineCheck(EnemyCollisionVolume);
+	OutlineCheck(ItemCollisionVolume);
 
 }
 
@@ -168,38 +171,27 @@ void ABetterPlayer::DebugEquip()
 	}
 }
 
-
-void ABetterPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 {
-
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	TArray<AActor*> actors;
+	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
+	float nearestDistance = FLT_MAX;
+	AObjectOutline* HighlightActor = nullptr;
+	for (auto actor : actors)
 	{
-		TArray<AActor*> ItemActors;
-		ItemCollisionVolume->GetOverlappingActors(ItemActors,TSubclassOf<AObjectOutline>());
-		float nearestDistance = FLT_MAX;
-		AObjectOutline* HighlightActor = nullptr;
-		for (auto actor : ItemActors)
+		if (actor == this)
 		{
-			float dist = FVector::Dist(GetActorLocation(), actor->GetActorLocation());
-			if (dist < nearestDistance)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Dist Renew"));
-				nearestDistance = dist;
-				HighlightActor = Cast<AObjectOutline>(actor);
-			}
-			if (HighlightActor)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Debug"));
-			}
+			continue;
 		}
-		if (HighlightActor)
+		float dist = FVector::DistXY(GetActorLocation(), actor->GetActorLocation());
+		if (dist < nearestDistance)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("NearestObjectAcquired"));
-			HighlightActor->bOutlining = true;
+			nearestDistance = dist;
+			HighlightActor = Cast<AObjectOutline>(actor);
 		}
 	}
-}
-
-void ABetterPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
+	if (HighlightActor)
+	{
+		HighlightActor->bOutlining = true;
+	}
 }

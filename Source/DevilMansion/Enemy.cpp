@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Enemy.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "ObjectOutline.h"
+#include "Components/StaticMeshComponent.h"
+
 
 // Sets default values
 AEnemy::AEnemy()
@@ -11,12 +14,24 @@ AEnemy::AEnemy()
 	VisualMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
 	RootComponent = VisualMesh;
 	VisualMesh->SetSimulatePhysics(true);
+
+	//OutlineMaterialIndex = 1;
+
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	//if (Outline)
+	//{
+	//	OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+	//	OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//	OutlineRef->SetOwner(this);
+	//	OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
+	//	OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
+	//	UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	//}
 	
 }
 

@@ -47,8 +47,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Outline")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	uint8 OutlineMaterialIndex;
+
+	UPROPERTY()
+	AObjectOutline* OutlineRef;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

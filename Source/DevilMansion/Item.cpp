@@ -40,7 +40,7 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	if (bCanOutline && Outline)
 	{
-		AObjectOutline* OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
@@ -78,7 +78,10 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		Destroy();
+		/*if (OutlineRef->Destroy())
+		{
+			Destroy();
+		}*/
 		UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
 	}
 }
