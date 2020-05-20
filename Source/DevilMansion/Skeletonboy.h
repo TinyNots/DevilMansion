@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BadGuy.h"
-#include "Bat.generated.h"
+#include "Skeletonboy.generated.h"
 
 UCLASS()
-class DEVILMANSION_API ABat : public ABadGuy
+class DEVILMANSION_API ASkeletonboy : public ABadGuy
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ABat();
+	ASkeletonboy();
 
 protected:
 	// Called when the game starts or when spawned

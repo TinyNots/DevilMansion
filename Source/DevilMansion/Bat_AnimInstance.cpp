@@ -2,7 +2,9 @@
 
 
 #include "Bat_AnimInstance.h"
+#include "BadGuy.h"
 #include "Bat.h"
+#include "SkeletonBoy.h"
 
 void UBat_AnimInstance::NativeInitializeAnimation()
 {
@@ -11,7 +13,7 @@ void UBat_AnimInstance::NativeInitializeAnimation()
 		Pawn = TryGetPawnOwner();
 		if (Pawn)
 		{
-			Bat = Cast<ABat>(Pawn);
+			ThisEnemy = Cast<ABadGuy>(Pawn);
 		}
 	}
 }
@@ -23,7 +25,7 @@ void UBat_AnimInstance::UpdateAnimationProperties()
 		Pawn = TryGetPawnOwner();
 		if (Pawn)
 		{
-			Bat = Cast<ABat>(Pawn);
+			ThisEnemy = Cast<ABadGuy>(Pawn);
 		}
 	}
 
