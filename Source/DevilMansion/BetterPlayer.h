@@ -23,9 +23,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAcess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class USphereComponent* ItemCollisionVolume;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class USphereComponent* EnemyCollisionVolume;
+
 	// Base turn rates to scale turning functions for the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
+
+	UPROPERTY()
+	class AObjectOutline* HighlightActor;
 
 protected:
 	// Called when the game starts or when spawned
@@ -77,5 +86,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	int MaxComboCount;
+
+	UFUNCTION()
+	void OutlineCheck(class USphereComponent* CollisionVolume);
+
+	void Pickup();
 private:
 };

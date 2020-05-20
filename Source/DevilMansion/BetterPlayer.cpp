@@ -7,13 +7,16 @@
 #include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Weapon.h"
+#include "ObjectOutline.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/ShapeComponent.h"
+#include "Item.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -43,6 +46,11 @@ ABetterPlayer::ABetterPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
+	EnemyCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("EnemyCollisionVolume"));
+	EnemyCollisionVolume->SetupAttachment(GetRootComponent());
+	ItemCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollisionVolume"));
+	ItemCollisionVolume->SetupAttachment(GetRootComponent());
+
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
@@ -52,13 +60,14 @@ ABetterPlayer::ABetterPlayer()
 void ABetterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ABetterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	OutlineCheck(EnemyCollisionVolume);
+	OutlineCheck(ItemCollisionVolume);
 
 }
 
@@ -73,7 +82,9 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ABetterPlayer::Attack);
 	PlayerInputComponent->BindAction("DebugEquip", EInputEvent::IE_Pressed, this, &ABetterPlayer::DebugEquip);
+	PlayerInputComponent->BindAction("Pickup", EInputEvent::IE_Pressed, this, &ABetterPlayer::Pickup);
 }
+
 
 void ABetterPlayer::MoveForward(float Value)
 {
@@ -161,4 +172,34 @@ void ABetterPlayer::DebugEquip()
 			SetEquippedWeapon(Weapon);
 		}
 	}
+}
+
+void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
+{
+	TArray<AActor*> actors;
+	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
+	float nearestDistance = FLT_MAX;
+	HighlightActor = nullptr;
+	for (auto actor : actors)
+	{
+		if (actor == this)
+		{
+			continue;
+		}
+		float dist = FVector::DistXY(GetActorLocation(), actor->GetActorLocation());
+		if (dist < nearestDistance)
+		{
+			nearestDistance = dist;
+			HighlightActor = Cast<AObjectOutline>(actor);
+		}
+	}
+	if (HighlightActor)
+	{
+		HighlightActor->bOutlining = true;
+	}
+}
+
+void ABetterPlayer::Pickup()
+{
+	HighlightActor->Pickup();
 }

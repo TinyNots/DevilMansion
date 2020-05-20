@@ -47,8 +47,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Outline")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	uint8 OutlineMaterialIndex;
+
+	UPROPERTY()
+	AObjectOutline* OutlineRef;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -57,4 +60,8 @@ public:
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	virtual void PickupEffect();
+
 };

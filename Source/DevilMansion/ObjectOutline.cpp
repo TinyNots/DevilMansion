@@ -7,7 +7,8 @@
 #include "Materials/Material.h"
 #include "BetterPlayer.h"
 #include "Engine/World.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "Item.h"
 
 
 // Sets default values
@@ -24,6 +25,10 @@ AObjectOutline::AObjectOutline()
 
 	OutlineMaterial = CreateDefaultSubobject<UMaterial>(TEXT("OutlineMaterial"));
 
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMesh");
+	SkeletalMesh->SetupAttachment(GetRootComponent());
+
+	bCanPickup = false;
 }
 
 // Called when the game starts or when spawned
@@ -39,19 +44,11 @@ void AObjectOutline::BeginPlay()
 void AObjectOutline::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	bOutlining = false;
 }
 
 void AObjectOutline::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
-	{
-		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
-		if (Main)
-		{
-			bOutlining = true;
-		}
-	}
 }
 
 void AObjectOutline::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -62,6 +59,22 @@ void AObjectOutline::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 		if (Main)
 		{
 			bOutlining = false;
+		}
+	}
+}
+
+void AObjectOutline::Pickup()
+{
+	if (bOutlining)
+	{
+		if (bCanPickup)
+		{
+			AItem* item = Cast<AItem>(GetOwner());
+			if (item)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Owner Acquired"));
+				item->PickupEffect();
+			}
 		}
 	}
 }
