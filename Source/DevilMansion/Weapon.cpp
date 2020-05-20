@@ -61,7 +61,9 @@ void AWeapon::Equip(ABetterPlayer* Char)
 		if (RightHandSocket)
 		{
 			RightHandSocket->AttachActor(this, Char->GetMesh());
+			VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			bRotate = false;
+			Char->SetEquippedWeapon(this);
 		}
 	}
 }

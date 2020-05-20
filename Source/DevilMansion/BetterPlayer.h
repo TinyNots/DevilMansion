@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "BetterPlayer.generated.h"
 
+class USkeletalMeshComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class DEVILMANSION_API ABetterPlayer : public ACharacter
 {
@@ -47,6 +50,27 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* Face;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* Hair;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* Gloves;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* Shoes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* HeadGears;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* ShoulderPad;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+	USkeletalMeshComponent* Belt;
+
 	// Called for forwards and backwrards input
 	void MoveForward(float Value);
 
@@ -73,7 +97,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Item)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	class AWeapon* EquippedWeapon;
 
 	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
@@ -87,9 +111,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	int MaxComboCount;
 
+	void Defend();
+	void DefendEnd();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bDefending;
+
 	UFUNCTION()
 	void OutlineCheck(class USphereComponent* CollisionVolume);
 
 	void Pickup();
 private:
+	UPROPERTY()
+	UAnimInstance* AnimInstance;
+
+	UPROPERTY()
+	float Health;
+
+	void Skill();
 };

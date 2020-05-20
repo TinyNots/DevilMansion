@@ -23,6 +23,21 @@ ABetterPlayer::ABetterPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Face = CreateDefaultSubobject<USkeletalMeshComponent>("Face");
+	Face->SetupAttachment(GetMesh());
+	Hair = CreateDefaultSubobject<USkeletalMeshComponent>("Hair");
+	Hair->SetupAttachment(GetMesh());
+	Gloves = CreateDefaultSubobject<USkeletalMeshComponent>("Gloves");
+	Gloves->SetupAttachment(GetMesh());
+	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>("Shoes");
+	Shoes->SetupAttachment(GetMesh());
+	HeadGears = CreateDefaultSubobject<USkeletalMeshComponent>("HeadGears");
+	HeadGears->SetupAttachment(GetMesh());
+	ShoulderPad = CreateDefaultSubobject<USkeletalMeshComponent>("ShoulderPad");
+	ShoulderPad->SetupAttachment(GetMesh());
+	Belt = CreateDefaultSubobject<USkeletalMeshComponent>("Belt");
+	Belt->SetupAttachment(GetMesh());
 	
 	// Create camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -54,12 +69,16 @@ ABetterPlayer::ABetterPlayer()
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
+
+	bDefending = false;
 }
 
 // Called when the game starts or when spawned
 void ABetterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 // Called every frame
@@ -83,12 +102,17 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ABetterPlayer::Attack);
 	PlayerInputComponent->BindAction("DebugEquip", EInputEvent::IE_Pressed, this, &ABetterPlayer::DebugEquip);
 	PlayerInputComponent->BindAction("Pickup", EInputEvent::IE_Pressed, this, &ABetterPlayer::Pickup);
+
+	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Pressed, this, &ABetterPlayer::Defend);
+	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Released, this, &ABetterPlayer::DefendEnd);
+
+	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 }
 
 
 void ABetterPlayer::MoveForward(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -100,7 +124,7 @@ void ABetterPlayer::MoveForward(float Value)
 
 void ABetterPlayer::MoveSide(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -121,7 +145,6 @@ void ABetterPlayer::Attack()
 	{
 		bAttacking = true;
 
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
 			ComboCount++;
@@ -172,6 +195,33 @@ void ABetterPlayer::DebugEquip()
 			SetEquippedWeapon(Weapon);
 		}
 	}
+}
+
+void ABetterPlayer::Defend()
+{
+	if (AnimInstance)
+	{
+		AttackEnd();
+		bDefending = true;
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Defend");
+	}
+}
+
+void ABetterPlayer::DefendEnd()
+{
+	if (AnimInstance && bDefending)
+	{
+		bDefending = false;
+		AnimInstance->Montage_Stop(0.25f);
+	}
+}
+
+void ABetterPlayer::Skill()
+{
+	AttackEnd();
+	AnimInstance->Montage_Play(CombatMontage);
+	AnimInstance->Montage_JumpToSection("Skill");
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
