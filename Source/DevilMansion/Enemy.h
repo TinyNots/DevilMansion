@@ -27,14 +27,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Hitpoint;
 
-	/*UPROPERTY(EditDefaultsOnly, Category = "Item")
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
 		TSubclassOf<class AObjectOutline> Outline;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 		uint8 OutlineMaterialIndex;
 
 	UPROPERTY()
-		AObjectOutline* OutlineRef;*/
+		AObjectOutline* OutlineRef;
+
+	UPROPERTY(EditAnywhere)
+		USkeletalMesh* AlternateMeshAsset;
 
 protected:
 	// Called when the game starts or when spawned

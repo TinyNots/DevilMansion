@@ -45,6 +45,7 @@ void AItem::BeginPlay()
 		OutlineRef->SetOwner(this);
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
 		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
+		OutlineRef->bCanPickup = true;
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
 	}
 }
@@ -65,7 +66,34 @@ void AItem::Tick(float DeltaTime)
 
 void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Item::OnOverlapBegin()"));
+	//UE_LOG(LogTemp, Warning, TEXT("Item::OnOverlapBegin()"));
+	//if (OverlapParticles)
+	//{
+	//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
+	//}
+
+	//if (OverlapSound)
+	//{
+	//	UGameplayStatics::PlaySound2D(this, OverlapSound);
+	//}
+
+	//if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	//{
+	//	/*if (OutlineRef->Destroy())
+	//	{
+	//		Destroy();
+	//	}*/
+	//	UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
+	//}
+}
+
+void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Item::OnOverlapEnd()"));
+}
+
+void AItem::PickupEffect()
+{
 	if (OverlapParticles)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
@@ -76,17 +104,9 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		UGameplayStatics::PlaySound2D(this, OverlapSound);
 	}
 
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if (OutlineRef->Destroy())
 	{
-		/*if (OutlineRef->Destroy())
-		{
-			Destroy();
-		}*/
-		UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
+		Destroy();
 	}
-}
-
-void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Item::OnOverlapEnd()"));
+	UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
 }

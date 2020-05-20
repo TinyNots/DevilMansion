@@ -33,6 +33,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
 
+	UPROPERTY()
+	class AObjectOutline* HighlightActor;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -85,6 +88,8 @@ public:
 	int MaxComboCount;
 
 	UFUNCTION()
-	virtual void OutlineCheck(class USphereComponent* CollisionVolume);
+	void OutlineCheck(class USphereComponent* CollisionVolume);
+
+	void Pickup();
 private:
 };

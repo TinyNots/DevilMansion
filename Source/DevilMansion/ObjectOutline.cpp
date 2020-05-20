@@ -7,7 +7,8 @@
 #include "Materials/Material.h"
 #include "BetterPlayer.h"
 #include "Engine/World.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "Item.h"
 
 
 // Sets default values
@@ -24,6 +25,10 @@ AObjectOutline::AObjectOutline()
 
 	OutlineMaterial = CreateDefaultSubobject<UMaterial>(TEXT("OutlineMaterial"));
 
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMesh");
+	SkeletalMesh->SetupAttachment(GetRootComponent());
+
+	bCanPickup = false;
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +59,22 @@ void AObjectOutline::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 		if (Main)
 		{
 			bOutlining = false;
+		}
+	}
+}
+
+void AObjectOutline::Pickup()
+{
+	if (bOutlining)
+	{
+		if (bCanPickup)
+		{
+			AItem* item = Cast<AItem>(GetOwner());
+			if (item)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Owner Acquired"));
+				item->PickupEffect();
+			}
 		}
 	}
 }

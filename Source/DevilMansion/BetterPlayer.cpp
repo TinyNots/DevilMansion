@@ -16,6 +16,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
+#include "Item.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -81,7 +82,9 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ABetterPlayer::Attack);
 	PlayerInputComponent->BindAction("DebugEquip", EInputEvent::IE_Pressed, this, &ABetterPlayer::DebugEquip);
+	PlayerInputComponent->BindAction("Pickup", EInputEvent::IE_Pressed, this, &ABetterPlayer::Pickup);
 }
+
 
 void ABetterPlayer::MoveForward(float Value)
 {
@@ -176,7 +179,7 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 	TArray<AActor*> actors;
 	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
 	float nearestDistance = FLT_MAX;
-	AObjectOutline* HighlightActor = nullptr;
+	HighlightActor = nullptr;
 	for (auto actor : actors)
 	{
 		if (actor == this)
@@ -194,4 +197,9 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 	{
 		HighlightActor->bOutlining = true;
 	}
+}
+
+void ABetterPlayer::Pickup()
+{
+	HighlightActor->Pickup();
 }

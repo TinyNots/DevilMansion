@@ -26,9 +26,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	bool bOutlining;
 
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* SkeletalMesh;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	//bool bIsNearestObject;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
+	bool bCanPickup;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,4 +48,7 @@ public:
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+		virtual void Pickup();
 };

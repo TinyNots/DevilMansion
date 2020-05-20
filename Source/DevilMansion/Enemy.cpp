@@ -15,7 +15,9 @@ AEnemy::AEnemy()
 	RootComponent = VisualMesh;
 	VisualMesh->SetSimulatePhysics(true);
 
-	//OutlineMaterialIndex = 1;
+
+
+	OutlineMaterialIndex = 1;
 
 }
 
@@ -23,15 +25,18 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	//if (Outline)
-	//{
-	//	OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
-	//	OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	//	OutlineRef->SetOwner(this);
-	//	OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
-	//	OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
-	//	UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
-	//}
+	if (Outline)
+	{
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		if (AlternateMeshAsset)
+		{
+			OutlineRef->SkeletalMesh->SetSkeletalMesh(AlternateMeshAsset);
+		}
+		OutlineRef->SkeletalMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 	
 }
 
