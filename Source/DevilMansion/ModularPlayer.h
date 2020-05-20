@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "HelthComponent.h"
 #include "ModularPlayer.generated.h"
 
 class USkeletalMeshComponent;
@@ -18,18 +19,8 @@ public:
 	// Sets default values for this character's properties
 	AModularPlayer();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Mesh")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Face;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
@@ -62,8 +53,20 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Mesh")
 	UStaticMeshComponent* Backpack;
 
-	UPROPERTY(EditAnywhere, Category = "Stat")
-	float Health;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Health")
+	UHelthComponent* Health;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	UPROPERTY(EditAnywhere, Category = "Stat")
 	float Stamina;
 	UPROPERTY(EditAnywhere, Category = "Stat")

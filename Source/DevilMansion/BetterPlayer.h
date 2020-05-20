@@ -111,5 +111,8 @@ private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
 
+	UPROPERTY()
+	float Health;
+
 	void Skill();
 };

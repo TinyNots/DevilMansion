@@ -35,7 +35,9 @@ AModularPlayer::AModularPlayer()
 	Backpack = CreateDefaultSubobject<UStaticMeshComponent>("Backpack");
 	Backpack->SetupAttachment(GetMesh(), "Backpack");
 
-	Health = 100.0f;
+	Health = CreateDefaultSubobject<UHelthComponent>("Health");
+	Health->SetupAttachment(GetRootComponent());
+
 	Stamina = 100.0f;
 	Mana = 100.0f;
 	Armor = 1.0f;
