@@ -55,6 +55,7 @@ void AModularPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Health->UpdateHealth();
 }
 
 // Called to bind functionality to input
