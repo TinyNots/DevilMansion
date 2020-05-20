@@ -38,6 +38,18 @@ public:
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
 
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	TSubclassOf<class AObjectOutline> Outline;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	uint8 OutlineMaterialIndex;
+
+	UPROPERTY()
+	class AObjectOutline* OutlineRef;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Outline")
+	class USkeletalMesh* AlternateMeshAsset;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

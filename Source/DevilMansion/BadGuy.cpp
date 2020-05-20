@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "BetterPlayer.h"
 #include "AIController.h"
+#include "ObjectOutline.h"
 
 // Sets default values
 ABadGuy::ABadGuy()
@@ -16,6 +17,9 @@ ABadGuy::ABadGuy()
 	AgroSphere->SetupAttachment(GetRootComponent());
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
+
+	OutlineMaterialIndex = 1;
+
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +36,19 @@ void ABadGuy::BeginPlay()
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapEnd);
 
 	bOverlappingCombatSphere = false;
+
+	if (Outline)
+	{
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		if (AlternateMeshAsset)
+		{
+			OutlineRef->SkeletalMesh->SetSkeletalMesh(AlternateMeshAsset);
+		}
+		OutlineRef->SkeletalMesh->SetMaterial(0, OutlineRef->SkeletalMesh->GetMaterial(OutlineMaterialIndex));
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 }
 
 // Called every frame
