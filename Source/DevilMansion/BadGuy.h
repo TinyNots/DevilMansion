@@ -60,7 +60,7 @@ public:
 
 	// Basic Function for an enemy character
 	UFUNCTION(BlueprintCallable)
-	void MoveToTarget(class ABetterPlayer* Target);
+	void MoveToTarget(class ABetterPlayer* Targetone);
 
 	UFUNCTION(BlueprintCallable)
 	EEnemyMovementStatus GetEnemyMovementStatus() { return EnemyMovementStatus; };

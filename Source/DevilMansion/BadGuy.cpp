@@ -87,8 +87,6 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
-
-			UE_LOG(LogTemp, Warning, TEXT("attack"));
 		}
 	}
 }
@@ -109,14 +107,14 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 	}
 }
 
-void ABadGuy::MoveToTarget(ABetterPlayer* Target)
+void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 {
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
 
 	if (AIController)
 	{
 		FAIMoveRequest MoveRequest;
-		MoveRequest.SetGoalActor(Target);
+		MoveRequest.SetGoalActor(Targetone);
 		MoveRequest.SetAcceptanceRadius(25.f);
 
 		FNavPathSharedPtr NavPath;

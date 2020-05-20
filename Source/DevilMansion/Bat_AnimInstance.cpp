@@ -13,7 +13,7 @@ void UBat_AnimInstance::NativeInitializeAnimation()
 		Pawn = TryGetPawnOwner();
 		if (Pawn)
 		{
-			Bat = Cast<ABadGuy>(Pawn);
+			ThisEnemy = Cast<ABadGuy>(Pawn);
 		}
 	}
 }
@@ -25,7 +25,7 @@ void UBat_AnimInstance::UpdateAnimationProperties()
 		Pawn = TryGetPawnOwner();
 		if (Pawn)
 		{
-			Bat = Cast<ABadGuy>(Pawn);
+			ThisEnemy = Cast<ABadGuy>(Pawn);
 		}
 	}
 
