@@ -114,11 +114,8 @@ void ABetterPlayer::MoveForward(float Value)
 {
 	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
-
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction * 2.0f, Value);
 	}
 }
 
@@ -126,10 +123,7 @@ void ABetterPlayer::MoveSide(float Value)
 {
 	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
-
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
 	}
 }
