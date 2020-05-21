@@ -53,6 +53,9 @@ public:
 	UPROPERTY()
 	AObjectOutline* OutlineRef;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int ItemDropRate;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

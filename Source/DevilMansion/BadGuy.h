@@ -38,7 +38,7 @@ public:
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
 
-	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	/*UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
@@ -48,7 +48,15 @@ public:
 	class AObjectOutline* OutlineRef;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Outline")
-	class USkeletalMesh* AlternateMeshAsset;
+	class USkeletalMesh* AlternateMeshAsset;*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	bool bCanDropItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	TArray< TSubclassOf<class AItem>> ItemList;
+
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -86,4 +94,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	ABetterPlayer* CombatTarget;
+
+	UFUNCTION(Category = "Item")
+	void DropItem();
+
+	UFUNCTION(Category = "Debug")
+	void Die();
 };
