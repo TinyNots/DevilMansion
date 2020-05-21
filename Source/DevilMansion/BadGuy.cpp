@@ -3,6 +3,7 @@
 
 #include "BadGuy.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "BetterPlayer.h"
 #include "AIController.h"
 
@@ -16,6 +17,10 @@ ABadGuy::ABadGuy()
 	AgroSphere->SetupAttachment(GetRootComponent());
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
+
+	CombatSphere->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +92,10 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
+			if (AIController)
+			{
+				AIController->StopMovement();
+			}
 		}
 	}
 }
@@ -120,4 +129,24 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
 	}
+}
+
+void ABadGuy::Death()
+{
+	// Set Status
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
+
+	// Stop Action
+	AgroSphere->Activate(false);
+	CombatSphere->Activate(false);
+	if (AIController)
+	{
+		AIController->StopMovement();
+	}
+}
+
+void ABadGuy::SetMovementSpeed(float Speed)
+{
+	MovementSpeed = Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }

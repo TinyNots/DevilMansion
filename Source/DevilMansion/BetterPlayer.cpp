@@ -17,6 +17,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Item.h"
+#include "Interactive.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -66,11 +67,18 @@ ABetterPlayer::ABetterPlayer()
 	ItemCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollisionVolume"));
 	ItemCollisionVolume->SetupAttachment(GetRootComponent());
 
+	HighlightActor.Init(nullptr, 2);
+
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
 
 	bDefending = false;
+
+	// Initialization
+	DoorOpenRotate = 0.0f;
+	DoorNearby = false;
+	InteractingDoor = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -85,8 +93,8 @@ void ABetterPlayer::BeginPlay()
 void ABetterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	OutlineCheck(EnemyCollisionVolume);
-	OutlineCheck(ItemCollisionVolume);
+	OutlineCheck(EnemyCollisionVolume,1);
+	OutlineCheck(ItemCollisionVolume,0);
 
 }
 
@@ -224,12 +232,12 @@ void ABetterPlayer::Skill()
 	AnimInstance->Montage_JumpToSection("Skill");
 }
 
-void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
+void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int idx)
 {
 	TArray<AActor*> actors;
 	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
 	float nearestDistance = FLT_MAX;
-	HighlightActor = nullptr;
+	HighlightActor[idx] = nullptr;
 	for (auto actor : actors)
 	{
 		if (actor == this)
@@ -240,16 +248,32 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 		if (dist < nearestDistance)
 		{
 			nearestDistance = dist;
-			HighlightActor = Cast<AObjectOutline>(actor);
+			HighlightActor[idx] = Cast<AObjectOutline>(actor);
 		}
 	}
-	if (HighlightActor)
+	if (HighlightActor[idx])
 	{
-		HighlightActor->bOutlining = true;
+		HighlightActor[idx]->bOutlining = true;
 	}
 }
 
 void ABetterPlayer::Pickup()
 {
-	HighlightActor->Pickup();
+	if (HighlightActor[0])
+	{
+		HighlightActor[0]->Pickup();
+	}
+
+	if (DoorNearby && InteractingDoor != nullptr)
+	{
+		AInteractive* Door = Cast<AInteractive>(InteractingDoor);
+		Door->InteractDoorOpen(DoorOpenRotate);
+	}
+}
+
+void ABetterPlayer::InteractStart(float TargetRotation, bool Boolean, AActor* Door)
+{
+	DoorOpenRotate = TargetRotation;
+	DoorNearby = Boolean;
+	InteractingDoor = Door;
 }

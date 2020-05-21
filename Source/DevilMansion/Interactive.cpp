@@ -1,7 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Interactive.h"
+#include "BetterPlayer.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
 
 // Sets default values
 AInteractive::AInteractive()
@@ -63,10 +67,15 @@ void AInteractive::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Delta += DeltaTime;
 
+	// Door Open/Close
 	FTransform DoorTrans = Door->GetRelativeTransform();
 	FQuat Rot = DoorTrans.GetRotation();
 	FRotator CurrentTranslation = (FMath::RInterpTo(Rot.Rotator(), FRotator(0, TargetRotation, 0), Delta, RotateRate));
 	Door->SetRelativeRotation(CurrentTranslation);
+
+	//// Camera Rotation
+	ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
+	//Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, FMath::Lerp(0.0f, CameraTargetRotation, Delta), OriginalRotation.Roll));
 
 	//the door close or open completely. stop looping this to save memory
 	if (FMath::IsNearlyEqual(TargetRotation, Rot.Rotator().Yaw, 0.001f))
@@ -77,24 +86,10 @@ void AInteractive::Tick(float DeltaTime)
 
 void AInteractive::TriggerBoxLeftOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	/*//determine which side the player are from
-	FVector PlayerVector = OtherActor->GetActorLocation();
-	FVector DoorVector = this->GetActorQuat().Vector();
-
-	UE_LOG(LogTemp, Warning, TEXT("Y = %f"), UKismetMathLibrary::Acos(FVector::DotProduct(DoorVector, PlayerVector)));
-	if (FVector::DotProduct(OtherActor->GetActorLocation(), this->GetActorLocation()))
-	{
-	}
-	else
-	{
-		TargetRotation = -90.0f;
-	}*/
-
 	if (!(this->IsActorTickEnabled()) && TargetRotation == 0.f)
 	{
-		TargetRotation = -90.0f;
-		Delta = 0.0f;
-		this->SetActorTickEnabled(true);
+		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
+		Player->InteractStart(-90.0f, true, this);
 	}
 }
 
@@ -102,15 +97,45 @@ void AInteractive::TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* Overlapped
 {
 	if (!(this->IsActorTickEnabled()) && TargetRotation == 0.f)
 	{
-		TargetRotation = 90.0f;
-		Delta = 0.0f;
-		this->SetActorTickEnabled(true);
+		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
+		Player->InteractStart(90.0f, true, this);
 	}
+}
+
+void AInteractive::InteractDoorOpen(float Rotation)
+{
+	TargetRotation = Rotation;
+	Delta = 0.0f;
+	this->SetActorTickEnabled(true);
 }
 
 void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	TargetRotation = 0.0f;
+	ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
+	CameraOwner = OtherActor;
+
+	// Camera Rotate
+	if (TargetRotation == -90.0f)
+	{
+		CameraTargetRotation = CameraRotateLeft;
+	}
+	else if (TargetRotation == 90.0f)
+	{
+		CameraTargetRotation = CameraRotateRight;
+	}
+	OriginalRotation = Player->CameraBoom->GetRelativeRotation();
+
+
+	// Door Rotate
+	if (TargetRotation != 0.f)
+	{
+		TargetRotation = 0.0f;
+	}
+
+	// Reset
 	Delta = 0.0f;
+	Player->InteractStart(0.f, false, nullptr);
+
+	// Enable Loop
 	this->SetActorTickEnabled(true);
 }
