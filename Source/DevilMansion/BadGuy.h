@@ -38,17 +38,11 @@ public:
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
 
-	/*UPROPERTY(EditDefaultsOnly, Category = "Item")
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	uint8 OutlineMaterialIndex;
 
 	UPROPERTY()
 	class AObjectOutline* OutlineRef;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Outline")
-	class USkeletalMesh* AlternateMeshAsset;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	bool bCanDropItem;

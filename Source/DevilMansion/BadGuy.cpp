@@ -7,6 +7,10 @@
 #include "AIController.h"
 #include "ObjectOutline.h"
 #include "Item.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/EngineTypes.h"
+
+
 
 // Sets default values
 ABadGuy::ABadGuy()
@@ -20,8 +24,6 @@ ABadGuy::ABadGuy()
 	CombatSphere->SetupAttachment(GetRootComponent());
 
 	bCanDropItem = true;
-
-	//OutlineMaterialIndex = 1;
 
 }
 
@@ -40,18 +42,14 @@ void ABadGuy::BeginPlay()
 
 	bOverlappingCombatSphere = false;
 
-	//if (Outline)
-	//{
-	//	OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
-	//	OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	//	OutlineRef->SetOwner(this);
-	//	if (AlternateMeshAsset)
-	//	{
-	//		OutlineRef->SkeletalMesh->SetSkeletalMesh(AlternateMeshAsset);
-	//	}
-	//	OutlineRef->SkeletalMesh->SetMaterial(0, OutlineRef->SkeletalMesh->GetMaterial(OutlineMaterialIndex));
-	//	UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
-	//}
+	if (Outline)
+	{
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel1);
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 }
 
 // Called every frame
@@ -59,6 +57,18 @@ void ABadGuy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	DropItem();
+	if (OutlineRef)
+	{
+		if (OutlineRef->bOutlining)
+		{
+			GetMesh()->SetRenderCustomDepth(true);
+		}
+		else
+		{
+			GetMesh()->SetRenderCustomDepth(false);
+
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -109,6 +119,7 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
+
 		}
 	}
 }
@@ -157,21 +168,22 @@ void ABadGuy::DropItem()
 			}
 			else
 			{
-				maxRoll += 100;
+				maxRoll += NOITEM_DROP_RATE;
 			}
 		}
 		int roll = FMath::RandRange(1, maxRoll);
 		int32 rollOutCome = 0;
+		int tmp = 0;
 		for (int i = 0 ; i < ItemList.Num();i++)
 		{
-			int tmp = 0;
+			
 			if (ItemList[i])
 			{
 				tmp += ItemList[i].GetDefaultObject()->ItemDropRate;
 			}
 			else
 			{
-				tmp += 100;
+				tmp += NOITEM_DROP_RATE;
 			}
 			if (tmp >= roll)
 			{

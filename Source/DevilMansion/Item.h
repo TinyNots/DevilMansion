@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+#define NOITEM_DROP_RATE 100
+
 UCLASS()
 class DEVILMANSION_API AItem : public AActor
 {
