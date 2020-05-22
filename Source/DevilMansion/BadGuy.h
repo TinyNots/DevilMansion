@@ -68,10 +68,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsAttacking() { return (EnemyMovementStatus == EEnemyMovementStatus::EMS_Attacking); };
 
-	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	bool bOverlappingCombatSphere;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	ABetterPlayer* CombatTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float Health;
 };

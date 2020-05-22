@@ -46,8 +46,3 @@ bool UHealthWidget::DecreaseHealth(float Value)
 	}
 	return false;
 }
-
-float UHealthWidget::GetPercent()
-{
-	return Health / MaxHealth;
-}

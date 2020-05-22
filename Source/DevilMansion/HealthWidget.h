@@ -26,8 +26,6 @@ public:
 		bool IncreaseHealth(float Value);
 	UFUNCTION(BlueprintCallable)
 		bool DecreaseHealth(float Value);
-	UFUNCTION(BlueprintCallable)
-		float GetPercent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		float Health;

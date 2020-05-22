@@ -17,6 +17,7 @@ public:
 	UHelthComponent();
 
 protected:
+	virtual void BeginPlay() override;
 public:
 	UFUNCTION()
 	void UpdateHealth();
@@ -41,7 +42,4 @@ public:
 	float MaxHealth;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 	bool bHealthBar;
-
-	/*UPROPERTY(BlueprintReadOnly,Category = "Health")
-	class UHealthWidget* HealthWidget;*/
 };

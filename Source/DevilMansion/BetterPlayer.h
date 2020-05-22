@@ -121,6 +121,21 @@ public:
 	void OutlineCheck(class USphereComponent* CollisionVolume);
 
 	void Pickup();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class ABadGuy* CombatTarget;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")
+	FVector CombatTargetLocation;
+
+	FORCEINLINE void SetCombatTarget(ABadGuy* Enemy) { CombatTarget = Enemy; }
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Controller")
+	class ABetterPlayerController* BetterPlayerController;
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;

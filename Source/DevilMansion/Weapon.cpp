@@ -70,7 +70,17 @@ void AWeapon::Equip(ABetterPlayer* Char)
 
 void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor)
+	{
+		ABadGuy* Enemy = Cast<ABadGuy>(OtherActor);
+		if (Enemy)
+		{
+			/*if (Enemy->HitParticles)
+			{
 
+			}*/
+		}
+	}
 }
 
 void AWeapon::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

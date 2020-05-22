@@ -5,6 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "BetterPlayer.h"
 #include "AIController.h"
+#include "HealthSystem.h"
+#include "BetterPlayerController.h"
 
 // Sets default values
 ABadGuy::ABadGuy()
@@ -16,6 +18,9 @@ ABadGuy::ABadGuy()
 	AgroSphere->SetupAttachment(GetRootComponent());
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
+
+	MaxHealth = 100.0f;
+	Health = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -67,6 +72,12 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			if (Main->BetterPlayerController)
+			{
+				Main->SetHasCombatTarget(false);
+				Main->BetterPlayerController->RemoveEnemyHealthBar();
+			}
+
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if (AIController)
 			{
@@ -84,6 +95,13 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			Main->SetCombatTarget(this);
+			if (Main->BetterPlayerController)
+			{
+				Main->BetterPlayerController->DisplayEnemyHealthBar();
+				Main->SetHasCombatTarget(true);
+			}
+
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;

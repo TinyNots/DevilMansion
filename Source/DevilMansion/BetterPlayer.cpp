@@ -17,6 +17,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Item.h"
+#include "BadGuy.h"
+#include "BetterPlayerController.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -71,6 +73,7 @@ ABetterPlayer::ABetterPlayer()
 	ComboCount = 0;
 
 	bDefending = false;
+	bHasCombatTarget = false;
 }
 
 // Called when the game starts or when spawned
@@ -79,6 +82,7 @@ void ABetterPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	AnimInstance = GetMesh()->GetAnimInstance();
+	BetterPlayerController = Cast<ABetterPlayerController>(GetController());
 }
 
 // Called every frame
@@ -88,6 +92,14 @@ void ABetterPlayer::Tick(float DeltaTime)
 	OutlineCheck(EnemyCollisionVolume);
 	OutlineCheck(ItemCollisionVolume);
 
+	if (CombatTarget)
+	{
+		CombatTargetLocation = CombatTarget->GetActorLocation();
+		if (BetterPlayerController)
+		{
+			BetterPlayerController->EnemyLocation = CombatTargetLocation;
+		}
+	}
 }
 
 // Called to bind functionality to input
