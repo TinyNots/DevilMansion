@@ -39,6 +39,8 @@ public:
 	UPROPERTY()
 	class AObjectOutline* HighlightActor;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -140,8 +142,13 @@ private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere,Category = "Health")
 	float Health;
 
+	UPROPERTY(VisibleAnywhere,Category = "Health")
+	float MaxHealth;
+
 	void Skill();
+
+	void Die();
 };

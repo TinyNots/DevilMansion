@@ -7,6 +7,7 @@
 #include "AIController.h"
 #include "HealthSystem.h"
 #include "BetterPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABadGuy::ABadGuy()
@@ -105,6 +106,11 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
+
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(Main, 10.0f, AIController, this, DamageTypeClass);
+			}
 		}
 	}
 }
@@ -138,4 +144,14 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
 	}
+}
+
+float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	Health -= DamageAmount;
+	if (Health < 0.0f)
+	{
+		//Die
+	}
+	return DamageAmount;
 }

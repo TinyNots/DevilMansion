@@ -79,4 +79,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float Health;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 };

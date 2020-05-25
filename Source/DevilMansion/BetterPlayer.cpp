@@ -74,6 +74,20 @@ ABetterPlayer::ABetterPlayer()
 
 	bDefending = false;
 	bHasCombatTarget = false;
+
+	MaxHealth = 100.0f;
+	Health = MaxHealth;
+}
+
+float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	Health -= DamageAmount;
+	if (Health < 0.0f)
+	{
+		//Die
+	}
+
+	return DamageAmount;
 }
 
 // Called when the game starts or when spawned
@@ -258,4 +272,13 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 void ABetterPlayer::Pickup()
 {
 	HighlightActor->Pickup();
+}
+
+void ABetterPlayer::Die()
+{
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_JumpToSection("Death");
+	}
 }
