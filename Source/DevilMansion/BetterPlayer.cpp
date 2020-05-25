@@ -18,6 +18,7 @@
 #include "Components/ShapeComponent.h"
 #include "Item.h"
 #include "Interactive.h"
+#include "ElevatorSwitch.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -77,7 +78,8 @@ ABetterPlayer::ABetterPlayer()
 
 	// Initialization
 	DoorOpenRotate = 0.0f;
-	DoorNearby = false;
+	bDoorNearby = false;
+	bIsCameraRotating = false;
 	InteractingDoor = nullptr;
 }
 
@@ -264,16 +266,45 @@ void ABetterPlayer::Pickup()
 		HighlightActor[0]->Pickup();
 	}
 
-	if (DoorNearby && InteractingDoor != nullptr)
+	//Click E to open door or activate switch
+	if (bDoorNearby && InteractingDoor != nullptr)
 	{
 		AInteractive* Door = Cast<AInteractive>(InteractingDoor);
 		Door->InteractDoorOpen(DoorOpenRotate);
+	}
+	else if (bSwitchNearby && InteractingSwitch != nullptr)
+	{
+		AElevatorSwitch* Switch = Cast<AElevatorSwitch>(InteractingSwitch);
+		Switch->ActivateSwitch();
 	}
 }
 
 void ABetterPlayer::InteractStart(float TargetRotation, bool Boolean, AActor* Door)
 {
+	//Register nearby door
 	DoorOpenRotate = TargetRotation;
-	DoorNearby = Boolean;
+	bDoorNearby = Boolean;
 	InteractingDoor = Door;
+}
+
+void ABetterPlayer::InteractStartSwitch(bool Boolean, AActor* Switch)
+{
+	//Register nearby elevator switch
+	bSwitchNearby = Boolean;
+	InteractingSwitch = Switch;
+}
+
+void ABetterPlayer::CameraRotatable(bool Boolean, AActor* Rotator)
+{
+	bIsCameraRotating = Boolean;
+	InteractingRotator = Rotator;
+}
+
+AActor * ABetterPlayer::GetLastRotator()
+{
+	if (InteractingRotator)
+	{
+		return InteractingRotator;
+	}
+	return nullptr;
 }

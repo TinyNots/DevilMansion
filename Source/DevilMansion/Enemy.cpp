@@ -15,8 +15,6 @@ AEnemy::AEnemy()
 	RootComponent = VisualMesh;
 	VisualMesh->SetSimulatePhysics(true);
 
-
-
 	OutlineMaterialIndex = 1;
 
 }

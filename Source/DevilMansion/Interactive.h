@@ -32,6 +32,9 @@ public:
 	float Delta;
 
 	UPROPERTY()
+	float CameraDelta;
+
+	UPROPERTY()
 	float TargetRotation;
 
 	UPROPERTY()
@@ -46,12 +49,19 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interactive")
 	float RotateRate;
 
+	// Editable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
 	float CameraRotateLeft;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "CameraRotate")
 	float CameraRotateRight;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
+	bool bRotateEnable;
+
+	//From 0.1 to 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
+	float CameraRotateRate;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

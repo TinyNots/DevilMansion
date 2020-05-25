@@ -122,8 +122,17 @@ public:
 
 	void Pickup();
 
+	// Interation with Door and Camera
 	UFUNCTION(Category = "Interact")
 	void InteractStart(float TargetRotation, bool Boolean, AActor* Door);
+	UFUNCTION(Category = "Interact")
+	void InteractStartSwitch(bool Boolean, AActor* Switch);
+
+	UFUNCTION(Category = "Interact")
+	void CameraRotatable(bool Boolean, AActor* Rotator);
+
+	UFUNCTION(Category = "Interact")
+	AActor* GetLastRotator();
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
@@ -131,13 +140,21 @@ private:
 	UPROPERTY()
 	float Health;
 
-	//Mary's door
+	//Mary's
 	UPROPERTY()
 	float DoorOpenRotate;
 	UPROPERTY()
-	bool DoorNearby;
+	bool bDoorNearby;
+	UPROPERTY()
+	bool bIsCameraRotating;
 	UPROPERTY()
 	AActor* InteractingDoor;
+	UPROPERTY()
+	AActor* InteractingRotator;
+	UPROPERTY()
+	AActor* InteractingSwitch;
+	UPROPERTY()
+	bool bSwitchNearby;
 
 	void Skill();
 };

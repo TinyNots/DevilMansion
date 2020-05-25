@@ -47,6 +47,7 @@ AInteractive::AInteractive()
 	Door->SetupAttachment(GetRootComponent());
 
 	RotateRate = 0.95f;
+	//bRotateEnable = false;
 }
 
 // Called when the game starts or when spawned
@@ -59,6 +60,8 @@ void AInteractive::BeginPlay()
 	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AInteractive::TriggerBoxOnOverlapEnd);
 
 	Delta = 0.0f;
+	CameraRotateRate = FMath::Max(FMath::Min(CameraRotateRate, 1.0f), 0.05f);
+	this->SetActorTickEnabled(false);
 }
 
 // Called every frame
@@ -66,6 +69,8 @@ void AInteractive::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Delta += DeltaTime;
+	CameraDelta += CameraRotateRate;
+	CameraDelta = FMath::Max(FMath::Min(CameraDelta, 1.001f), 0.00f);
 
 	// Door Open/Close
 	FTransform DoorTrans = Door->GetRelativeTransform();
@@ -73,13 +78,25 @@ void AInteractive::Tick(float DeltaTime)
 	FRotator CurrentTranslation = (FMath::RInterpTo(Rot.Rotator(), FRotator(0, TargetRotation, 0), Delta, RotateRate));
 	Door->SetRelativeRotation(CurrentTranslation);
 
-	//// Camera Rotation
-	ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
-	//Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, FMath::Lerp(0.0f, CameraTargetRotation, Delta), OriginalRotation.Roll));
+	// Camera Rotation
+	if (CameraDelta != 1.001f && CameraOwner && bRotateEnable)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Looping, CameraDelta = %f, OirinalCameraRotation = %2f, Target = %f, Lerp = %f"), CameraDelta, OriginalRotation.Yaw, CameraTargetRotation,FMath::Lerp(OriginalRotation.Yaw, CameraTargetRotation, CameraDelta));
+		ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
+		Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, FMath::Lerp(OriginalRotation.Yaw, CameraTargetRotation, CameraDelta), OriginalRotation.Roll));
+	}
 
-	//the door close or open completely. stop looping this to save memory
+	// If everything is done, stop looping this to save memory
 	if (FMath::IsNearlyEqual(TargetRotation, Rot.Rotator().Yaw, 0.001f))
 	{
+		//Final Set
+		Door->SetRelativeRotation(FRotator(0, TargetRotation, 0));
+		if (bRotateEnable)
+		{
+			ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
+			Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, CameraTargetRotation, OriginalRotation.Roll));
+		}
+
 		this->SetActorTickEnabled(false);
 	}
 }
@@ -134,8 +151,10 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 
 	// Reset
 	Delta = 0.0f;
+	CameraDelta = 0.0f;
 	Player->InteractStart(0.f, false, nullptr);
 
 	// Enable Loop
 	this->SetActorTickEnabled(true);
+	UE_LOG(LogTemp, Warning, TEXT("Start Loop, Door Close"));
 }

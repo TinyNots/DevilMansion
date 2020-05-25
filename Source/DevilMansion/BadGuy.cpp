@@ -36,7 +36,9 @@ void ABadGuy::BeginPlay()
 	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapBegin);
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapEnd);
 
+	// initialization
 	bOverlappingCombatSphere = false;
+	bIsDeath = false;
 }
 
 // Called every frame
@@ -55,7 +57,7 @@ void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ABadGuy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor)	//check nullptr
 	{
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
@@ -114,10 +116,17 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
+	this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 {
+	if (bIsDeath) //condition
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RETURN"));
+		return;
+	}
+
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
 
 	if (AIController)
@@ -137,12 +146,14 @@ void ABadGuy::Death()
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
 
 	// Stop Action
-	AgroSphere->Activate(false);
-	CombatSphere->Activate(false);
+	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (AIController)
 	{
 		AIController->StopMovement();
+		AIController->SetActorTickEnabled(false);
 	}
+
+	bIsDeath = true;
 }
 
 void ABadGuy::SetMovementSpeed(float Speed)
