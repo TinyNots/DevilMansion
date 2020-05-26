@@ -41,6 +41,20 @@ public:
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
 
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	TSubclassOf<class AObjectOutline> Outline;
+
+	UPROPERTY()
+	class AObjectOutline* OutlineRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	bool bCanDropItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	TArray< TSubclassOf<class AItem>> ItemList;
+
+	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -86,4 +100,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
 	bool bIsDeath;
+
+	UFUNCTION(Category = "Item")
+	void DropItem();
+
+	UFUNCTION(Category = "Debug")
+	void Die();
 };

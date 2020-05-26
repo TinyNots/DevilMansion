@@ -234,12 +234,12 @@ void ABetterPlayer::Skill()
 	AnimInstance->Montage_JumpToSection("Skill");
 }
 
-void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int idx)
+void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)
 {
 	TArray<AActor*> actors;
 	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
 	float nearestDistance = FLT_MAX;
-	HighlightActor[idx] = nullptr;
+	HighlightActor[objectTypeIdx] = nullptr;
 	for (auto actor : actors)
 	{
 		if (actor == this)
@@ -250,12 +250,12 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int idx)
 		if (dist < nearestDistance)
 		{
 			nearestDistance = dist;
-			HighlightActor[idx] = Cast<AObjectOutline>(actor);
+			HighlightActor[objectTypeIdx] = Cast<AObjectOutline>(actor);
 		}
 	}
-	if (HighlightActor[idx])
+	if (HighlightActor[objectTypeIdx])
 	{
-		HighlightActor[idx]->bOutlining = true;
+		HighlightActor[objectTypeIdx]->bOutlining = true;
 	}
 }
 
@@ -263,6 +263,8 @@ void ABetterPlayer::Pickup()
 {
 	if (HighlightActor[0])
 	{
+		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
+
 		HighlightActor[0]->Pickup();
 	}
 

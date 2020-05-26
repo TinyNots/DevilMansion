@@ -6,6 +6,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BetterPlayer.h"
 #include "AIController.h"
+#include "ObjectOutline.h"
+#include "Item.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/EngineTypes.h"
+
+
 
 // Sets default values
 ABadGuy::ABadGuy()
@@ -21,6 +27,9 @@ ABadGuy::ABadGuy()
 	CombatSphere->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+
+	bCanDropItem = true;
+
 }
 
 // Called when the game starts or when spawned
@@ -39,19 +48,42 @@ void ABadGuy::BeginPlay()
 	// initialization
 	bOverlappingCombatSphere = false;
 	bIsDeath = false;
+
+	if (Outline)
+	{
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel1);
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 }
 
 // Called every frame
 void ABadGuy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	DropItem();
+	if (OutlineRef)
+	{
+		if (OutlineRef->bOutlining)
+		{
+			GetMesh()->SetRenderCustomDepth(true);
+		}
+		else
+		{
+			GetMesh()->SetRenderCustomDepth(false);
 
+		}
+	}
 }
 
 // Called to bind functionality to input
 void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Die", EInputEvent::IE_Pressed, this, &ABadGuy::Die);
+
 
 }
 
@@ -160,4 +192,57 @@ void ABadGuy::SetMovementSpeed(float Speed)
 {
 	MovementSpeed = Speed;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+}
+
+
+void ABadGuy::DropItem()
+{
+	if (bCanDropItem )
+	{
+		int maxRoll = 0;
+		for (auto item : ItemList)
+		{
+			if (item)
+			{
+				maxRoll += item.GetDefaultObject()->ItemDropRate;
+			}
+			else
+			{
+				maxRoll += NOITEM_DROP_RATE;
+			}
+		}
+		int roll = FMath::RandRange(1, maxRoll);
+		int32 rollOutCome = 0;
+		int tmp = 0;
+		for (int i = 0 ; i < ItemList.Num();i++)
+		{
+			
+			if (ItemList[i])
+			{
+				tmp += ItemList[i].GetDefaultObject()->ItemDropRate;
+			}
+			else
+			{
+				tmp += NOITEM_DROP_RATE;
+			}
+			if (tmp >= roll)
+			{
+				rollOutCome = i;
+				break;
+			}
+		}
+		if (ItemList[rollOutCome])
+		{
+			GetWorld()->SpawnActor<AItem>(ItemList[rollOutCome], GetTransform());
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Item"));
+
+		bCanDropItem = false;
+	}
+}
+
+void ABadGuy::Die()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Die"));
+	Destroy();
 }

@@ -36,7 +36,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<class AObjectOutline*> HighlightActor;
 
 protected:
@@ -118,7 +118,7 @@ public:
 	bool bDefending;
 
 	UFUNCTION()
-	void OutlineCheck(class USphereComponent* CollisionVolume,int idx);
+	void OutlineCheck(class USphereComponent* CollisionVolume,int objectTypeIdx);
 
 	void Pickup();
 

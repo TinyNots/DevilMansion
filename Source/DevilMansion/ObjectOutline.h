@@ -26,7 +26,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	bool bOutlining;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Outline")
 	class USkeletalMeshComponent* SkeletalMesh;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")

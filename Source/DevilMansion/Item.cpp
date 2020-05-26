@@ -30,6 +30,7 @@ AItem::AItem()
 	RotationRate = 45.f;
 	bCanOutline = true;
 	OutlineMaterialIndex = 1;
+	ItemDropRate = 100;
 }
 
 // Called when the game starts or when spawned
