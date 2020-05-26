@@ -17,6 +17,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Item.h"
+#include "Interactive.h"
+#include "ElevatorSwitch.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -66,11 +68,19 @@ ABetterPlayer::ABetterPlayer()
 	ItemCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollisionVolume"));
 	ItemCollisionVolume->SetupAttachment(GetRootComponent());
 
+	HighlightActor.Init(nullptr, 2);
+
 	bAttacking = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
 
 	bDefending = false;
+
+	// Initialization
+	DoorOpenRotate = 0.0f;
+	bDoorNearby = false;
+	bIsCameraRotating = false;
+	InteractingDoor = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -85,8 +95,8 @@ void ABetterPlayer::BeginPlay()
 void ABetterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	OutlineCheck(EnemyCollisionVolume);
-	OutlineCheck(ItemCollisionVolume);
+	OutlineCheck(EnemyCollisionVolume,1);
+	OutlineCheck(ItemCollisionVolume,0);
 
 }
 
@@ -224,12 +234,12 @@ void ABetterPlayer::Skill()
 	AnimInstance->Montage_JumpToSection("Skill");
 }
 
-void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
+void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int idx)
 {
 	TArray<AActor*> actors;
 	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
 	float nearestDistance = FLT_MAX;
-	HighlightActor = nullptr;
+	HighlightActor[idx] = nullptr;
 	for (auto actor : actors)
 	{
 		if (actor == this)
@@ -240,16 +250,61 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume)
 		if (dist < nearestDistance)
 		{
 			nearestDistance = dist;
-			HighlightActor = Cast<AObjectOutline>(actor);
+			HighlightActor[idx] = Cast<AObjectOutline>(actor);
 		}
 	}
-	if (HighlightActor)
+	if (HighlightActor[idx])
 	{
-		HighlightActor->bOutlining = true;
+		HighlightActor[idx]->bOutlining = true;
 	}
 }
 
 void ABetterPlayer::Pickup()
 {
-	HighlightActor->Pickup();
+	if (HighlightActor[0])
+	{
+		HighlightActor[0]->Pickup();
+	}
+
+	//Click E to open door or activate switch
+	if (bDoorNearby && InteractingDoor != nullptr)
+	{
+		AInteractive* Door = Cast<AInteractive>(InteractingDoor);
+		Door->InteractDoorOpen(DoorOpenRotate);
+	}
+	else if (bSwitchNearby && InteractingSwitch != nullptr)
+	{
+		AElevatorSwitch* Switch = Cast<AElevatorSwitch>(InteractingSwitch);
+		Switch->ActivateSwitch();
+	}
+}
+
+void ABetterPlayer::InteractStart(float TargetRotation, bool Boolean, AActor* Door)
+{
+	//Register nearby door
+	DoorOpenRotate = TargetRotation;
+	bDoorNearby = Boolean;
+	InteractingDoor = Door;
+}
+
+void ABetterPlayer::InteractStartSwitch(bool Boolean, AActor* Switch)
+{
+	//Register nearby elevator switch
+	bSwitchNearby = Boolean;
+	InteractingSwitch = Switch;
+}
+
+void ABetterPlayer::CameraRotatable(bool Boolean, AActor* Rotator)
+{
+	bIsCameraRotating = Boolean;
+	InteractingRotator = Rotator;
+}
+
+AActor * ABetterPlayer::GetLastRotator()
+{
+	if (InteractingRotator)
+	{
+		return InteractingRotator;
+	}
+	return nullptr;
 }

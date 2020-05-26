@@ -37,7 +37,7 @@ public:
 	float BaseTurnRate;
 
 	UPROPERTY()
-	class AObjectOutline* HighlightActor;
+	TArray<class AObjectOutline*> HighlightActor;
 
 protected:
 	// Called when the game starts or when spawned
@@ -118,15 +118,43 @@ public:
 	bool bDefending;
 
 	UFUNCTION()
-	void OutlineCheck(class USphereComponent* CollisionVolume);
+	void OutlineCheck(class USphereComponent* CollisionVolume,int idx);
 
 	void Pickup();
+
+	// Interation with Door and Camera
+	UFUNCTION(Category = "Interact")
+	void InteractStart(float TargetRotation, bool Boolean, AActor* Door);
+	UFUNCTION(Category = "Interact")
+	void InteractStartSwitch(bool Boolean, AActor* Switch);
+
+	UFUNCTION(Category = "Interact")
+	void CameraRotatable(bool Boolean, AActor* Rotator);
+
+	UFUNCTION(Category = "Interact")
+	AActor* GetLastRotator();
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
 
 	UPROPERTY()
 	float Health;
+
+	//Mary's
+	UPROPERTY()
+	float DoorOpenRotate;
+	UPROPERTY()
+	bool bDoorNearby;
+	UPROPERTY()
+	bool bIsCameraRotating;
+	UPROPERTY()
+	AActor* InteractingDoor;
+	UPROPERTY()
+	AActor* InteractingRotator;
+	UPROPERTY()
+	AActor* InteractingSwitch;
+	UPROPERTY()
+	bool bSwitchNearby;
 
 	void Skill();
 };

@@ -16,7 +16,7 @@ class DEVILMANSION_API UHelthComponent : public UWidgetComponent
 public:
 	UHelthComponent();
 protected:
-	virtual void BeginPlay() override;
+	//virtual void BeginPlay() override;
 public:
 	UFUNCTION()
 	void UpdateHealth();

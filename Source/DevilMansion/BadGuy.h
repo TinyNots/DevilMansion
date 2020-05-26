@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,6 +11,7 @@ enum class EEnemyMovementStatus :uint8
 	EMS_Idle UMETA(DeplayName = "Idle"),
 	EMS_MoveToTarget UMETA(DeplayName = "MoveToTarget"),
 	EMS_Attacking UMETA(DeplayName = "Attacking"),
+	EMS_Dying UMETA(DeplayName = "Dying"),
 	EMS_MAX UMETA(DeplayName = "DefaultMax"),
 };
 
@@ -26,6 +26,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	EEnemyMovementStatus EnemyMovementStatus;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	float MovementSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class USphereComponent* AgroSphere;
@@ -66,6 +69,12 @@ public:
 	EEnemyMovementStatus GetEnemyMovementStatus() { return EnemyMovementStatus; };
 
 	UFUNCTION(BlueprintCallable)
+	void Death();
+
+	UFUNCTION(BlueprintCallable)
+	void SetMovementSpeed(float Speed);
+
+	UFUNCTION(BlueprintCallable)
 	bool IsAttacking() { return (EnemyMovementStatus == EEnemyMovementStatus::EMS_Attacking); };
 
 	//
@@ -74,4 +83,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	ABetterPlayer* CombatTarget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
+	bool bIsDeath;
 };

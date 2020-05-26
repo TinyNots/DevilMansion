@@ -3,6 +3,7 @@
 
 #include "BadGuy.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "BetterPlayer.h"
 #include "AIController.h"
 
@@ -16,6 +17,10 @@ ABadGuy::ABadGuy()
 	AgroSphere->SetupAttachment(GetRootComponent());
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
+
+	CombatSphere->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +36,9 @@ void ABadGuy::BeginPlay()
 	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapBegin);
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapEnd);
 
+	// initialization
 	bOverlappingCombatSphere = false;
+	bIsDeath = false;
 }
 
 // Called every frame
@@ -50,7 +57,7 @@ void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ABadGuy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor)	//check nullptr
 	{
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
@@ -87,6 +94,10 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
+			if (AIController)
+			{
+				AIController->StopMovement();
+			}
 		}
 	}
 }
@@ -105,10 +116,17 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
+	this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 {
+	if (bIsDeath) //condition
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RETURN"));
+		return;
+	}
+
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
 
 	if (AIController)
@@ -120,4 +138,26 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
 	}
+}
+
+void ABadGuy::Death()
+{
+	// Set Status
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
+
+	// Stop Action
+	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (AIController)
+	{
+		AIController->StopMovement();
+		AIController->SetActorTickEnabled(false);
+	}
+
+	bIsDeath = true;
+}
+
+void ABadGuy::SetMovementSpeed(float Speed)
+{
+	MovementSpeed = Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }

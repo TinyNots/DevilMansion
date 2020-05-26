@@ -32,10 +32,36 @@ public:
 	float Delta;
 
 	UPROPERTY()
+	float CameraDelta;
+
+	UPROPERTY()
 	float TargetRotation;
+
+	UPROPERTY()
+	float CameraTargetRotation;
+
+	UPROPERTY()
+	AActor* CameraOwner;
+
+	UPROPERTY()
+	FRotator OriginalRotation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interactive")
 	float RotateRate;
+
+	// Editable
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
+	float CameraRotateLeft;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "CameraRotate")
+	float CameraRotateRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
+	bool bRotateEnable;
+
+	//From 0.1 to 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
+	float CameraRotateRate;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -52,4 +78,7 @@ public:
 
 	UFUNCTION()
 	virtual void TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(Category = "Interact")
+	void InteractDoorOpen(float Rotation);
 };
