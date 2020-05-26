@@ -5,6 +5,8 @@
 #include "BetterPlayer.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "BadGuy.h"
 
 AWeapon::AWeapon()
 {
@@ -53,6 +55,8 @@ void AWeapon::Equip(ABetterPlayer* Char)
 {
 	if (Char)
 	{
+		SetInstigator(Char->GetController());
+
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		SkeletalMesh->SetSimulatePhysics(false);
@@ -70,7 +74,21 @@ void AWeapon::Equip(ABetterPlayer* Char)
 
 void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor)
+	{
+		ABadGuy* Enemy = Cast<ABadGuy>(OtherActor);
+		if (Enemy)
+		{
+			/*if (Enemy->HitParticles)
+			{
 
+			}*/
+		}
+		if (DamageTypeClass)
+		{
+			UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+		}
+	}
 }
 
 void AWeapon::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

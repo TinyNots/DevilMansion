@@ -39,6 +39,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<class AObjectOutline*> HighlightActor;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -122,6 +124,21 @@ public:
 
 	void Pickup();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class ABadGuy* CombatTarget;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")
+	FVector CombatTargetLocation;
+
+	FORCEINLINE void SetCombatTarget(ABadGuy* Enemy) { CombatTarget = Enemy; }
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Controller")
+	class ABetterPlayerController* BetterPlayerController;
+
 	// Interation with Door and Camera
 	UFUNCTION(Category = "Interact")
 	void InteractStart(float TargetRotation, bool Boolean, AActor* Door);
@@ -137,8 +154,11 @@ private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere,Category = "Health")
 	float Health;
+
+	UPROPERTY(VisibleAnywhere,Category = "Health")
+	float MaxHealth;
 
 	//Mary's
 	UPROPERTY()
@@ -157,4 +177,6 @@ private:
 	bool bSwitchNearby;
 
 	void Skill();
+
+	void Die();
 };

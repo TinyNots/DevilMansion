@@ -10,6 +10,9 @@
 #include "Item.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/EngineTypes.h"
+#include "HealthSystem.h"
+#include "BetterPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -30,6 +33,9 @@ ABadGuy::ABadGuy()
 
 	bCanDropItem = true;
 
+
+	MaxHealth = 100.0f;
+	Health = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -106,6 +112,12 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			if (Main->BetterPlayerController)
+			{
+				Main->SetHasCombatTarget(false);
+				Main->BetterPlayerController->RemoveEnemyHealthBar();
+			}
+
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if (AIController)
 			{
@@ -123,9 +135,21 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			Main->SetCombatTarget(this);
+			if (Main->BetterPlayerController)
+			{
+				Main->BetterPlayerController->DisplayEnemyHealthBar();
+				Main->SetHasCombatTarget(true);
+			}
+
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
+
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(Main, 10.0f, AIController, this, DamageTypeClass);
+			}
 			if (AIController)
 			{
 				AIController->StopMovement();
@@ -245,4 +269,15 @@ void ABadGuy::Die()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Die"));
 	Destroy();
+}
+}
+
+float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	Health -= DamageAmount;
+	if (Health < 0.0f)
+	{
+		//Die
+	}
+	return DamageAmount;
 }

@@ -91,7 +91,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsAttacking() { return (EnemyMovementStatus == EEnemyMovementStatus::EMS_Attacking); };
 
-	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	bool bOverlappingCombatSphere;
 
@@ -106,4 +105,15 @@ public:
 
 	UFUNCTION(Category = "Debug")
 	void Die();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float Health;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 };

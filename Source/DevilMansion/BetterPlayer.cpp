@@ -19,6 +19,8 @@
 #include "Item.h"
 #include "Interactive.h"
 #include "ElevatorSwitch.h"
+#include "BadGuy.h"
+#include "BetterPlayerController.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -81,6 +83,21 @@ ABetterPlayer::ABetterPlayer()
 	bDoorNearby = false;
 	bIsCameraRotating = false;
 	InteractingDoor = nullptr;
+	bHasCombatTarget = false;
+
+	MaxHealth = 100.0f;
+	Health = MaxHealth;
+}
+
+float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	Health -= DamageAmount;
+	if (Health < 0.0f)
+	{
+		//Die
+	}
+
+	return DamageAmount;
 }
 
 // Called when the game starts or when spawned
@@ -89,6 +106,7 @@ void ABetterPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	AnimInstance = GetMesh()->GetAnimInstance();
+	BetterPlayerController = Cast<ABetterPlayerController>(GetController());
 }
 
 // Called every frame
@@ -98,6 +116,14 @@ void ABetterPlayer::Tick(float DeltaTime)
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
 
+	if (CombatTarget)
+	{
+		CombatTargetLocation = CombatTarget->GetActorLocation();
+		if (BetterPlayerController)
+		{
+			BetterPlayerController->EnemyLocation = CombatTargetLocation;
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -124,11 +150,8 @@ void ABetterPlayer::MoveForward(float Value)
 {
 	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
-
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction * 2.0f, Value);
 	}
 }
 
@@ -136,10 +159,7 @@ void ABetterPlayer::MoveSide(float Value)
 {
 	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
-
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -309,4 +329,14 @@ AActor * ABetterPlayer::GetLastRotator()
 		return InteractingRotator;
 	}
 	return nullptr;
+}
+
+
+void ABetterPlayer::Die()
+{
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_JumpToSection("Death");
+	}
 }
