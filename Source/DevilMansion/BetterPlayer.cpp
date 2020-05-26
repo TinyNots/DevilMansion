@@ -10,7 +10,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
-#include "Weapon.h"
 #include "ObjectOutline.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/CapsuleComponent.h"
@@ -21,6 +20,7 @@
 #include "ElevatorSwitch.h"
 #include "BadGuy.h"
 #include "BetterPlayerController.h"
+#include "UObject/ConstructorHelpers.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -73,6 +73,7 @@ ABetterPlayer::ABetterPlayer()
 	HighlightActor.Init(nullptr, 2);
 
 	bAttacking = false;
+	bCombo = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
 
@@ -87,6 +88,10 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
+
+	MontageBlendOutTime = 0.0f;
+	bWeapon = false;
+	WeaponType = EWeaponType::EMS_NoWeapon;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -173,7 +178,23 @@ void ABetterPlayer::Attack()
 {
 	if (EquippedWeapon)
 	{
-		bAttacking = true;
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		{
+			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
+			{
+				bCombo = true;
+				return;
+			}
+
+			if (AnimInstance->Montage_GetIsStopped(CombatMontage))
+			{
+				bAttacking = true;
+				ComboCount++;
+				AnimInstance->Montage_Play(CombatMontage);
+			}
+		}
+
+		/*bAttacking = true;
 
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
@@ -191,18 +212,45 @@ void ABetterPlayer::Attack()
 			case 3:
 				SectionName = FName("Combo03");
 				break;
+			case 4:
+				SectionName = FName("Combo04");
+				break;
+			case 5:
+				SectionName = FName("Combo05");
+				break;
 			default:
 				break;
 			}
 			AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
-		}
+		}*/
 	}
 }
 
 void ABetterPlayer::AttackEnd()
 {
-	bAttacking = false;
-	ComboCount = 0;
+	if (bCombo)
+	{
+		bCombo = false;
+		ComboCount++;
+	}
+	else
+	{
+		AnimInstance->Montage_Stop(MontageBlendOutTime);
+		bAttacking = false;
+		ComboCount = 0;
+	}
+}
+
+void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
+{
+	EquippedWeapon = WeaponToSet;
+	if (EquippedWeapon)
+	{
+		CombatMontage = EquippedWeapon->AnimMontage;
+		MaxComboCount = EquippedWeapon->MaxCombo;
+		WeaponType = EquippedWeapon->WeaponType;
+		bWeapon = true;
+	}
 }
 
 void ABetterPlayer::DebugEquip()

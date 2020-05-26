@@ -6,9 +6,18 @@
 #include "Item.h"
 #include "Weapon.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class EWeaponType :uint8
+{
+	EMS_NoWeapon UMETA(DeplayName = "NoWeapon"),
+	EMS_SwordShield UMETA(DeplayName = "SwordShield"),
+	EMS_DoubleSword UMETA(DeplayName = "DoubleSword"),
+	EMS_SingleTwohand UMETA(DeplayName = "SingleTwohand"),
+	EMS_Bow UMETA(DeplayName = "Bow"),
+	EMS_MagicWand UMETA(DeplayName = "MagicWand"),
+	EMS_MAX UMETA(DeplayName = "DefaultMax")
+};
+
 UCLASS()
 class DEVILMANSION_API AWeapon : public AItem
 {
@@ -52,4 +61,13 @@ public:
 	AController* WeaponInstigator;
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class UAnimMontage* AnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	int MaxCombo;
 };

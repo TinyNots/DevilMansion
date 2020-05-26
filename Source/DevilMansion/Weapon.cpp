@@ -17,6 +17,8 @@ AWeapon::AWeapon()
 	CombatCollision->SetupAttachment(GetRootComponent());
 
 	Damage = 100.0f;
+	WeaponType = EWeaponType::EMS_NoWeapon;
+	MaxCombo = 3;
 }
 
 void AWeapon::BeginPlay()
@@ -53,7 +55,7 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * O
 
 void AWeapon::Equip(ABetterPlayer* Char)
 {
-	if (Char)
+	if (Char && Char->GetEquippedWeapon() == nullptr)
 	{
 		SetInstigator(Char->GetController());
 

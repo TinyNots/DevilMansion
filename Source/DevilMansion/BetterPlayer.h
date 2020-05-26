@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Weapon.h"
 #include "BetterPlayer.generated.h"
 
 class USkeletalMeshComponent;
@@ -94,15 +95,19 @@ public:
 	bool bAttacking;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bCombo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	int ComboCount;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	class AWeapon* EquippedWeapon;
 
-	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
+	UFUNCTION()
+	void SetEquippedWeapon(AWeapon* WeaponToSet);
 	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
 
 	void DebugEquip();
@@ -150,6 +155,15 @@ public:
 
 	UFUNCTION(Category = "Interact")
 	AActor* GetLastRotator();
+
+	UPROPERTY(EditAnywhere, Category = "Debug | Anims")
+	float MontageBlendOutTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+	bool bWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+	EWeaponType WeaponType;
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
