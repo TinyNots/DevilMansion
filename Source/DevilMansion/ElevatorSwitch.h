@@ -32,10 +32,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USphereComponent* TriggerSphere;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	bool bEnabled;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	float MovedDistance;
 
 	// Visible

@@ -21,7 +21,6 @@ ATorch::ATorch()
 	RootComponent = CollisionVolume;
 
 	bLightUp = false;
-	FirePosition = GetActorLocation();
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +44,8 @@ void ATorch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main && !bLightUp)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, FirePosition, FRotator(0.f), true);
+			for (auto firePos:FirePosition)
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, firePos, FRotator(0.f), true);
 			bLightUp = true;
 		}
 	}

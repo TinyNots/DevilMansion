@@ -13,11 +13,11 @@ UHelthComponent::UHelthComponent()
 	/*SetWidget(HealthWidget);*/
 }
 
-void UHelthComponent::BeginPlay()
-{
-	/*HealthWidget->SetHealth(100.0f);
-	SetWidget(HealthWidget);*/
-}
+//void UHelthComponent::BeginPlay()
+//{
+//	/*HealthWidget->SetHealth(100.0f);
+//	SetWidget(HealthWidget);*/
+//}
 
 void UHelthComponent::UpdateHealth()
 {
