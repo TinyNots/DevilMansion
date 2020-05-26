@@ -5,7 +5,8 @@
 #include "RHI.h"
 #include "FogOfWarWorker.h"
 #include "Engine/Texture2D.h"
-
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 
 
 // Sets default values
@@ -33,6 +34,8 @@ AFogOfWarManager::AFogOfWarManager(const FObjectInitializer& FOI) : AActor(FOI)
 	blurKernel[13] = 0.002403f;
 	blurKernel[14] = 0.000489f;
 
+	UseSightIndex = 0;
+	SightRange.Init(5.0f, 1);
 }
 
 AFogOfWarManager::~AFogOfWarManager()
@@ -72,6 +75,8 @@ void AFogOfWarManager::BeginPlay()
 	AActor::BeginPlay();
 	bIsDoneBlending = true;
 	AFogOfWarManager::StartFOWTextureUpdate();
+	RegisterFowActor(GetWorld()->GetFirstPlayerController()->GetPawn());
+
 }
 
 // Called every frame

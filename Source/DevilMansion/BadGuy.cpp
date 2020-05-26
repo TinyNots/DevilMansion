@@ -221,7 +221,7 @@ void ABadGuy::SetMovementSpeed(float Speed)
 
 void ABadGuy::DropItem()
 {
-	if (bCanDropItem )
+	if (bCanDropItem && ItemList.Num() > 0)
 	{
 		int maxRoll = 0;
 		for (auto item : ItemList)
@@ -270,7 +270,7 @@ void ABadGuy::Die()
 	UE_LOG(LogTemp, Warning, TEXT("Die"));
 	Destroy();
 }
-}
+
 
 float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {

@@ -43,7 +43,7 @@ uint32 FogOfWarWorker::Run()
 			time = Manager->GetWorld()->TimeSeconds;
 		}
 		if (!Manager->bHasFOWTextureUpdate) {
-			UpdateFowTexture();
+			UpdateFowTexture(Manager->UseSightIndex);
 			if (Manager && Manager->GetWorld()) {
 				Manager->fowUpdateTime = Manager->GetWorld()->TimeSince(time);
 			}
@@ -58,14 +58,14 @@ void FogOfWarWorker::Stop()
 	StopTaskCounter.Increment();
 }
 
-void FogOfWarWorker::UpdateFowTexture()
+void FogOfWarWorker::UpdateFowTexture(int SightIdx)
 {
 	Manager->LastFrameTextureData = TArray<FColor>(Manager->TextureData);
 	uint32 halfTextureSize = Manager->TextureSize / 2;
 	int signedSize = (int)Manager->TextureSize; 
 	TSet<FVector2D> currentlyInSight;
 	TSet<FVector2D> texelsToBlur;
-	int sightTexels = Manager->SightRange * Manager->SamplesPerMeter;
+	int sightTexels = Manager->SightRange[SightIdx] * Manager->SamplesPerMeter;
 	float dividend = 100.0f / Manager->SamplesPerMeter;
 
 	for (auto Itr(Manager->FowActors.CreateIterator()); Itr; Itr++) {

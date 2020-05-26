@@ -19,7 +19,10 @@ public:
 
 	//How far will an actor be able to see
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
-	float SightRange = 9.0f;
+	TArray<float> SightRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,meta = (ArrayClamp = "SightRange"),Category = FogOfWar)
+	uint8 UseSightIndex = 0;
 
 	//The number of samples per 100 unreal units
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
@@ -63,7 +66,7 @@ public:
 	TArray<float> blurKernel;
 
 	//Store the actors that will be unveiling the FOW-texture.
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
 	TArray<AActor*> FowActors;
 
 	//DEBUG: Time it took to update the fow texture
