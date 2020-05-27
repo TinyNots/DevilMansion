@@ -24,8 +24,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision | Particles")
 	bool bLightUp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particles")
-	struct FVector FirePosition;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Location")
+	TArray<struct FVector> FirePosition;
 
 protected:
 	// Called when the game starts or when spawned

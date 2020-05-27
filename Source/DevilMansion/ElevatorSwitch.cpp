@@ -49,20 +49,21 @@ void AElevatorSwitch::Tick(float DeltaTime)
 	FQuat Rot = DoorTrans.GetRotation();
 	VisualMesh->SetRelativeRotation(FRotator(0, Rot.Rotator().Yaw + 0.5f, 0));
 
+	FVector originalPos = TargetObject->GetTargetLocation();
 	// Move target object
 	switch (SwitchType)
 	{
 	case ESwitchType::EST_UP:
-		TargetObject->SetActorRelativeLocation(FVector(0, 0, MoveRate));
+		TargetObject->SetActorRelativeLocation(FVector(originalPos.X, originalPos.Y, originalPos.Z + MoveRate));
 		break;
 	case ESwitchType::EST_DOWN:
-		TargetObject->SetActorRelativeLocation(FVector(0, 0, -MoveRate));
+		TargetObject->SetActorRelativeLocation(FVector(originalPos.X, originalPos.Y, originalPos.Z - MoveRate));
 		break;
 	case ESwitchType::EST_LEFT:
-		//TargetObject->SetActorRelativeLocation(FVector(0, 0, 0));
+		TargetObject->SetActorRelativeLocation(FVector(originalPos.X - MoveRate, originalPos.Y, originalPos.Z));
 		break;
 	case ESwitchType::EST_RIGHT:
-		//TargetObject->SetActorRelativeLocation(FVector(0, 0, 0));
+		TargetObject->SetActorRelativeLocation(FVector(originalPos.X + MoveRate, originalPos.Y, originalPos.Z));
 		break;
 	default:
 		//end the loop
@@ -71,7 +72,7 @@ void AElevatorSwitch::Tick(float DeltaTime)
 	}
 
 	MovedDistance += MoveRate;
-	if (MovedDistance > TargetMoveDistance)
+	if (MovedDistance >= TargetMoveDistance)
 	{
 		this->SetActorTickEnabled(false);
 		bEnabled = true;

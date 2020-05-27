@@ -73,31 +73,39 @@ void AInteractive::Tick(float DeltaTime)
 	CameraDelta = FMath::Max(FMath::Min(CameraDelta, 1.001f), 0.00f);
 
 	// Door Open/Close
-	FTransform DoorTrans = Door->GetRelativeTransform();
-	FQuat Rot = DoorTrans.GetRotation();
-	FRotator CurrentTranslation = (FMath::RInterpTo(Rot.Rotator(), FRotator(0, TargetRotation, 0), Delta, RotateRate));
-	Door->SetRelativeRotation(CurrentTranslation);
-
-	// Camera Rotation
-	if (CameraDelta != 1.001f && CameraOwner && bRotateEnable)
+	if (Door)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Looping, CameraDelta = %f, OirinalCameraRotation = %2f, Target = %f, Lerp = %f"), CameraDelta, OriginalRotation.Yaw, CameraTargetRotation,FMath::Lerp(OriginalRotation.Yaw, CameraTargetRotation, CameraDelta));
-		ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
-		Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, FMath::Lerp(OriginalRotation.Yaw, CameraTargetRotation, CameraDelta), OriginalRotation.Roll));
-	}
+		FTransform DoorTrans = Door->GetRelativeTransform();
+		FQuat Rot = DoorTrans.GetRotation();
+		FRotator CurrentTranslation = (FMath::RInterpTo(Rot.Rotator(), FRotator(0, TargetRotation, 0), Delta, RotateRate));
+		Door->SetRelativeRotation(CurrentTranslation);
 
-	// If everything is done, stop looping this to save memory
-	if (FMath::IsNearlyEqual(TargetRotation, Rot.Rotator().Yaw, 0.001f))
-	{
-		//Final Set
-		Door->SetRelativeRotation(FRotator(0, TargetRotation, 0));
-		if (bRotateEnable)
+		// Camera Rotation
+		if (CameraDelta != 1.001f && CameraOwner && bRotateEnable)
 		{
 			ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
-			Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, CameraTargetRotation, OriginalRotation.Roll));
+			if (Player)
+			{
+				Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, FMath::Lerp(OriginalRotation.Yaw, CameraTargetRotation, CameraDelta), OriginalRotation.Roll));
+			}
 		}
 
-		this->SetActorTickEnabled(false);
+		// If everything is done, stop looping this to save memory
+		if (FMath::IsNearlyEqual(TargetRotation, Rot.Rotator().Yaw, 0.001f))
+		{
+			//Final Set
+			Door->SetRelativeRotation(FRotator(0, TargetRotation, 0));
+			if (bRotateEnable)
+			{
+				ABetterPlayer* Player = Cast<ABetterPlayer>(CameraOwner);
+				if (Player)
+				{
+					Player->CameraBoom->SetRelativeRotation(FRotator(OriginalRotation.Pitch, CameraTargetRotation, OriginalRotation.Roll));
+				}
+			}
+
+			this->SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -106,7 +114,10 @@ void AInteractive::TriggerBoxLeftOnOverlapBegin(UPrimitiveComponent* OverlappedC
 	if (!(this->IsActorTickEnabled()) && TargetRotation == 0.f)
 	{
 		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
-		Player->InteractStart(-90.0f, true, this);
+		if (Player)
+		{
+			Player->InteractStart(-90.0f, true, this);
+		}
 	}
 }
 
@@ -115,7 +126,10 @@ void AInteractive::TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* Overlapped
 	if (!(this->IsActorTickEnabled()) && TargetRotation == 0.f)
 	{
 		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
-		Player->InteractStart(90.0f, true, this);
+		if (Player)
+		{
+			Player->InteractStart(90.0f, true, this);
+		}
 	}
 }
 
@@ -131,30 +145,32 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 	ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
 	CameraOwner = OtherActor;
 
-	// Camera Rotate
-	if (TargetRotation == -90.0f)
+	if (CameraOwner && Player)
 	{
-		CameraTargetRotation = CameraRotateLeft;
+		// Camera Rotate
+		if (TargetRotation == -90.0f)
+		{
+			CameraTargetRotation = CameraRotateLeft;
+		}
+		else if (TargetRotation == 90.0f)
+		{
+			CameraTargetRotation = CameraRotateRight;
+		}
+		OriginalRotation = Player->CameraBoom->GetRelativeRotation();
+
+
+		// Door Rotate
+		if (TargetRotation != 0.f)
+		{
+			TargetRotation = 0.0f;
+		}
+
+		// Reset
+		Delta = 0.0f;
+		CameraDelta = 0.0f;
+		Player->InteractStart(0.f, false, nullptr);
+
+		// Enable Loop
+		this->SetActorTickEnabled(true);
 	}
-	else if (TargetRotation == 90.0f)
-	{
-		CameraTargetRotation = CameraRotateRight;
-	}
-	OriginalRotation = Player->CameraBoom->GetRelativeRotation();
-
-
-	// Door Rotate
-	if (TargetRotation != 0.f)
-	{
-		TargetRotation = 0.0f;
-	}
-
-	// Reset
-	Delta = 0.0f;
-	CameraDelta = 0.0f;
-	Player->InteractStart(0.f, false, nullptr);
-
-	// Enable Loop
-	this->SetActorTickEnabled(true);
-	UE_LOG(LogTemp, Warning, TEXT("Start Loop, Door Close"));
 }
