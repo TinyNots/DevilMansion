@@ -85,6 +85,14 @@ public:
 
 	void Attack();
 
+	void Roll();
+
+	UFUNCTION(BlueprintCallable)
+	void RollEnd();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float RollForce;
+
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 
@@ -164,6 +172,18 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float InterpSpeed;
+
+	bool bInterpToEnemy;
+
+	void SetInterpToEnemy(bool Interp);
+
+	FRotator GetLookAtRotationYaw(FVector Target);
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Combat")
+	bool bIsRolling;
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;

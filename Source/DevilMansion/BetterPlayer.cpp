@@ -21,6 +21,7 @@
 #include "BadGuy.h"
 #include "BetterPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -92,6 +93,11 @@ ABetterPlayer::ABetterPlayer()
 	MontageBlendOutTime = 0.0f;
 	bWeapon = false;
 	WeaponType = EWeaponType::EMS_NoWeapon;
+
+	InterpSpeed = 15.0f;
+	RollForce = 100.0f;
+
+	bIsRolling = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -129,6 +135,14 @@ void ABetterPlayer::Tick(float DeltaTime)
 			BetterPlayerController->EnemyLocation = CombatTargetLocation;
 		}
 	}
+
+	if (bInterpToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
+	}
 }
 
 // Called to bind functionality to input
@@ -148,6 +162,7 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Released, this, &ABetterPlayer::DefendEnd);
 
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
+	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
 }
 
 
@@ -180,6 +195,8 @@ void ABetterPlayer::Attack()
 	{
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
+			SetInterpToEnemy(true);
+
 			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
 			{
 				bCombo = true;
@@ -226,6 +243,21 @@ void ABetterPlayer::Attack()
 	}
 }
 
+void ABetterPlayer::Roll()
+{
+	if (!bIsRolling)
+	{
+		bIsRolling = true;
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_JumpToSection("Roll", CombatMontage);
+	}
+}
+
+void ABetterPlayer::RollEnd()
+{
+	bIsRolling = false;
+}
+
 void ABetterPlayer::AttackEnd()
 {
 	if (bCombo)
@@ -238,8 +270,10 @@ void ABetterPlayer::AttackEnd()
 		AnimInstance->Montage_Stop(MontageBlendOutTime);
 		bAttacking = false;
 		ComboCount = 0;
+		SetInterpToEnemy(false);
 	}
 }
+
 
 void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
 {
@@ -379,6 +413,10 @@ AActor * ABetterPlayer::GetLastRotator()
 	return nullptr;
 }
 
+void ABetterPlayer::SetInterpToEnemy(bool Interp)
+{
+	bInterpToEnemy = Interp;
+}
 
 void ABetterPlayer::Die()
 {
@@ -387,4 +425,11 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Death");
 	}
+}
+
+FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
+	return LookAtRotationYaw;
 }
