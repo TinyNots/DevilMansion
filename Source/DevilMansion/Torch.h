@@ -27,6 +27,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Location")
 	TArray<struct FVector> FirePosition;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> FowManager;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsRegisterToFow;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "BetterPlayer.h"
 #include "Components/StaticMeshComponent.h"
+#include "FogOfWarManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -21,6 +23,7 @@ ATorch::ATorch()
 	RootComponent = CollisionVolume;
 
 	bLightUp = false;
+	bIsRegisterToFow = false;
 }
 
 // Called when the game starts or when spawned
@@ -31,9 +34,17 @@ void ATorch::BeginPlay()
 }
 
 // Called every frame
-void ATorch::Tick(float DeltaTime)
+void ATorch::Tick(float DeltaTim)
 {
 	Super::Tick(DeltaTime);
+	
+	AFogOfWarManager* FOWMng = Cast< AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), FowManager));
+	
+	if (FOWMng && bLightUp && !bIsRegisterToFow)
+	{
+		FOWMng->RegisterFowActor(this, 1);
+		bIsRegisterToFow = true;
+	}
 	
 }
 
