@@ -10,7 +10,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
-#include "Weapon.h"
 #include "ObjectOutline.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/CapsuleComponent.h"
@@ -21,6 +20,8 @@
 #include "ElevatorSwitch.h"
 #include "BadGuy.h"
 #include "BetterPlayerController.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -73,6 +74,7 @@ ABetterPlayer::ABetterPlayer()
 	HighlightActor.Init(nullptr, 2);
 
 	bAttacking = false;
+	bCombo = false;
 	MaxComboCount = 3;
 	ComboCount = 0;
 
@@ -87,6 +89,15 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
+
+	MontageBlendOutTime = 0.0f;
+	bWeapon = false;
+	WeaponType = EWeaponType::EMS_NoWeapon;
+
+	InterpSpeed = 15.0f;
+	RollForce = 100.0f;
+
+	bIsRolling = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -124,6 +135,14 @@ void ABetterPlayer::Tick(float DeltaTime)
 			BetterPlayerController->EnemyLocation = CombatTargetLocation;
 		}
 	}
+
+	if (bInterpToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
+	}
 }
 
 // Called to bind functionality to input
@@ -143,6 +162,7 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Defend", EInputEvent::IE_Released, this, &ABetterPlayer::DefendEnd);
 
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
+	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
 }
 
 
@@ -173,7 +193,25 @@ void ABetterPlayer::Attack()
 {
 	if (EquippedWeapon)
 	{
-		bAttacking = true;
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		{
+			SetInterpToEnemy(true);
+
+			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
+			{
+				bCombo = true;
+				return;
+			}
+
+			if (AnimInstance->Montage_GetIsStopped(CombatMontage))
+			{
+				bAttacking = true;
+				ComboCount++;
+				AnimInstance->Montage_Play(CombatMontage);
+			}
+		}
+
+		/*bAttacking = true;
 
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
@@ -191,18 +229,62 @@ void ABetterPlayer::Attack()
 			case 3:
 				SectionName = FName("Combo03");
 				break;
+			case 4:
+				SectionName = FName("Combo04");
+				break;
+			case 5:
+				SectionName = FName("Combo05");
+				break;
 			default:
 				break;
 			}
 			AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
-		}
+		}*/
 	}
+}
+
+void ABetterPlayer::Roll()
+{
+	if (!bIsRolling)
+	{
+		bIsRolling = true;
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_JumpToSection("Roll", CombatMontage);
+	}
+}
+
+void ABetterPlayer::RollEnd()
+{
+	bIsRolling = false;
 }
 
 void ABetterPlayer::AttackEnd()
 {
-	bAttacking = false;
-	ComboCount = 0;
+	if (bCombo)
+	{
+		bCombo = false;
+		ComboCount++;
+	}
+	else
+	{
+		AnimInstance->Montage_Stop(MontageBlendOutTime);
+		bAttacking = false;
+		ComboCount = 0;
+		SetInterpToEnemy(false);
+	}
+}
+
+
+void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
+{
+	EquippedWeapon = WeaponToSet;
+	if (EquippedWeapon)
+	{
+		CombatMontage = EquippedWeapon->AnimMontage;
+		MaxComboCount = EquippedWeapon->MaxCombo;
+		WeaponType = EquippedWeapon->WeaponType;
+		bWeapon = true;
+	}
 }
 
 void ABetterPlayer::DebugEquip()
@@ -331,6 +413,10 @@ AActor * ABetterPlayer::GetLastRotator()
 	return nullptr;
 }
 
+void ABetterPlayer::SetInterpToEnemy(bool Interp)
+{
+	bInterpToEnemy = Interp;
+}
 
 void ABetterPlayer::Die()
 {
@@ -339,4 +425,11 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Death");
 	}
+}
+
+FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
+	return LookAtRotationYaw;
 }
