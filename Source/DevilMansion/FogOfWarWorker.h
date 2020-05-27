@@ -28,7 +28,7 @@ public:
 	virtual void Stop();
 
 	//Method to perform work
-	void UpdateFowTexture(int SightIdx);
+	void UpdateFowTexture();
 
 	bool bShouldUpdate = false;
 

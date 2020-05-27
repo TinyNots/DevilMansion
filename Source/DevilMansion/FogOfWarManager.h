@@ -21,9 +21,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
 	TArray<float> SightRange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,meta = (ArrayClamp = "SightRange"),Category = FogOfWar)
-	uint8 UseSightIndex = 0;
-
 	//The number of samples per 100 unreal units
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
 	float SamplesPerMeter = 2.0f;
@@ -67,7 +64,10 @@ public:
 
 	//Store the actors that will be unveiling the FOW-texture.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
-	TArray<AActor*> FowActors;
+	TMap<AActor*,uint8> FowActorsAndSightIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
+	TSubclassOf<AActor> FowActorClass;
 
 	//DEBUG: Time it took to update the fow texture
 	float fowUpdateTime = 0;
@@ -105,7 +105,7 @@ public:
 	void OnFowTextureUpdated(UTexture2D* currentTexture, UTexture2D* lastTexture);
 
 	//Register an actor to influence the FOW-texture
-	void RegisterFowActor(AActor* Actor);
+	void RegisterFowActor(AActor* Actor,uint8 idx);
 
 	void UpdateTextureRegions(
 		UTexture2D* Texture,

@@ -51,6 +51,11 @@ void ABadGuy::BeginPlay()
 	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapBegin);
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapEnd);
 
+	if (GetMesh())
+	{
+		GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Ignore);
+	}
+
 	// initialization
 	bOverlappingCombatSphere = false;
 	bIsDeath = false;
