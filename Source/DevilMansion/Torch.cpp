@@ -34,7 +34,7 @@ void ATorch::BeginPlay()
 }
 
 // Called every frame
-void ATorch::Tick(float DeltaTim)
+void ATorch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
