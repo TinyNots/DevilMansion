@@ -63,10 +63,19 @@ void AWeapon::Equip(ABetterPlayer* Char)
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		SkeletalMesh->SetSimulatePhysics(false);
 
-		const USkeletalMeshSocket* RightHandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
-		if (RightHandSocket)
+		const USkeletalMeshSocket* HandSocket;
+		if (WeaponType == EWeaponType::EMS_SingleTwohand)
 		{
-			RightHandSocket->AttachActor(this, Char->GetMesh());
+			HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
+		}
+		else
+		{
+			HandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
+		}
+
+		if (HandSocket)
+		{
+			HandSocket->AttachActor(this, Char->GetMesh());
 			VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			bRotate = false;
 			Char->SetEquippedWeapon(this);

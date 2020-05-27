@@ -90,7 +90,7 @@ ABetterPlayer::ABetterPlayer()
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
 
-	MontageBlendOutTime = 0.0f;
+	MontageBlendOutTime = 0.25f;
 	bWeapon = false;
 	WeaponType = EWeaponType::EMS_NoWeapon;
 
@@ -197,7 +197,7 @@ void ABetterPlayer::Attack()
 		{
 			SetInterpToEnemy(true);
 
-			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
+			/*if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
 			{
 				bCombo = true;
 				return;
@@ -208,10 +208,11 @@ void ABetterPlayer::Attack()
 				bAttacking = true;
 				ComboCount++;
 				AnimInstance->Montage_Play(CombatMontage);
-			}
+			}*/
 		}
 
-		/*bAttacking = true;
+		SetInterpToEnemy(true);
+		bAttacking = true;
 
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
@@ -239,7 +240,7 @@ void ABetterPlayer::Attack()
 				break;
 			}
 			AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
-		}*/
+		}
 	}
 }
 
@@ -260,7 +261,11 @@ void ABetterPlayer::RollEnd()
 
 void ABetterPlayer::AttackEnd()
 {
-	if (bCombo)
+	bAttacking = false;
+	ComboCount = 0;
+	SetInterpToEnemy(false);
+
+	/*if (bCombo)
 	{
 		bCombo = false;
 		ComboCount++;
@@ -271,7 +276,7 @@ void ABetterPlayer::AttackEnd()
 		bAttacking = false;
 		ComboCount = 0;
 		SetInterpToEnemy(false);
-	}
+	}*/
 }
 
 
