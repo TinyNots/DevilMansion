@@ -5,8 +5,9 @@
 #include "RHI.h"
 #include "FogOfWarWorker.h"
 #include "Engine/Texture2D.h"
-
-
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFogOfWarManager::AFogOfWarManager(const FObjectInitializer& FOI) : AActor(FOI)
@@ -33,6 +34,7 @@ AFogOfWarManager::AFogOfWarManager(const FObjectInitializer& FOI) : AActor(FOI)
 	blurKernel[13] = 0.002403f;
 	blurKernel[14] = 0.000489f;
 
+	SightRange.Init(5.0f, 1);
 }
 
 AFogOfWarManager::~AFogOfWarManager()
@@ -72,6 +74,17 @@ void AFogOfWarManager::BeginPlay()
 	AActor::BeginPlay();
 	bIsDoneBlending = true;
 	AFogOfWarManager::StartFOWTextureUpdate();
+	TArray<AActor*> FoundActors;
+	if (FowActorClass)
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), FowActorClass, FoundActors);
+		for (auto actor : FoundActors)
+		{
+			RegisterFowActor(actor, 1);
+		}
+	}
+	RegisterFowActor(GetWorld()->GetFirstPlayerController()->GetPawn(),0);
+
 }
 
 // Called every frame
@@ -94,9 +107,9 @@ void AFogOfWarManager::OnFowTextureUpdated_Implementation(UTexture2D* currentTex
 {
 }
 
-void AFogOfWarManager::RegisterFowActor(AActor* Actor)
+void AFogOfWarManager::RegisterFowActor(AActor* Actor, uint8 idx)
 {
-	FowActors.Add(Actor);
+	FowActorsAndSightIndex.Add(Actor,idx);
 
 }
 

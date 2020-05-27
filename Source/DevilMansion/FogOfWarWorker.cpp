@@ -65,13 +65,13 @@ void FogOfWarWorker::UpdateFowTexture()
 	int signedSize = (int)Manager->TextureSize; 
 	TSet<FVector2D> currentlyInSight;
 	TSet<FVector2D> texelsToBlur;
-	int sightTexels = Manager->SightRange * Manager->SamplesPerMeter;
 	float dividend = 100.0f / Manager->SamplesPerMeter;
 
-	for (auto Itr(Manager->FowActors.CreateIterator()); Itr; Itr++) {
+	for (auto& FowActor : Manager->FowActorsAndSightIndex) {
 		//Find actor position
-		if (!*Itr) return;
-		FVector position = (*Itr)->GetActorLocation();
+		if (!FowActor.Key) return;
+		int sightTexels = Manager->SightRange[FowActor.Value] * Manager->SamplesPerMeter;
+		FVector position = (FowActor.Key)->GetActorLocation();
 
 		//We divide by 100.0 because 1 texel equals 1 meter of visibility-data.
 		int posX = (int)(position.X / dividend) + halfTextureSize;
@@ -82,7 +82,7 @@ void FogOfWarWorker::UpdateFowTexture()
 		FVector2D textureSpacePos = FVector2D(posX, posY);
 		int size = (int)Manager->TextureSize;
 
-		FCollisionQueryParams queryParams(FName(TEXT("FOW trace")), false, (*Itr));
+		FCollisionQueryParams queryParams(FName(TEXT("FOW trace")), false, (FowActor.Key));
 		int halfKernelSize = (Manager->blurKernelSize - 1) / 2;
 
 		//Store the positions we want to blur

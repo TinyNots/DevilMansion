@@ -51,6 +51,11 @@ void ABadGuy::BeginPlay()
 	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapBegin);
 	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &ABadGuy::CombatSphereOnOverlapEnd);
 
+	if (GetMesh())
+	{
+		GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Ignore);
+	}
+
 	// initialization
 	bOverlappingCombatSphere = false;
 	bIsDeath = false;
@@ -221,7 +226,7 @@ void ABadGuy::SetMovementSpeed(float Speed)
 
 void ABadGuy::DropItem()
 {
-	if (bCanDropItem &&  ItemList.Num() > 0)
+	if (bCanDropItem && ItemList.Num() > 0)
 	{
 		int maxRoll = 0;
 		for (auto item : ItemList)
