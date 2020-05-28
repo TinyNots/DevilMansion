@@ -184,6 +184,18 @@ public:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Combat")
 	bool bIsRolling;
+
+	UFUNCTION(BlueprintCallable)
+	void NextCombo();
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Combat")
+	bool bComboTime;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Combat")
+	class AShield* EquippedShield;
+
+	void SetEquippedShield(AShield* ShieldToSet);
+	AShield* GetEquippedShield();
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;

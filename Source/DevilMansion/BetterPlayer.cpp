@@ -98,6 +98,7 @@ ABetterPlayer::ABetterPlayer()
 	RollForce = 100.0f;
 
 	bIsRolling = false;
+	bComboTime = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -142,6 +143,36 @@ void ABetterPlayer::Tick(float DeltaTime)
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
 
 		SetActorRotation(InterpRotation);
+	}
+
+	if (bAttacking && bCombo && bComboTime)
+	{
+		SetInterpToEnemy(true);
+		bAttacking = true;
+		ComboCount++;
+		bCombo = false;
+		bComboTime = false;
+
+		AnimInstance->Montage_Play(CombatMontage);
+		FName SectionName;
+		switch (ComboCount)
+		{
+		case 2:
+			SectionName = FName("Combo02");
+			break;
+		case 3:
+			SectionName = FName("Combo03");
+			break;
+		case 4:
+			SectionName = FName("Combo04");
+			break;
+		case 5:
+			SectionName = FName("Combo05");
+			break;
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
 	}
 }
 
@@ -193,30 +224,31 @@ void ABetterPlayer::Attack()
 {
 	if (EquippedWeapon)
 	{
-		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount && !bIsRolling)
 		{
-			SetInterpToEnemy(true);
-
-			/*if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
+			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
 			{
 				bCombo = true;
 				return;
 			}
 
-			if (AnimInstance->Montage_GetIsStopped(CombatMontage))
+			if (AnimInstance->Montage_GetIsStopped(CombatMontage) && ComboCount < MaxComboCount)
 			{
-				bAttacking = true;
 				ComboCount++;
+				bAttacking = true;
+				SetInterpToEnemy(true);
 				AnimInstance->Montage_Play(CombatMontage);
-			}*/
+				AnimInstance->Montage_JumpToSection("Combo01", CombatMontage);
+			}
 		}
 
-		SetInterpToEnemy(true);
-		bAttacking = true;
-
-		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		
+		/*if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
+			SetInterpToEnemy(true);
+			bAttacking = true;
 			ComboCount++;
+
 			AnimInstance->Montage_Play(CombatMontage);
 			FName SectionName;
 			switch (ComboCount)
@@ -240,7 +272,7 @@ void ABetterPlayer::Attack()
 				break;
 			}
 			AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
-		}
+		}*/
 	}
 }
 
@@ -248,6 +280,7 @@ void ABetterPlayer::Roll()
 {
 	if (!bIsRolling)
 	{
+		AttackEnd();
 		bIsRolling = true;
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Roll", CombatMontage);
@@ -261,8 +294,10 @@ void ABetterPlayer::RollEnd()
 
 void ABetterPlayer::AttackEnd()
 {
+	bCombo = false;
 	bAttacking = false;
 	ComboCount = 0;
+	bComboTime = false;
 	SetInterpToEnemy(false);
 
 	/*if (bCombo)
@@ -316,7 +351,7 @@ void ABetterPlayer::DebugEquip()
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance)
+	if (AnimInstance && EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
 	{
 		AttackEnd();
 		bDefending = true;
@@ -336,9 +371,13 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::Skill()
 {
-	AttackEnd();
-	AnimInstance->Montage_Play(CombatMontage);
-	AnimInstance->Montage_JumpToSection("Skill");
+	if (AnimInstance && EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+	{
+		AttackEnd();
+		SetInterpToEnemy(true);
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Skill");
+	}
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)
@@ -430,6 +469,24 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Death");
 	}
+}
+
+void ABetterPlayer::NextCombo()
+{
+	bComboTime = true;
+}
+
+void ABetterPlayer::SetEquippedShield(AShield* ShieldToSet)
+{
+	if (EquippedShield != nullptr)
+	{
+		EquippedShield = ShieldToSet;
+	}
+}
+
+AShield* ABetterPlayer::GetEquippedShield()
+{
+	return EquippedShield;
 }
 
 FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
