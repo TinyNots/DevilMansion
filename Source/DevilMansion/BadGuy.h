@@ -11,6 +11,7 @@ enum class EEnemyMovementStatus :uint8
 	EMS_Idle UMETA(DeplayName = "Idle"),
 	EMS_MoveToTarget UMETA(DeplayName = "MoveToTarget"),
 	EMS_Attacking UMETA(DeplayName = "Attacking"),
+	EMS_Attacked UMETA(DeplayName = "Attacked"),
 	EMS_Dying UMETA(DeplayName = "Dying"),
 	EMS_MAX UMETA(DeplayName = "DefaultMax"),
 };
@@ -97,6 +98,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	ABetterPlayer* CombatTarget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float InterpSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	bool bInterpToPlayer;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
 	bool bIsDeath;
 
@@ -116,4 +123,10 @@ public:
 	TSubclassOf<UDamageType> DamageTypeClass;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+	UFUNCTION(Category = "AI")
+	void SetInterpToPlayer(bool Interp);
+
+	UFUNCTION(Category = "AI")
+	FRotator GetLookAtRotationYaw(FVector Target);
 };

@@ -13,7 +13,7 @@
 #include "HealthSystem.h"
 #include "BetterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -33,9 +33,9 @@ ABadGuy::ABadGuy()
 
 	bCanDropItem = true;
 
-
+	//default
 	MaxHealth = 100.0f;
-	Health = 100.0f;
+	InterpSpeed = 15.0f;
 }
 
 // Called when the game starts or when spawned
@@ -59,6 +59,7 @@ void ABadGuy::BeginPlay()
 	// initialization
 	bOverlappingCombatSphere = false;
 	bIsDeath = false;
+	Health = MaxHealth;
 
 	if (Outline)
 	{
@@ -87,6 +88,14 @@ void ABadGuy::Tick(float DeltaTime)
 
 		}
 	}
+
+	if (bInterpToPlayer && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
+	}
 }
 
 // Called to bind functionality to input
@@ -94,8 +103,6 @@ void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Die", EInputEvent::IE_Pressed, this, &ABadGuy::Die);
-
-
 }
 
 void ABadGuy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -177,7 +184,6 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
-	this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
@@ -281,7 +287,32 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	Health -= DamageAmount;
 	if (Health < 0.0f)
 	{
-		//Die
+		Death();
 	}
+	else
+	{
+		// animation
+		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacked);
+		// stop moving for a sec
+		if (AIController)
+		{
+			AIController->StopMovement();
+		}
+		// face to player
+		SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+	}
+
 	return DamageAmount;
+}
+
+void ABadGuy::SetInterpToPlayer(bool Interp)
+{
+	bInterpToPlayer = Interp;
+}
+
+FRotator ABadGuy::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
+	return LookAtRotationYaw;
 }

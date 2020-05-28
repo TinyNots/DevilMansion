@@ -36,3 +36,13 @@ void UBat_AnimInstance::UpdateAnimationProperties()
 		MovementSpeed = LateralSpeed.Size();
 	}
 }
+
+void UBat_AnimInstance::AttackedEnd()
+{
+	if (Pawn)
+	{
+		ThisEnemy = Cast<ABadGuy>(Pawn);
+	}
+
+	ThisEnemy->SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+}
