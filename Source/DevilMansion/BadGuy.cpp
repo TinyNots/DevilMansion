@@ -124,18 +124,20 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+			CombatTarget = nullptr;
+			if (AIController)
+			{
+				AIController->StopMovement();
+			}
+
+			// Player
 			if (Main->BetterPlayerController)
 			{
 				Main->SetHasCombatTarget(false);
 				Main->BetterPlayerController->RemoveEnemyHealthBar();
 			}
 
-			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
-			if (AIController)
-			{
-				AIController->StopMovement();
-				CombatTarget = nullptr;
-			}
 		}
 	}
 }
@@ -147,13 +149,6 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
-			Main->SetCombatTarget(this);
-			if (Main->BetterPlayerController)
-			{
-				Main->BetterPlayerController->DisplayEnemyHealthBar();
-				Main->SetHasCombatTarget(true);
-			}
-
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
@@ -166,13 +161,23 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 			{
 				AIController->StopMovement();
 			}
+
+			// Player
+			Main->SetCombatTarget(this);
+			if (Main->BetterPlayerController)
+			{
+				Main->BetterPlayerController->DisplayEnemyHealthBar();
+				Main->SetHasCombatTarget(true);
+			}
+
+
 		}
 	}
 }
 
 void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	if (OtherActor == CombatTarget)
 	{
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
@@ -204,6 +209,7 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
+		UE_LOG(LogTemp, Log, TEXT("Move to target"));
 	}
 }
 
@@ -228,7 +234,6 @@ void ABadGuy::SetMovementSpeed(float Speed)
 	MovementSpeed = Speed;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
-
 
 void ABadGuy::DropItem()
 {
