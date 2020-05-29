@@ -22,6 +22,7 @@
 #include "BetterPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Checkpoint.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -118,6 +119,7 @@ void ABetterPlayer::BeginPlay()
 	
 	AnimInstance = GetMesh()->GetAnimInstance();
 	BetterPlayerController = Cast<ABetterPlayerController>(GetController());
+	SaveGameInstance = Cast<UCheckpoint>(UGameplayStatics::CreateSaveGameObject(UCheckpoint::StaticClass()));
 }
 
 // Called every frame
@@ -163,6 +165,8 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
+
+
 }
 
 
@@ -432,4 +436,29 @@ FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
 	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
 	return LookAtRotationYaw;
+}
+
+bool ABetterPlayer::Save()
+{
+	
+	if (SaveGameInstance)
+	{
+		// Save the data immediately.
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ABetterPlayer::Load()
+{
+	UCheckpoint* LoadedGame = Cast<UCheckpoint>(UGameplayStatics::LoadGameFromSlot(SaveGameInstance->SaveSlotName, 0));
+	if(LoadedGame)
+	{
+		// The operation was successful, so LoadedGame now contains the data we saved earlier.
+		return true;
+	}
+	return false;
 }

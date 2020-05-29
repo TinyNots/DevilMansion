@@ -1,0 +1,52 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/SaveGame.h"
+#include "Weapon.h"
+#include "Checkpoint.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FSaveInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class AWeapon* EquippedWeapon;
+
+	FSaveInfo() {};
+
+};
+/**
+ * 
+ */
+UCLASS()
+class DEVILMANSION_API UCheckpoint : public USaveGame
+{
+	GENERATED_BODY()
+public:
+    UPROPERTY(VisibleAnywhere, Category = SaveInfo)
+        FString SaveSlotName;
+
+    UPROPERTY(VisibleAnywhere, Category = SaveInfo)
+        uint32 UserIndex;
+
+	FSaveInfo SaveInfo;
+
+    UCheckpoint();
+
+};
