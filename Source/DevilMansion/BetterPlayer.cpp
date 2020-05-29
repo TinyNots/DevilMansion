@@ -282,8 +282,17 @@ void ABetterPlayer::Roll()
 	{
 		AttackEnd();
 		bIsRolling = true;
-		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_Stop(0.0f);
+		AnimInstance->Montage_Play(CombatMontage);
 		AnimInstance->Montage_JumpToSection("Roll", CombatMontage);
+
+		float ForwardValue = GetInputAxisValue("MoveForward");
+		float SideValue = GetInputAxisValue("MoveSide");
+		if (ForwardValue != 0.0f || SideValue != 0.0f)
+		{
+			float YawDegree = UKismetMathLibrary::DegAtan2(SideValue, ForwardValue);
+			SetActorRelativeRotation(FRotator(0.0f, YawDegree + CameraBoom->GetRelativeRotation().Yaw, 0.0f));
+		}
 	}
 }
 
