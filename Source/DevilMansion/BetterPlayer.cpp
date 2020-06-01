@@ -99,6 +99,8 @@ ABetterPlayer::ABetterPlayer()
 	RollForce = 100.0f;
 
 	bIsRolling = false;
+	bIsSave = false;
+	bIsLoad = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -119,7 +121,7 @@ void ABetterPlayer::BeginPlay()
 	
 	AnimInstance = GetMesh()->GetAnimInstance();
 	BetterPlayerController = Cast<ABetterPlayerController>(GetController());
-	SaveGameInstance = Cast<UCheckpoint>(UGameplayStatics::CreateSaveGameObject(UCheckpoint::StaticClass()));
+
 }
 
 // Called every frame
@@ -166,6 +168,8 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
 
+	PlayerInputComponent->BindAction("Save", EInputEvent::IE_Pressed, this, &ABetterPlayer::Save);
+	PlayerInputComponent->BindAction("Load", EInputEvent::IE_Pressed, this, &ABetterPlayer::Load);
 
 }
 
@@ -438,27 +442,47 @@ FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
 	return LookAtRotationYaw;
 }
 
-bool ABetterPlayer::Save()
+void ABetterPlayer::Save()
 {
-	
+	UCheckpoint* SaveGameInstance = Cast<UCheckpoint>(UGameplayStatics::CreateSaveGameObject(UCheckpoint::StaticClass()));
 	if (SaveGameInstance)
 	{
+		bIsSave = false;
+
+		SaveGameInstance->SaveInfo.PlayerLocation = GetActorLocation();
+		SaveGameInstance->SaveInfo.Health = Health;
+		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
+
+
 		// Save the data immediately.
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex))
 		{
-			return true;
+			bIsSave = true;
+			UE_LOG(LogTemp, Warning, TEXT("Saved"));
+			UE_LOG(LogTemp, Warning, TEXT("SAVED: %f,%f"), SaveGameInstance->SaveInfo.Health, SaveGameInstance->SaveInfo.MaxHealth);
+
+		}
+		else
+		{
+			bIsSave = false;
 		}
 	}
-	return false;
 }
 
-bool ABetterPlayer::Load()
+void ABetterPlayer::Load()
 {
-	UCheckpoint* LoadedGame = Cast<UCheckpoint>(UGameplayStatics::LoadGameFromSlot(SaveGameInstance->SaveSlotName, 0));
+	UCheckpoint* LoadedGame = Cast<UCheckpoint>(UGameplayStatics::LoadGameFromSlot(TEXT("Test"), 0));
+	bIsLoad = false;
 	if(LoadedGame)
 	{
 		// The operation was successful, so LoadedGame now contains the data we saved earlier.
-		return true;
+		bIsLoad = true;
+		SetActorLocation(LoadedGame->SaveInfo.PlayerLocation);
+		UE_LOG(LogTemp, Warning, TEXT("Loaded"));
+		UE_LOG(LogTemp, Warning, TEXT("LOADED: %f,%f"), LoadedGame->SaveInfo.Health, LoadedGame->SaveInfo.MaxHealth);
 	}
-	return false;
+	else
+	{
+		bIsLoad = false;
+	}
 }

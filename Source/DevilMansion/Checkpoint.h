@@ -11,10 +11,16 @@
 USTRUCT(BlueprintType)
 struct FSaveInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector PlayerLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector PlayerRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MaxHealth;
@@ -28,8 +34,10 @@ struct FSaveInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class AWeapon* EquippedWeapon;
 
-	FSaveInfo() {};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<bool> UnfoggedData;
 
+	FSaveInfo() {};
 };
 /**
  * 
@@ -45,6 +53,7 @@ public:
     UPROPERTY(VisibleAnywhere, Category = SaveInfo)
         uint32 UserIndex;
 
+	UPROPERTY(VisibleAnywhere, Category = SaveInfo)
 	FSaveInfo SaveInfo;
 
     UCheckpoint();
