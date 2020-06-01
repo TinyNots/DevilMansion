@@ -104,6 +104,8 @@ ABetterPlayer::ABetterPlayer()
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	Health -= DamageAmount;
+	AnimInstance->Montage_Play(CombatMontage);
+	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
 	{
 		//Die
@@ -137,7 +139,7 @@ void ABetterPlayer::Tick(float DeltaTime)
 		}
 	}
 
-	if (bInterpToEnemy && CombatTarget)
+	if (bInterpToEnemy && CombatTarget && bHasCombatTarget)
 	{
 		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
@@ -195,7 +197,6 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
 }
-
 
 void ABetterPlayer::MoveForward(float Value)
 {
@@ -322,7 +323,6 @@ void ABetterPlayer::AttackEnd()
 		SetInterpToEnemy(false);
 	}*/
 }
-
 
 void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
 {

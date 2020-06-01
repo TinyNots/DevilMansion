@@ -20,6 +20,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* EnemyHealthBar;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Health")
 	bool bEnemyHealthBarVisible;
 
 	void DisplayEnemyHealthBar();
