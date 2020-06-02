@@ -17,7 +17,7 @@ struct FSaveInfo
 		FVector PlayerLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FVector PlayerRotation;
+		FRotator PlayerRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Health;

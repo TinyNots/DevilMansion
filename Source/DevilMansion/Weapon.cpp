@@ -7,6 +7,8 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "BadGuy.h"
+#include "ObjectOutline.h"
+
 
 AWeapon::AWeapon()
 {
@@ -70,6 +72,10 @@ void AWeapon::Equip(ABetterPlayer* Char)
 			VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			bRotate = false;
 			Char->SetEquippedWeapon(this);
+			if (OutlineRef)
+			{
+				OutlineRef->bEnableOutline = false;
+			}
 		}
 	}
 }

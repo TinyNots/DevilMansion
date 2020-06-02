@@ -35,6 +35,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	bool bCanPickup;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
+	bool bEnableOutline;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,6 +52,7 @@ public:
 	UFUNCTION()
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION()
-		virtual void Pickup();
+
+
+
 };

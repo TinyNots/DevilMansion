@@ -15,7 +15,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
-#include "Item.h"
+#include "Pickup.h"
 #include "Interactive.h"
 #include "ElevatorSwitch.h"
 #include "BadGuy.h"
@@ -23,6 +23,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Checkpoint.h"
+#include "FogOfWarManager.h"
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -365,7 +366,10 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 	}
 	if (HighlightActor[objectTypeIdx])
 	{
-		HighlightActor[objectTypeIdx]->bOutlining = true;
+		if (HighlightActor[objectTypeIdx]->bEnableOutline)
+		{
+			HighlightActor[objectTypeIdx]->bOutlining = true;
+		}
 	}
 }
 
@@ -375,7 +379,11 @@ void ABetterPlayer::Pickup()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
 
-		HighlightActor[0]->Pickup();
+		APickup* owner = Cast<APickup>(HighlightActor[0]->GetOwner());
+		if (owner)
+		{
+			owner->Pick();
+		}
 	}
 
 	//Click E to open door or activate switch
@@ -450,16 +458,24 @@ void ABetterPlayer::Save()
 		bIsSave = false;
 
 		SaveGameInstance->SaveInfo.PlayerLocation = GetActorLocation();
+		SaveGameInstance->SaveInfo.PlayerRotation = GetActorRotation();
 		SaveGameInstance->SaveInfo.Health = Health;
 		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
-
+		SaveGameInstance->SaveInfo.bWeapon = bWeapon;
+		SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+		SaveGameInstance->SaveInfo.WeaponType = WeaponType;
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
+		}
 
 		// Save the data immediately.
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex))
 		{
 			bIsSave = true;
 			UE_LOG(LogTemp, Warning, TEXT("Saved"));
-			UE_LOG(LogTemp, Warning, TEXT("SAVED: %f,%f"), SaveGameInstance->SaveInfo.Health, SaveGameInstance->SaveInfo.MaxHealth);
 
 		}
 		else
@@ -478,8 +494,21 @@ void ABetterPlayer::Load()
 		// The operation was successful, so LoadedGame now contains the data we saved earlier.
 		bIsLoad = true;
 		SetActorLocation(LoadedGame->SaveInfo.PlayerLocation);
+		SetActorRotation(LoadedGame->SaveInfo.PlayerRotation);
+		Health = LoadedGame->SaveInfo.Health;
+		MaxHealth = LoadedGame->SaveInfo.MaxHealth;
+		bWeapon = LoadedGame->SaveInfo.bWeapon;
+		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+		WeaponType = LoadedGame->SaveInfo.WeaponType;
+
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+			FOWMng->UnfoggedData.Init(false, FOWMng->TextureSize * FOWMng->TextureSize);
+			FOWMng->UnfoggedData = LoadedGame->SaveInfo.UnfoggedData;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Loaded"));
-		UE_LOG(LogTemp, Warning, TEXT("LOADED: %f,%f"), LoadedGame->SaveInfo.Health, LoadedGame->SaveInfo.MaxHealth);
 	}
 	else
 	{

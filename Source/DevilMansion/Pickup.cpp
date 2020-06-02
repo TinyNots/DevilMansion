@@ -2,6 +2,7 @@
 
 
 #include "Pickup.h"
+#include "ObjectOutline.h"
 
 APickup::APickup()
 {
@@ -23,4 +24,16 @@ void APickup::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	//Super::OnOverlapEnd(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
 	//UE_LOG(LogTemp, Warning, TEXT("Pickup::OnOverlapEnd()"));
 
+}
+
+void APickup::Pick()
+{
+	if (OutlineRef->bOutlining)
+	{
+		if (OutlineRef->bCanPickup)
+		{
+			Super::PickupEffect();
+			
+		}
+	}
 }
