@@ -13,7 +13,7 @@
 #include "HealthSystem.h"
 #include "BetterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "HealthWidget.h"
 
 
 // Sets default values
@@ -92,22 +92,7 @@ void ABadGuy::Tick(float DeltaTime)
 		}
 	}
 
-	if (OldHealth != Health)
-	{
-		if (DelayCounter < HealthDelay * 60.0f)
-		{
-			DelayCounter++;
-		}
-		else
-		{
-			OldHealth -= 0.5f;
-			if (OldHealth <= Health)
-			{
-				OldHealth = Health;
-				DelayCounter = 0.0f;
-			}
-		}
-	}
+	HealthDecrementSystem();
 }
 
 // Called to bind functionality to input
@@ -115,8 +100,6 @@ void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Die", EInputEvent::IE_Pressed, this, &ABadGuy::Die);
-
-
 }
 
 void ABadGuy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -196,7 +179,7 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
-	this->Death();
+	//this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
@@ -298,9 +281,29 @@ void ABadGuy::Die()
 float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	Health -= DamageAmount;
-	if (Health < 0.0f)
+	if (Health <= 0.0f)
 	{
-		//Die
+		this->Death();
 	}
 	return DamageAmount;
+}
+
+void ABadGuy::HealthDecrementSystem()
+{
+	if (OldHealth != Health)
+	{
+		if (DelayCounter < HealthDelay * 60.0f)
+		{
+			DelayCounter++;
+		}
+		else
+		{
+			OldHealth -= 0.5f;
+			if (OldHealth <= Health)
+			{
+				OldHealth = Health;
+				DelayCounter = 0.0f;
+			}
+		}
+	}
 }

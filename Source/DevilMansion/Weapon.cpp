@@ -7,6 +7,8 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "BadGuy.h"
+#include "ObjectOutline.h"
+#include "Components/StaticMeshComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -32,8 +34,31 @@ void AWeapon::BeginPlay()
 	CombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	CombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	if (Outline)
+	{
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OutlineRef->SetOwner(this);
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
+	}
 }
 
+void AWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (OutlineRef)
+	{
+		if (OutlineRef->bOutlining)
+		{
+			VisualMesh->SetRenderCustomDepth(true);
+		}
+		else
+		{
+			VisualMesh->SetRenderCustomDepth(false);
+		}
+	}
+}
 
 void AWeapon::OnOverlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

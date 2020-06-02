@@ -35,7 +35,7 @@ void ABetterPlayerController::Tick(float DeltaTime)
 		PositionInViewport.Y -= 100.0f;
 
 		EnemyHealthBar->SetPositionInViewport(PositionInViewport);
-		EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewport);
+		//EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewport);
 	}
 }
 
@@ -54,5 +54,13 @@ void ABetterPlayerController::RemoveEnemyHealthBar()
 	{
 		bEnemyHealthBarVisible = false;
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ABetterPlayerController::SetHealthBarSize(FVector2D SizeInViewPort)
+{
+	if (EnemyHealthBar)
+	{
+		EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewPort);
 	}
 }

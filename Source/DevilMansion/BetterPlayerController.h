@@ -27,6 +27,8 @@ public:
 	void RemoveEnemyHealthBar();
 
 	FVector EnemyLocation;
+
+	void SetHealthBarSize(FVector2D SizeInViewPort);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

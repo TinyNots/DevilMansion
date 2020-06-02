@@ -279,7 +279,7 @@ void ABetterPlayer::Attack()
 
 void ABetterPlayer::Roll()
 {
-	if (!bIsRolling)
+	if (AnimInstance && !bIsRolling)
 	{
 		AttackEnd();
 		bIsRolling = true;
@@ -360,12 +360,15 @@ void ABetterPlayer::DebugEquip()
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance && EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+	if (AnimInstance && EquippedWeapon)
 	{
-		AttackEnd();
-		bDefending = true;
-		AnimInstance->Montage_Play(CombatMontage);
-		AnimInstance->Montage_JumpToSection("Defend");
+		if (EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+		{
+			AttackEnd();
+			bDefending = true;
+			AnimInstance->Montage_Play(CombatMontage);
+			AnimInstance->Montage_JumpToSection("Defend");
+		}
 	}
 }
 
@@ -380,7 +383,7 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::Skill()
 {
-	if (AnimInstance && EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+	if (AnimInstance && EquippedWeapon)
 	{
 		AttackEnd();
 		SetInterpToEnemy(true);
@@ -419,8 +422,12 @@ void ABetterPlayer::Pickup()
 	if (HighlightActor[0])
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
+		AWeapon* Weapon = Cast<AWeapon>(HighlightActor[0]->GetOwner());
+		if (Weapon)
+		{
+			Weapon->Equip(this);
+		}
 
-		HighlightActor[0]->Pickup();
 	}
 
 	//Click E to open door or activate switch

@@ -4,6 +4,7 @@
 #include "ModularPlayer.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "HealthWidget.h"
 
 // Sets default values
 AModularPlayer::AModularPlayer()
@@ -47,7 +48,6 @@ AModularPlayer::AModularPlayer()
 void AModularPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

@@ -52,9 +52,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	TArray< TSubclassOf<class AItem>> ItemList;
-
-	
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -128,4 +125,6 @@ public:
 	TSubclassOf<UDamageType> DamageTypeClass;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+private:
+	void HealthDecrementSystem();
 };
