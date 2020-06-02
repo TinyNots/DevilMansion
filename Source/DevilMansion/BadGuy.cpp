@@ -14,12 +14,13 @@
 #include "BetterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
 
 
 // Sets default values
 ABadGuy::ABadGuy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
@@ -76,6 +77,16 @@ void ABadGuy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	DropItem();
+	if (AttackTimer <= 0.0f)
+	{
+		NextAction();
+	}
+	else
+	{
+		AttackTimer -= DeltaTime;
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), AttackTimer);
+	}
+
 	if (OutlineRef)
 	{
 		if (OutlineRef->bOutlining)
@@ -150,27 +161,7 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		if (Main)
 		{
 			CombatTarget = Main;
-			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
-			bOverlappingCombatSphere = true;
-
-			if (DamageTypeClass)
-			{
-				UGameplayStatics::ApplyDamage(Main, 10.0f, AIController, this, DamageTypeClass);
-			}
-			if (AIController)
-			{
-				AIController->StopMovement();
-			}
-
-			// Player
-			Main->SetCombatTarget(this);
-			if (Main->BetterPlayerController)
-			{
-				Main->BetterPlayerController->DisplayEnemyHealthBar();
-				Main->SetHasCombatTarget(true);
-			}
-
-
+			Attack();
 		}
 	}
 }
@@ -195,7 +186,6 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 {
 	if (bIsDeath) //condition
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RETURN"));
 		return;
 	}
 
@@ -209,7 +199,6 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 
 		FNavPathSharedPtr NavPath;
 		AIController->MoveTo(MoveRequest, &NavPath);
-		UE_LOG(LogTemp, Log, TEXT("Move to target"));
 	}
 }
 
@@ -220,6 +209,7 @@ void ABadGuy::Death()
 
 	// Stop Action
 	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	if (AIController)
 	{
 		AIController->StopMovement();
@@ -227,6 +217,36 @@ void ABadGuy::Death()
 	}
 
 	bIsDeath = true;
+}
+
+void ABadGuy::Attack()
+{
+	if (CombatTarget && AttackTimer <= 0 && EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacked)
+	{
+		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
+		bOverlappingCombatSphere = true;
+
+		AttackTimer = ResetAttackTimer();
+		
+
+		if (DamageTypeClass)
+		{
+			UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+		}
+
+		if (AIController)
+		{
+			AIController->StopMovement();
+		}
+
+		// Player
+		CombatTarget->SetCombatTarget(this);
+		if (CombatTarget->BetterPlayerController)
+		{
+			CombatTarget->BetterPlayerController->DisplayEnemyHealthBar();
+			CombatTarget->SetHasCombatTarget(true);
+		}
+	}
 }
 
 void ABadGuy::SetMovementSpeed(float Speed)
@@ -304,7 +324,12 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 			AIController->StopMovement();
 		}
 		// face to player
-		SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+		CombatTarget = Cast<ABetterPlayer>(DamageCauser);
+		if (CombatTarget)
+		{
+			UE_LOG(LogTemp, Log, TEXT("CombatTargetSet"));
+			SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+		}
 	}
 
 	return DamageAmount;
@@ -320,4 +345,22 @@ FRotator ABadGuy::GetLookAtRotationYaw(FVector Target)
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
 	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
 	return LookAtRotationYaw;
+}
+
+void ABadGuy::NextAction()
+{
+	if (CombatTarget)
+	{
+		UE_LOG(LogTemp, Log, TEXT("CombatTargetAvailable"));
+		MoveToTarget(CombatTarget);
+		if (FVector::Dist(this->GetActorLocation(), CombatTarget->GetActorLocation()) < (CombatSphere->GetScaledSphereRadius() * 2))
+		{
+			ABetterPlayer* Main = Cast<ABetterPlayer>(CombatTarget);
+			if (Main)
+			{
+				CombatTarget = Main;
+				Attack();
+			}
+		}
+	}
 }

@@ -54,7 +54,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	TArray< TSubclassOf<class AItem>> ItemList;
 
-	
+	virtual float ResetAttackTimer() { return 0.f; };
 
 protected:
 	// Called when the game starts or when spawned
@@ -85,6 +85,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Death();
+
+	UFUNCTION(BlueprintCallable)
+	void Attack();
 
 	UFUNCTION(BlueprintCallable)
 	void SetMovementSpeed(float Speed);
@@ -119,6 +122,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float Health;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AttackTimer;
+
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UDamageType> DamageTypeClass;
 
@@ -129,4 +135,7 @@ public:
 
 	UFUNCTION(Category = "AI")
 	FRotator GetLookAtRotationYaw(FVector Target);
+
+	UFUNCTION(Category = "AI")
+	void NextAction();
 };

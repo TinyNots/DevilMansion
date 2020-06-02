@@ -45,4 +45,17 @@ void UBat_AnimInstance::AttackedEnd()
 	}
 
 	ThisEnemy->SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+	ThisEnemy->NextAction();
+}
+
+
+void UBat_AnimInstance::AttackingEnd()
+{
+	if (Pawn)
+	{
+		ThisEnemy = Cast<ABadGuy>(Pawn);
+	}
+
+	ThisEnemy->SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+	ThisEnemy->NextAction();
 }

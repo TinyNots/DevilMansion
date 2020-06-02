@@ -5,27 +5,26 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BadGuy.h"
-#include "Skeletonboy.generated.h"
+#include "Spider.generated.h"
 
 UCLASS()
-class DEVILMANSION_API ASkeletonboy : public ABadGuy
+class DEVILMANSION_API ASpider : public ABadGuy
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ASkeletonboy();
+	ASpider();
 
 	virtual float ResetAttackTimer() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float AttackTimerMax;
-
+		float AttackTimerMax;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
