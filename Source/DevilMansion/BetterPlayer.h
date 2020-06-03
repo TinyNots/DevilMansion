@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Weapon.h"
+#include "Components/TimelineComponent.h"
+#include "Components/BoxComponent.h"
 #include "BetterPlayer.generated.h"
+
 
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
@@ -153,6 +156,12 @@ public:
 
 	FORCEINLINE void SetCombatTarget(ABadGuy* Enemy) { CombatTarget = Enemy; }
 	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+	FORCEINLINE float GetHealth() { return Health; }
+
+
+	UFUNCTION()
+	void UpdateHealth(float AddValue);
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
 		class ABetterPlayerController* BetterPlayerController;
@@ -198,6 +207,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 		float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float HealthPercentage;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float PreviousHealth;
 
 	//Mary's
 	UPROPERTY()

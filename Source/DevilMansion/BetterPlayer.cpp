@@ -23,7 +23,11 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Checkpoint.h"
+#include "Torch.h"
 #include "FogOfWarManager.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
+
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -91,6 +95,7 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
+	HealthPercentage = 100.0f;
 
 	MontageBlendOutTime = 0.0f;
 	bWeapon = false;
@@ -148,6 +153,7 @@ void ABetterPlayer::Tick(float DeltaTime)
 
 		SetActorRotation(InterpRotation);
 	}
+
 }
 
 // Called to bind functionality to input
@@ -338,6 +344,14 @@ void ABetterPlayer::DefendEnd()
 	}
 }
 
+void ABetterPlayer::UpdateHealth(float AddValue)
+{
+	Health += AddValue;
+	Health = FMath::Clamp(Health, 0.0f, MaxHealth);
+	PreviousHealth = HealthPercentage;
+	HealthPercentage = Health / MaxHealth;
+}
+
 void ABetterPlayer::Skill()
 {
 	AttackEnd();
@@ -468,7 +482,15 @@ void ABetterPlayer::Save()
 		if (FOWMng)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+
 			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
+		}
+		TArray<AActor*> outActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
+		for (auto& actor : outActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			SaveGameInstance->SaveInfo.LightedUpTorch.Add(torch->GetName(), torch->bLightUp);
 		}
 
 		// Save the data immediately.
@@ -500,6 +522,27 @@ void ABetterPlayer::Load()
 		bWeapon = LoadedGame->SaveInfo.bWeapon;
 		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
 		WeaponType = LoadedGame->SaveInfo.WeaponType;
+
+		TArray<AActor*> outActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
+		for (auto& actor : outActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			for (auto& torchdata : LoadedGame->SaveInfo.LightedUpTorch)
+			{
+				if (torch->GetName() == torchdata.Key)
+				{
+					torch->bLightUp = torchdata.Value;
+					if (torch->bLightUp)
+					{
+						torch->bPlaySound = true;
+						torch->SpawnFire();
+					}
+					break;
+				}
+			}
+		}
+		
 
 		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
 		if (FOWMng)

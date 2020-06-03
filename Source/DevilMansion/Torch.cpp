@@ -24,6 +24,7 @@ ATorch::ATorch()
 
 	bLightUp = false;
 	bIsRegisterToFow = false;
+	bPlaySound = false;
 }
 
 // Called when the game starts or when spawned
@@ -48,6 +49,15 @@ void ATorch::Tick(float DeltaTime)
 	
 }
 
+void ATorch::SpawnFire()
+{
+	for (auto firePos : FirePosition)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, firePos, FRotator(0.f), true);
+	}
+	bLightUp = true;
+}
+
 void ATorch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
@@ -55,9 +65,7 @@ void ATorch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main && !bLightUp)
 		{
-			for (auto firePos:FirePosition)
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, firePos, FRotator(0.f), true);
-			bLightUp = true;
+			SpawnFire();
 		}
 	}
 }
