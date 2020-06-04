@@ -223,6 +223,8 @@ void ABadGuy::Death()
 	// Set Status
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
 
+
+
 	// Stop Action
 	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -231,6 +233,7 @@ void ABadGuy::Death()
 		AIController->StopMovement();
 		AIController->SetActorTickEnabled(false);
 	}
+
 
 	bIsDeath = true;
 }

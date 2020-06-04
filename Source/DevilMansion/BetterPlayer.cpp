@@ -480,7 +480,7 @@ void ABetterPlayer::Pickup()
 		}
 		else
 		{
-			HighlightActor[0]->Pickup();
+			//HighlightActor[0]->Pickup();
 		}
 	}
 
@@ -578,7 +578,7 @@ void ABetterPlayer::Save()
 		SaveGameInstance->SaveInfo.Health = Health;
 		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
 		SaveGameInstance->SaveInfo.bWeapon = bWeapon;
-		SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+		//SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
 		SaveGameInstance->SaveInfo.WeaponType = WeaponType;
 		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
 		if (FOWMng)
@@ -622,7 +622,7 @@ void ABetterPlayer::Load()
 		Health = LoadedGame->SaveInfo.Health;
 		MaxHealth = LoadedGame->SaveInfo.MaxHealth;
 		bWeapon = LoadedGame->SaveInfo.bWeapon;
-		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+		//EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
 		WeaponType = LoadedGame->SaveInfo.WeaponType;
 
 		TArray<AActor*> outActors;
