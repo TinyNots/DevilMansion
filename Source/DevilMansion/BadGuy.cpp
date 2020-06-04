@@ -13,14 +13,17 @@
 #include "HealthSystem.h"
 #include "BetterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
 #include "HealthWidget.h"
 
 
 // Sets default values
 ABadGuy::ABadGuy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	//AIControllerClass = AAIController::StaticClass();
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetRootComponent());
@@ -33,8 +36,10 @@ ABadGuy::ABadGuy()
 
 	bCanDropItem = true;
 
+	//default
 	// Health setting init
 	MaxHealth = 100.0f;
+	InterpSpeed = 15.0f;
 	Health = MaxHealth;
 	OldHealth = Health;
 	HealthDecrementSpeed = 0.75f;
@@ -47,6 +52,7 @@ void ABadGuy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("beginplayinitialization"));
 	AIController = Cast<AAIController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::AgroSphereOnOverlapBegin);
@@ -63,6 +69,7 @@ void ABadGuy::BeginPlay()
 	// initialization
 	bOverlappingCombatSphere = false;
 	bIsDeath = false;
+	Health = MaxHealth;
 
 	if (Outline)
 	{
@@ -79,6 +86,16 @@ void ABadGuy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	DropItem();
+	if (AttackTimer <= 0.0f)
+	{
+		NextAction();
+	}
+	else
+	{
+		AttackTimer -= DeltaTime;
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), AttackTimer);
+	}
+
 	if (OutlineRef)
 	{
 		if (OutlineRef->bOutlining)
@@ -90,6 +107,14 @@ void ABadGuy::Tick(float DeltaTime)
 			GetMesh()->SetRenderCustomDepth(false);
 
 		}
+	}
+
+	if (bInterpToPlayer && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
 	}
 
 	HealthDecrementSystem();
@@ -122,10 +147,10 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		if (Main)
 		{
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
+			CombatTarget = nullptr;
 			if (AIController)
 			{
 				AIController->StopMovement();
-				CombatTarget = nullptr;
 			}
 		}
 	}
@@ -145,24 +170,14 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 				Main->BetterPlayerController->DisplayEnemyHealthBar();
 			}
 			CombatTarget = Main;
-			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
-			bOverlappingCombatSphere = true;
-
-			if (DamageTypeClass)
-			{
-				UGameplayStatics::ApplyDamage(Main, 10.0f, AIController, this, DamageTypeClass);
-			}
-			if (AIController)
-			{
-				AIController->StopMovement();
-			}
+			Attack();
 		}
 	}
 }
 
 void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	if (OtherActor == CombatTarget)
 	{
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
@@ -179,21 +194,21 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
-	//this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 {
 	if (bIsDeath) //condition
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RETURN"));
 		return;
 	}
 
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
+	UE_LOG(LogTemp, Warning, TEXT("1"));
 
 	if (AIController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("2"));
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Targetone);
 		MoveRequest.SetAcceptanceRadius(25.f);
@@ -210,6 +225,7 @@ void ABadGuy::Death()
 
 	// Stop Action
 	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	if (AIController)
 	{
 		AIController->StopMovement();
@@ -219,12 +235,41 @@ void ABadGuy::Death()
 	bIsDeath = true;
 }
 
+void ABadGuy::Attack()
+{
+	if (CombatTarget && AttackTimer <= 0 && EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacked)
+	{
+		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
+		bOverlappingCombatSphere = true;
+
+		AttackTimer = ResetAttackTimer();
+		
+
+		if (DamageTypeClass)
+		{
+			UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+		}
+
+		if (AIController)
+		{
+			AIController->StopMovement();
+		}
+
+		// Player
+		CombatTarget->SetCombatTarget(this);
+		if (CombatTarget->BetterPlayerController)
+		{
+			CombatTarget->BetterPlayerController->DisplayEnemyHealthBar();
+			CombatTarget->SetHasCombatTarget(true);
+		}
+	}
+}
+
 void ABadGuy::SetMovementSpeed(float Speed)
 {
 	MovementSpeed = Speed;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
-
 
 void ABadGuy::DropItem()
 {
@@ -283,11 +328,58 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	Health -= DamageAmount;
 	if (Health <= 0.0f)
 	{
-		this->Death();
+		Death();
 	}
+	else
+	{
+		// animation
+		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacked);
+		// stop moving for a sec
+		if (AIController)
+		{
+			AIController->StopMovement();
+		}
+		// face to player
+		CombatTarget = Cast<ABetterPlayer>(DamageCauser);
+		if (CombatTarget)
+		{
+			UE_LOG(LogTemp, Log, TEXT("CombatTargetSet"));
+			SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+		}
+	}
+
 	return DamageAmount;
 }
 
+void ABadGuy::SetInterpToPlayer(bool Interp)
+{
+	bInterpToPlayer = Interp;
+}
+
+FRotator ABadGuy::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
+	return LookAtRotationYaw;
+}
+
+void ABadGuy::NextAction()
+{
+	if (CombatTarget)
+	{
+		UE_LOG(LogTemp, Log, TEXT("CombatTargetAvailable"));
+		MoveToTarget(CombatTarget);
+		if (FVector::Dist(this->GetActorLocation(), CombatTarget->GetActorLocation()) < (CombatSphere->GetScaledSphereRadius() * 2))
+		{
+			ABetterPlayer* Main = Cast<ABetterPlayer>(CombatTarget);
+			if (Main)
+			{
+				CombatTarget = Main;
+				Attack();
+			}
+		}
+	}
+}
 void ABadGuy::HealthDecrementSystem()
 {
 	if (OldHealth != Health)

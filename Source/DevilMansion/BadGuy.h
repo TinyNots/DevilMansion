@@ -11,6 +11,7 @@ enum class EEnemyMovementStatus :uint8
 	EMS_Idle UMETA(DeplayName = "Idle"),
 	EMS_MoveToTarget UMETA(DeplayName = "MoveToTarget"),
 	EMS_Attacking UMETA(DeplayName = "Attacking"),
+	EMS_Attacked UMETA(DeplayName = "Attacked"),
 	EMS_Dying UMETA(DeplayName = "Dying"),
 	EMS_MAX UMETA(DeplayName = "DefaultMax"),
 };
@@ -52,6 +53,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	TArray< TSubclassOf<class AItem>> ItemList;
+
+	virtual float ResetAttackTimer() { return 0.f; };
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -83,6 +87,9 @@ public:
 	void Death();
 
 	UFUNCTION(BlueprintCallable)
+	void Attack();
+
+	UFUNCTION(BlueprintCallable)
 	void SetMovementSpeed(float Speed);
 
 	UFUNCTION(BlueprintCallable)
@@ -93,6 +100,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	ABetterPlayer* CombatTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float InterpSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	bool bInterpToPlayer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
 	bool bIsDeath;
@@ -121,10 +134,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float DelayCounter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AttackTimer;
+
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UDamageType> DamageTypeClass;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+	UFUNCTION(Category = "AI")
+	void SetInterpToPlayer(bool Interp);
+
+	UFUNCTION(Category = "AI")
+	FRotator GetLookAtRotationYaw(FVector Target);
+
+	UFUNCTION(Category = "AI")
+	void NextAction();
 private:
 	void HealthDecrementSystem();
 };

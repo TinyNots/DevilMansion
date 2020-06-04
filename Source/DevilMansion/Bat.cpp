@@ -13,6 +13,7 @@ ABat::ABat()
 
 	AgroSphere->InitSphereRadius(1000.f);
 	CombatSphere->InitSphereRadius(75.f);
+	AttackTimerMax = 3.0f;
 }
 
 // Called when the game starts or when spawned
@@ -32,4 +33,9 @@ void ABat::Tick(float DeltaTime)
 void ABat::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+float ABat::ResetAttackTimer()
+{
+	return AttackTimerMax;
 }

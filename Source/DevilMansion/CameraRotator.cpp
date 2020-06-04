@@ -62,41 +62,37 @@ void ACameraRotator::Tick(float DeltaTime)
 void ACameraRotator::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
-	CameraOwner = OtherActor;
-
-	// Camera Rotate
-	OriginalRotation = Player->CameraBoom->GetRelativeRotation();
-
-	// Camera Height
-	OriginalCameraHeight = Player->CameraBoom->TargetArmLength;
-
-	// Reset
-	CameraDelta = 0.0f;
-
-	// Check if the rotator has been used
-	ACameraRotator* LastRotator = Cast<ACameraRotator>(Player->GetLastRotator());
-	if (LastRotator != nullptr)
+	if (Player)
 	{
-		//stop it
-		LastRotator->RotatorOverlap();
+		CameraOwner = OtherActor;
+
+		// Camera Rotate
+		OriginalRotation = Player->CameraBoom->GetRelativeRotation();
+
+		// Camera Height
+		OriginalCameraHeight = Player->CameraBoom->TargetArmLength;
+
+		// Reset
+		CameraDelta = 0.0f;
+
+		// Check if the rotator has been used
+		ACameraRotator* LastRotator = Cast<ACameraRotator>(Player->GetLastRotator());
+		if (LastRotator != nullptr)
+		{
+			//stop it
+			LastRotator->RotatorOverlap();
+		}
+
+		// Check if the rotation isn't needed at all
+		if (OriginalRotation.Yaw == TargetAngle
+			&& OriginalCameraHeight == CameraHeight)
+		{
+			return;
+		}
+
+		// Start Loop
+		this->SetActorTickEnabled(true);
 	}
-
-	// Check if the rotation isn't needed at all
-	UE_LOG(LogTemp, Warning, TEXT("================================Rotator Activated=============================================="));
-	UE_LOG(LogTemp, Warning, TEXT("OriginalAngle = %f, TargetAngle = %f"), OriginalRotation.Yaw, TargetAngle);
-	UE_LOG(LogTemp, Warning, TEXT("OriginalHeight = %f, TargetHeight = %f"), OriginalCameraHeight, CameraHeight);
-	if (OriginalRotation.Yaw == TargetAngle 
-		&& OriginalCameraHeight == CameraHeight)
-	{
-
-		UE_LOG(LogTemp, Warning, TEXT("================================Not Working=============================================="));
-		return;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("================================Working=============================================="));
-
-	// Start Loop
-	this->SetActorTickEnabled(true);
 }
 
 void ACameraRotator::RotatorOverlap()

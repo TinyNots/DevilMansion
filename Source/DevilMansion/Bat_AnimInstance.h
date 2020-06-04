@@ -20,6 +20,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
 	void UpdateAnimationProperties();
 
+	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
+	void AttackedEnd();
+
+	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
+	void AttackingEnd();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MovementSpeed;
 
