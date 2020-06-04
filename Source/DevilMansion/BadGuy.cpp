@@ -22,6 +22,7 @@ ABadGuy::ABadGuy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	//AIControllerClass = AAIController::StaticClass();
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetRootComponent());
@@ -44,6 +45,7 @@ void ABadGuy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("beginplayinitialization"));
 	AIController = Cast<AAIController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::AgroSphereOnOverlapBegin);
@@ -190,9 +192,11 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 	}
 
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
+	UE_LOG(LogTemp, Warning, TEXT("1"));
 
 	if (AIController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("2"));
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Targetone);
 		MoveRequest.SetAcceptanceRadius(25.f);
