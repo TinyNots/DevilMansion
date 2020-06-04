@@ -66,9 +66,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
 	TMap<AActor*,uint8> FowActorsAndSightIndex;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
-	TSubclassOf<AActor> FowActorClass;
-
 	//DEBUG: Time it took to update the fow texture
 	float fowUpdateTime = 0;
 

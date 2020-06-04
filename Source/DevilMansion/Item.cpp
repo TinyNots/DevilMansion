@@ -41,14 +41,17 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	if (bCanOutline && Outline)
 	{
-		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, VisualMesh->GetRelativeTransform());
+
+
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
+		OutlineRef->SetActorRelativeLocation(VisualMesh->GetRelativeLocation());
+
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
 		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
 		OutlineRef->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		OutlineRef->bCanPickup = true;
-		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
 	}
 }
 

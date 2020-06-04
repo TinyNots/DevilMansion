@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "BetterPlayer.h"
 #include "Components/StaticMeshComponent.h"
+#include "FogOfWarManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -21,6 +23,8 @@ ATorch::ATorch()
 	RootComponent = CollisionVolume;
 
 	bLightUp = false;
+	bIsRegisterToFow = false;
+	bPlaySound = false;
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +39,23 @@ void ATorch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	AFogOfWarManager* FOWMng = Cast< AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), FowManager));
+	
+	if (FOWMng && bLightUp && !bIsRegisterToFow)
+	{
+		FOWMng->RegisterFowActor(this, 1);
+		bIsRegisterToFow = true;
+	}
+	
+}
+
+void ATorch::SpawnFire()
+{
+	for (auto firePos : FirePosition)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, firePos, FRotator(0.f), true);
+	}
+	bLightUp = true;
 }
 
 void ATorch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -44,9 +65,7 @@ void ATorch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main && !bLightUp)
 		{
-			for (auto firePos:FirePosition)
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireParticles, firePos, FRotator(0.f), true);
-			bLightUp = true;
+			SpawnFire();
 		}
 	}
 }

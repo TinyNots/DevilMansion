@@ -29,6 +29,7 @@ AObjectOutline::AObjectOutline()
 	SkeletalMesh->SetupAttachment(GetRootComponent());
 
 	bCanPickup = false;
+	bEnableOutline = true;
 }
 
 // Called when the game starts or when spawned
@@ -63,18 +64,6 @@ void AObjectOutline::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
-void AObjectOutline::Pickup()
-{
-	if (bOutlining)
-	{
-		if (bCanPickup)
-		{
-			AItem* item = Cast<AItem>(GetOwner());
-			if (item)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Owner Acquired"));
-				item->PickupEffect();
-			}
-		}
-	}
-}
+
+
+

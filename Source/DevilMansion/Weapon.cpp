@@ -8,7 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BadGuy.h"
 #include "ObjectOutline.h"
-#include "Components/StaticMeshComponent.h"
+
 
 AWeapon::AWeapon()
 {
@@ -117,6 +117,10 @@ void AWeapon::Equip(ABetterPlayer* Char)
 					VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 					Char->SetEquippedWeapon(this, EEquippedWeapon::EMS_LeftEquippedWeapon);
 				}
+			}
+			if (OutlineRef)
+				OutlineRef->bEnableOutline = false;
+			{
 			}
 		}
 

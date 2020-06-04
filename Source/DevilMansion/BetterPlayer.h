@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Weapon.h"
+#include "Components/TimelineComponent.h"
+#include "Components/BoxComponent.h"
 #include "BetterPlayer.generated.h"
+
 
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
@@ -29,24 +32,29 @@ public:
 
 	// Camera boom positioning the camera behind the player
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAcess = "true"))
-	class USpringArmComponent* CameraBoom;
+		class USpringArmComponent* CameraBoom;
 
 	// Camera that follow the player
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAcess = "true"))
-	class UCameraComponent* FollowCamera;
+		class UCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class USphereComponent* ItemCollisionVolume;
+		class USphereComponent* ItemCollisionVolume;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class USphereComponent* EnemyCollisionVolume;
+		class USphereComponent* EnemyCollisionVolume;
 
 	// Base turn rates to scale turning functions for the camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float BaseTurnRate;
+		float BaseTurnRate;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<class AObjectOutline*> HighlightActor;
+		TArray<class AObjectOutline*> HighlightActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bIsSave;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bIsLoad;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -54,7 +62,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -62,25 +70,25 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* Face;
+		USkeletalMeshComponent* Face;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* Hair;
+		USkeletalMeshComponent* Hair;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* Gloves;
+		USkeletalMeshComponent* Gloves;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* Shoes;
+		USkeletalMeshComponent* Shoes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* HeadGears;
+		USkeletalMeshComponent* HeadGears;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* ShoulderPad;
+		USkeletalMeshComponent* ShoulderPad;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-	USkeletalMeshComponent* Belt;
+		USkeletalMeshComponent* Belt;
 
 	// Called for forwards and backwrards input
 	void MoveForward(float Value);
@@ -96,28 +104,28 @@ public:
 	void Roll();
 
 	UFUNCTION(BlueprintCallable)
-	void RollEnd();
+		void RollEnd();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float RollForce;
+		float RollForce;
 
 	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
+		void AttackEnd();
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Anims")
-	bool bAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+		bool bAttacking;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	bool bCombo;
+		bool bCombo;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	int ComboCount;
+		int ComboCount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-	class UAnimMontage* CombatMontage;
+		class UAnimMontage* CombatMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	class AWeapon* LeftEquippedWeapon;
@@ -132,60 +140,66 @@ public:
 	void DebugEquip();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
-	class UStaticMesh* DebugWeaponMesh;
+		class UStaticMesh* DebugWeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	int MaxComboCount;
+		int MaxComboCount;
 
 	void Defend();
 	void DefendEnd();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	bool bDefending;
+		bool bDefending;
 
 	UFUNCTION()
-	void OutlineCheck(class USphereComponent* CollisionVolume,int objectTypeIdx);
+		void OutlineCheck(class USphereComponent* CollisionVolume, int objectTypeIdx);
 
 	void Pickup();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	bool bHasCombatTarget;
+		bool bHasCombatTarget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	class ABadGuy* CombatTarget;
+		class ABadGuy* CombatTarget;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")
-	FVector CombatTargetLocation;
+		FVector CombatTargetLocation;
 
 	FORCEINLINE void SetCombatTarget(ABadGuy* Enemy) { CombatTarget = Enemy; }
 	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+	FORCEINLINE float GetHealth() { return Health; }
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Controller")
-	class ABetterPlayerController* BetterPlayerController;
+
+	UFUNCTION()
+	void UpdateHealth(float AddValue);
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+		class ABetterPlayerController* BetterPlayerController;
 
 	// Interation with Door and Camera
 	UFUNCTION(Category = "Interact")
-	void InteractStart(float TargetRotation, bool Boolean, AActor* Door);
+		void InteractStart(float TargetRotation, bool Boolean, AActor* Door);
 	UFUNCTION(Category = "Interact")
-	void InteractStartSwitch(bool Boolean, AActor* Switch);
+		void InteractStartSwitch(bool Boolean, AActor* Switch);
 
 	UFUNCTION(Category = "Interact")
-	void CameraRotatable(bool Boolean, AActor* Rotator);
+		void CameraRotatable(bool Boolean, AActor* Rotator);
 
 	UFUNCTION(Category = "Interact")
-	AActor* GetLastRotator();
+		AActor* GetLastRotator();
 
 	UPROPERTY(EditAnywhere, Category = "Debug | Anims")
-	float MontageBlendOutTime;
+		float MontageBlendOutTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-	bool bWeapon;
+		bool bWeapon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-	EWeaponType WeaponType;
+		EWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float InterpSpeed;
+		float InterpSpeed;
 
 	bool bInterpToEnemy;
 
@@ -209,31 +223,45 @@ public:
 	AShield* GetEquippedShield();
 private:
 	UPROPERTY()
-	UAnimInstance* AnimInstance;
+		UAnimInstance* AnimInstance;
 
-	UPROPERTY(VisibleAnywhere,Category = "Health")
-	float Health;
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float Health;
 
-	UPROPERTY(VisibleAnywhere,Category = "Health")
-	float MaxHealth;
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float HealthPercentage;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+		float PreviousHealth;
 
 	//Mary's
 	UPROPERTY()
-	float DoorOpenRotate;
+		float DoorOpenRotate;
 	UPROPERTY()
-	bool bDoorNearby;
+		bool bDoorNearby;
 	UPROPERTY()
-	bool bIsCameraRotating;
+		bool bIsCameraRotating;
 	UPROPERTY()
-	AActor* InteractingDoor;
+		AActor* InteractingDoor;
 	UPROPERTY()
-	AActor* InteractingRotator;
+		AActor* InteractingRotator;
 	UPROPERTY()
-	AActor* InteractingSwitch;
+		AActor* InteractingSwitch;
 	UPROPERTY()
-	bool bSwitchNearby;
+		bool bSwitchNearby;
 
 	void Skill();
 
 	void Die();
+
+
+	UFUNCTION(BlueprintCallable)
+		void Save();
+	UFUNCTION(BlueprintCallable)
+		void Load();
+
+
 };

@@ -15,13 +15,19 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/ShapeComponent.h"
-#include "Item.h"
+#include "Pickup.h"
 #include "Interactive.h"
 #include "ElevatorSwitch.h"
 #include "BadGuy.h"
 #include "BetterPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Checkpoint.h"
+#include "Torch.h"
+#include "FogOfWarManager.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
+
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -89,6 +95,7 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
+	HealthPercentage = 100.0f;
 
 	MontageBlendOutTime = 0.25f;
 	bWeapon = false;
@@ -99,6 +106,8 @@ ABetterPlayer::ABetterPlayer()
 
 	bIsRolling = false;
 	bComboTime = false;
+	bIsSave = false;
+	bIsLoad = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -121,6 +130,7 @@ void ABetterPlayer::BeginPlay()
 	
 	AnimInstance = GetMesh()->GetAnimInstance();
 	BetterPlayerController = Cast<ABetterPlayerController>(GetController());
+
 }
 
 // Called every frame
@@ -196,6 +206,10 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
+
+	PlayerInputComponent->BindAction("Save", EInputEvent::IE_Pressed, this, &ABetterPlayer::Save);
+	PlayerInputComponent->BindAction("Load", EInputEvent::IE_Pressed, this, &ABetterPlayer::Load);
+
 }
 
 void ABetterPlayer::MoveForward(float Value)
@@ -407,6 +421,14 @@ void ABetterPlayer::DefendEnd()
 	}
 }
 
+void ABetterPlayer::UpdateHealth(float AddValue)
+{
+	Health += AddValue;
+	Health = FMath::Clamp(Health, 0.0f, MaxHealth);
+	PreviousHealth = HealthPercentage;
+	HealthPercentage = Health / MaxHealth;
+}
+
 void ABetterPlayer::Skill()
 {
 	if (AnimInstance && RightEquippedWeapon)
@@ -439,7 +461,10 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 	}
 	if (HighlightActor[objectTypeIdx])
 	{
-		HighlightActor[objectTypeIdx]->bOutlining = true;
+		if (HighlightActor[objectTypeIdx]->bEnableOutline)
+		{
+			HighlightActor[objectTypeIdx]->bOutlining = true;
+		}
 	}
 }
 
@@ -539,4 +564,99 @@ FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
 	FRotator LookAtRotationYaw(0.0f, LookAtRotation.Yaw, 0.0f);
 	return LookAtRotationYaw;
+}
+
+void ABetterPlayer::Save()
+{
+	UCheckpoint* SaveGameInstance = Cast<UCheckpoint>(UGameplayStatics::CreateSaveGameObject(UCheckpoint::StaticClass()));
+	if (SaveGameInstance)
+	{
+		bIsSave = false;
+
+		SaveGameInstance->SaveInfo.PlayerLocation = GetActorLocation();
+		SaveGameInstance->SaveInfo.PlayerRotation = GetActorRotation();
+		SaveGameInstance->SaveInfo.Health = Health;
+		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
+		SaveGameInstance->SaveInfo.bWeapon = bWeapon;
+		SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+		SaveGameInstance->SaveInfo.WeaponType = WeaponType;
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+
+			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
+		}
+		TArray<AActor*> outActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
+		for (auto& actor : outActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			SaveGameInstance->SaveInfo.LightedUpTorch.Add(torch->GetName(), torch->bLightUp);
+		}
+
+		// Save the data immediately.
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex))
+		{
+			bIsSave = true;
+			UE_LOG(LogTemp, Warning, TEXT("Saved"));
+
+		}
+		else
+		{
+			bIsSave = false;
+		}
+	}
+}
+
+void ABetterPlayer::Load()
+{
+	UCheckpoint* LoadedGame = Cast<UCheckpoint>(UGameplayStatics::LoadGameFromSlot(TEXT("Test"), 0));
+	bIsLoad = false;
+	if(LoadedGame)
+	{
+		// The operation was successful, so LoadedGame now contains the data we saved earlier.
+		bIsLoad = true;
+		SetActorLocation(LoadedGame->SaveInfo.PlayerLocation);
+		SetActorRotation(LoadedGame->SaveInfo.PlayerRotation);
+		Health = LoadedGame->SaveInfo.Health;
+		MaxHealth = LoadedGame->SaveInfo.MaxHealth;
+		bWeapon = LoadedGame->SaveInfo.bWeapon;
+		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+		WeaponType = LoadedGame->SaveInfo.WeaponType;
+
+		TArray<AActor*> outActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
+		for (auto& actor : outActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			for (auto& torchdata : LoadedGame->SaveInfo.LightedUpTorch)
+			{
+				if (torch->GetName() == torchdata.Key)
+				{
+					torch->bLightUp = torchdata.Value;
+					if (torch->bLightUp)
+					{
+						torch->bPlaySound = true;
+						torch->SpawnFire();
+					}
+					break;
+				}
+			}
+		}
+		
+
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+			FOWMng->UnfoggedData.Init(false, FOWMng->TextureSize * FOWMng->TextureSize);
+			FOWMng->UnfoggedData = LoadedGame->SaveInfo.UnfoggedData;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Loaded"));
+	}
+	else
+	{
+		bIsLoad = false;
+	}
 }

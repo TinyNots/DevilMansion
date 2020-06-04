@@ -74,15 +74,7 @@ void AFogOfWarManager::BeginPlay()
 	AActor::BeginPlay();
 	bIsDoneBlending = true;
 	AFogOfWarManager::StartFOWTextureUpdate();
-	TArray<AActor*> FoundActors;
-	if (FowActorClass)
-	{
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), FowActorClass, FoundActors);
-		for (auto actor : FoundActors)
-		{
-			RegisterFowActor(actor, 1);
-		}
-	}
+	
 	RegisterFowActor(GetWorld()->GetFirstPlayerController()->GetPawn(),0);
 
 }
