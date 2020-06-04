@@ -125,6 +125,9 @@ public:
 		int ComboCount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+		bool bDeath;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 		class UAnimMontage* CombatMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
@@ -221,21 +224,21 @@ public:
 
 	void SetEquippedShield(AShield* ShieldToSet);
 	AShield* GetEquippedShield();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float HealthPercentage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float PreviousHealth;
 private:
 	UPROPERTY()
 		UAnimInstance* AnimInstance;
-
-	UPROPERTY(VisibleAnywhere, Category = "Health")
-		float Health;
-
-	UPROPERTY(VisibleAnywhere, Category = "Health")
-		float MaxHealth;
-
-	UPROPERTY(VisibleAnywhere, Category = "Health")
-		float HealthPercentage;
-
-	UPROPERTY(VisibleAnywhere, Category = "Health")
-		float PreviousHealth;
 
 	//Mary's
 	UPROPERTY()

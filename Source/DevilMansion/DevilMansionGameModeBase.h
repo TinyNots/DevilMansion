@@ -14,9 +14,9 @@
 UENUM()
 enum class EGamePlayState
 {
+	ETitle,
 	EPlaying,
 	EGameOver,
-	EUnknown
 };
 
 UCLASS()

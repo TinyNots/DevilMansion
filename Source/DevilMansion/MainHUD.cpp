@@ -7,9 +7,6 @@
 
 AMainHUD::AMainHUD()
 {
-
-	//static ConstructorHelpers::FClassFinder<UUserWidget> HealthBarObj(TEXT("/Game/FirstPerson/UI/Health_UI"));
-	//HUDWidgetClass = HealthBarObj.Class;
 }
 
 

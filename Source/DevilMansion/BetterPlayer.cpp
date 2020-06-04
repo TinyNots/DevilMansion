@@ -139,7 +139,7 @@ void ABetterPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
-
+	//UpdateHealth(-0.1f);
 	if (CombatTarget)
 	{
 		CombatTargetLocation = CombatTarget->GetActorLocation();
@@ -480,7 +480,11 @@ void ABetterPlayer::Pickup()
 		}
 		else
 		{
-			HighlightActor[0]->Pickup();
+			APickup* owner = Cast<APickup>(HighlightActor[0]->GetOwner());
+			if (owner)
+			{
+				owner->Pick();
+			}
 		}
 	}
 
@@ -578,7 +582,7 @@ void ABetterPlayer::Save()
 		SaveGameInstance->SaveInfo.Health = Health;
 		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
 		SaveGameInstance->SaveInfo.bWeapon = bWeapon;
-		SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+		//SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
 		SaveGameInstance->SaveInfo.WeaponType = WeaponType;
 		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
 		if (FOWMng)
@@ -622,7 +626,7 @@ void ABetterPlayer::Load()
 		Health = LoadedGame->SaveInfo.Health;
 		MaxHealth = LoadedGame->SaveInfo.MaxHealth;
 		bWeapon = LoadedGame->SaveInfo.bWeapon;
-		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+		//EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
 		WeaponType = LoadedGame->SaveInfo.WeaponType;
 
 		TArray<AActor*> outActors;

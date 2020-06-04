@@ -55,11 +55,7 @@ void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 				// Spawn
 				ABadGuy* InstancedTarget = GetWorld()->SpawnActor<ABadGuy>(spawns.TargetActor, spawns.SpawnPosition, LookAtRotationYaw);
-				InstancedTarget->AutoPossessAI = 
 		
-
-
-
 				// Chase player who triggered this
 				if (spawns.ChasePlayer)
 				{

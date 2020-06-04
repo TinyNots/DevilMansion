@@ -17,9 +17,8 @@ void ADevilMansionGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetCurrentState(EGamePlayState::EPlaying);
+	SetCurrentState(EGamePlayState::ETitle);
 
-	Player = Cast<ABetterPlayer>(UGameplayStatics::GetPlayerPawn(this, 0));
 }
 //
 void ADevilMansionGameModeBase::Tick(float DeltaTime)
@@ -27,7 +26,13 @@ void ADevilMansionGameModeBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GetWorld()->GetMapName();
-
+	if (CurrentState == EGamePlayState::EPlaying)
+	{
+		if (!Player)
+		{
+			Player = Cast<ABetterPlayer>(UGameplayStatics::GetPlayerPawn(this, 0));
+		}
+	}
 	if (Player)
 	{
 		if (FMath::IsNearlyZero(Player->GetHealth(), 0.001f))
@@ -52,6 +57,11 @@ void ADevilMansionGameModeBase::HandleNewState(EGamePlayState NewState)
 {
 	switch (NewState)
 	{
+
+	case EGamePlayState::ETitle:
+	{
+		UGameplayStatics::OpenLevel(this, "TitleScene", false);
+	}
 	case EGamePlayState::EPlaying:
 	{
 		// do nothing
@@ -60,15 +70,13 @@ void ADevilMansionGameModeBase::HandleNewState(EGamePlayState NewState)
 	// Unknown/default state
 	case EGamePlayState::EGameOver:
 	{
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+		UGameplayStatics::OpenLevel(this, "ResultScene", false);
 	}
 	break;
 	// Unknown/default state
 	default:
-	case EGamePlayState::EUnknown:
 	{
-		// do nothing
+		break;
 	}
-	break;
 	}
 }
