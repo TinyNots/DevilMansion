@@ -38,15 +38,20 @@ void AShield::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 void AShield::Equip(ABetterPlayer* Char)
 {
-	if (Char)
+	if (Char && Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon) != nullptr)
 	{
-		const USkeletalMeshSocket* LeftWeaponShield = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
-		if (LeftWeaponShield)
+		if (Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon)->WeaponType == EWeaponType::EMS_SwordShield &&
+			Char->GetEquippedShield() == nullptr)
 		{
-			LeftWeaponShield->AttachActor(this, Char->GetMesh());
-			VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			bRotate = false;
-			VisualMesh->SetRelativeLocationAndRotation(FVector::ZeroVector, FQuat(0.0f, 0.0f, 0.0f, 0.0f));
+			const USkeletalMeshSocket* LeftWeaponShield = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
+			if (LeftWeaponShield)
+			{
+				LeftWeaponShield->AttachActor(this, Char->GetMesh());
+				VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				bRotate = false;
+				VisualMesh->SetRelativeLocationAndRotation(FVector::ZeroVector, FQuat(0.0f, 0.0f, 0.0f, 0.0f));
+				Char->SetEquippedShield(this);
+			}
 		}
 	}
 }

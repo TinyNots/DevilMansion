@@ -90,7 +90,7 @@ ABetterPlayer::ABetterPlayer()
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
 
-	MontageBlendOutTime = 0.0f;
+	MontageBlendOutTime = 0.25f;
 	bWeapon = false;
 	WeaponType = EWeaponType::EMS_NoWeapon;
 
@@ -98,11 +98,14 @@ ABetterPlayer::ABetterPlayer()
 	RollForce = 100.0f;
 
 	bIsRolling = false;
+	bComboTime = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	Health -= DamageAmount;
+	AnimInstance->Montage_Play(CombatMontage);
+	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
 	{
 		//Die
@@ -136,12 +139,42 @@ void ABetterPlayer::Tick(float DeltaTime)
 		}
 	}
 
-	if (bInterpToEnemy && CombatTarget)
+	if (bInterpToEnemy && CombatTarget && bHasCombatTarget)
 	{
 		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
 
 		SetActorRotation(InterpRotation);
+	}
+
+	if (bAttacking && bCombo && bComboTime)
+	{
+		SetInterpToEnemy(true);
+		bAttacking = true;
+		ComboCount++;
+		bCombo = false;
+		bComboTime = false;
+
+		AnimInstance->Montage_Play(CombatMontage);
+		FName SectionName;
+		switch (ComboCount)
+		{
+		case 2:
+			SectionName = FName("Combo02");
+			break;
+		case 3:
+			SectionName = FName("Combo03");
+			break;
+		case 4:
+			SectionName = FName("Combo04");
+			break;
+		case 5:
+			SectionName = FName("Combo05");
+			break;
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, CombatMontage);
 	}
 }
 
@@ -164,7 +197,6 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Skill", EInputEvent::IE_Pressed, this, &ABetterPlayer::Skill);
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ABetterPlayer::Roll);
 }
-
 
 void ABetterPlayer::MoveForward(float Value)
 {
@@ -191,31 +223,33 @@ void ABetterPlayer::TurnAtRate(float Rate)
 
 void ABetterPlayer::Attack()
 {
-	if (EquippedWeapon)
+	if (LeftEquippedWeapon || RightEquippedWeapon)
 	{
-		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount && !bIsRolling)
 		{
-			SetInterpToEnemy(true);
-
 			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
 			{
 				bCombo = true;
 				return;
 			}
 
-			if (AnimInstance->Montage_GetIsStopped(CombatMontage))
+			if (AnimInstance->Montage_GetIsStopped(CombatMontage) && ComboCount < MaxComboCount)
 			{
-				bAttacking = true;
 				ComboCount++;
+				bAttacking = true;
+				SetInterpToEnemy(true);
 				AnimInstance->Montage_Play(CombatMontage);
+				AnimInstance->Montage_JumpToSection("Combo01", CombatMontage);
 			}
 		}
 
-		/*bAttacking = true;
-
-		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
+		
+		/*if (AnimInstance && CombatMontage && ComboCount < MaxComboCount)
 		{
+			SetInterpToEnemy(true);
+			bAttacking = true;
 			ComboCount++;
+
 			AnimInstance->Montage_Play(CombatMontage);
 			FName SectionName;
 			switch (ComboCount)
@@ -245,11 +279,21 @@ void ABetterPlayer::Attack()
 
 void ABetterPlayer::Roll()
 {
-	if (!bIsRolling)
+	if (AnimInstance && !bIsRolling)
 	{
+		AttackEnd();
 		bIsRolling = true;
-		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_Stop(0.0f);
+		AnimInstance->Montage_Play(CombatMontage);
 		AnimInstance->Montage_JumpToSection("Roll", CombatMontage);
+
+		float ForwardValue = GetInputAxisValue("MoveForward");
+		float SideValue = GetInputAxisValue("MoveSide");
+		if (ForwardValue != 0.0f || SideValue != 0.0f)
+		{
+			float YawDegree = UKismetMathLibrary::DegAtan2(SideValue, ForwardValue);
+			SetActorRelativeRotation(FRotator(0.0f, YawDegree + CameraBoom->GetRelativeRotation().Yaw, 0.0f));
+		}
 	}
 }
 
@@ -260,7 +304,13 @@ void ABetterPlayer::RollEnd()
 
 void ABetterPlayer::AttackEnd()
 {
-	if (bCombo)
+	bCombo = false;
+	bAttacking = false;
+	ComboCount = 0;
+	bComboTime = false;
+	SetInterpToEnemy(false);
+
+	/*if (bCombo)
 	{
 		bCombo = false;
 		ComboCount++;
@@ -271,25 +321,50 @@ void ABetterPlayer::AttackEnd()
 		bAttacking = false;
 		ComboCount = 0;
 		SetInterpToEnemy(false);
+	}*/
+}
+
+void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet, EEquippedWeapon Arm)
+{
+	if (Arm == EEquippedWeapon::EMS_LeftEquippedWeapon)
+	{
+		LeftEquippedWeapon = WeaponToSet;
+		if (LeftEquippedWeapon)
+		{
+			CombatMontage = LeftEquippedWeapon->AnimMontage;
+			MaxComboCount = LeftEquippedWeapon->MaxCombo;
+			WeaponType = LeftEquippedWeapon->WeaponType;
+			bWeapon = true;
+		}
+	}
+	else
+	{
+		RightEquippedWeapon = WeaponToSet;
+		if (RightEquippedWeapon)
+		{
+			CombatMontage = RightEquippedWeapon->AnimMontage;
+			MaxComboCount = RightEquippedWeapon->MaxCombo;
+			WeaponType = RightEquippedWeapon->WeaponType;
+			bWeapon = true;
+		}
 	}
 }
 
-
-void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
+AWeapon * ABetterPlayer::GetEquippedWeapon(EEquippedWeapon EEquippedWeapon)
 {
-	EquippedWeapon = WeaponToSet;
-	if (EquippedWeapon)
+	if (EEquippedWeapon == EEquippedWeapon::EMS_LeftEquippedWeapon)
 	{
-		CombatMontage = EquippedWeapon->AnimMontage;
-		MaxComboCount = EquippedWeapon->MaxCombo;
-		WeaponType = EquippedWeapon->WeaponType;
-		bWeapon = true;
+		return LeftEquippedWeapon;
+	}
+	else
+	{
+		return RightEquippedWeapon;
 	}
 }
 
 void ABetterPlayer::DebugEquip()
 {
-	if (EquippedWeapon == nullptr)
+	/*if (EquippedWeapon == nullptr)
 	{
 		AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
 		if (Weapon)
@@ -306,17 +381,20 @@ void ABetterPlayer::DebugEquip()
 			Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SetEquippedWeapon(Weapon);
 		}
-	}
+	}*/
 }
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance)
+	if (AnimInstance && RightEquippedWeapon)
 	{
-		AttackEnd();
-		bDefending = true;
-		AnimInstance->Montage_Play(CombatMontage);
-		AnimInstance->Montage_JumpToSection("Defend");
+		if (RightEquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+		{
+			AttackEnd();
+			bDefending = true;
+			AnimInstance->Montage_Play(CombatMontage);
+			AnimInstance->Montage_JumpToSection("Defend");
+		}
 	}
 }
 
@@ -331,9 +409,13 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::Skill()
 {
-	AttackEnd();
-	AnimInstance->Montage_Play(CombatMontage);
-	AnimInstance->Montage_JumpToSection("Skill");
+	if (AnimInstance && RightEquippedWeapon)
+	{
+		AttackEnd();
+		SetInterpToEnemy(true);
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Skill");
+	}
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)
@@ -366,8 +448,15 @@ void ABetterPlayer::Pickup()
 	if (HighlightActor[0])
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
-
-		HighlightActor[0]->Pickup();
+		AWeapon* Weapon = Cast<AWeapon>(HighlightActor[0]->GetOwner());
+		if (Weapon)
+		{
+			Weapon->Equip(this);
+		}
+		else
+		{
+			HighlightActor[0]->Pickup();
+		}
 	}
 
 	//Click E to open door or activate switch
@@ -425,6 +514,24 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Death");
 	}
+}
+
+void ABetterPlayer::NextCombo()
+{
+	bComboTime = true;
+}
+
+void ABetterPlayer::SetEquippedShield(AShield* ShieldToSet)
+{
+	if (EquippedShield != nullptr)
+	{
+		EquippedShield = ShieldToSet;
+	}
+}
+
+AShield* ABetterPlayer::GetEquippedShield()
+{
+	return EquippedShield;
 }
 
 FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)

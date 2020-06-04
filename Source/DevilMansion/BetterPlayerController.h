@@ -20,12 +20,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* EnemyHealthBar;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Health")
 	bool bEnemyHealthBarVisible;
 
 	void DisplayEnemyHealthBar();
 	void RemoveEnemyHealthBar();
 
 	FVector EnemyLocation;
+
+	void SetHealthBarSize(FVector2D SizeInViewPort);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

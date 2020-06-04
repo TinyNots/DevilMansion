@@ -46,6 +46,7 @@ void AItem::BeginPlay()
 		OutlineRef->SetOwner(this);
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
 		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
+		OutlineRef->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		OutlineRef->bCanPickup = true;
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
 	}

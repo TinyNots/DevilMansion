@@ -13,7 +13,7 @@
 #include "HealthSystem.h"
 #include "BetterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "HealthWidget.h"
 
 
 // Sets default values
@@ -33,9 +33,13 @@ ABadGuy::ABadGuy()
 
 	bCanDropItem = true;
 
-
+	// Health setting init
 	MaxHealth = 100.0f;
-	Health = 100.0f;
+	Health = MaxHealth;
+	OldHealth = Health;
+	HealthDecrementSpeed = 0.75f;
+	HealthDelay = 1.0f;
+	DelayCounter = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +91,8 @@ void ABadGuy::Tick(float DeltaTime)
 
 		}
 	}
+
+	HealthDecrementSystem();
 }
 
 // Called to bind functionality to input
@@ -94,8 +100,6 @@ void ABadGuy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Die", EInputEvent::IE_Pressed, this, &ABadGuy::Die);
-
-
 }
 
 void ABadGuy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -117,12 +121,6 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
-			if (Main->BetterPlayerController)
-			{
-				Main->SetHasCombatTarget(false);
-				Main->BetterPlayerController->RemoveEnemyHealthBar();
-			}
-
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if (AIController)
 			{
@@ -141,12 +139,11 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		if (Main)
 		{
 			Main->SetCombatTarget(this);
+			Main->SetHasCombatTarget(true);
 			if (Main->BetterPlayerController)
 			{
 				Main->BetterPlayerController->DisplayEnemyHealthBar();
-				Main->SetHasCombatTarget(true);
 			}
-
 			CombatTarget = Main;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
 			bOverlappingCombatSphere = true;
@@ -170,6 +167,11 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			Main->SetHasCombatTarget(false);
+			if (Main->BetterPlayerController)
+			{
+				Main->BetterPlayerController->RemoveEnemyHealthBar();
+			}
 			bOverlappingCombatSphere = false;
 			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
@@ -177,7 +179,7 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 			}
 		}
 	}
-	this->Death();
+	//this->Death();
 }
 
 void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
@@ -279,9 +281,29 @@ void ABadGuy::Die()
 float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	Health -= DamageAmount;
-	if (Health < 0.0f)
+	if (Health <= 0.0f)
 	{
-		//Die
+		this->Death();
 	}
 	return DamageAmount;
+}
+
+void ABadGuy::HealthDecrementSystem()
+{
+	if (OldHealth != Health)
+	{
+		if (DelayCounter < HealthDelay * 60.0f)
+		{
+			DelayCounter++;
+		}
+		else
+		{
+			OldHealth -= 0.5f;
+			if (OldHealth <= Health)
+			{
+				OldHealth = Health;
+				DelayCounter = 0.0f;
+			}
+		}
+	}
 }

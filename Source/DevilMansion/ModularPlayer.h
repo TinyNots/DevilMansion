@@ -56,6 +56,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Health")
 	UHelthComponent* Health;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	TSubclassOf<UUserWidget> WHealthBar;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
