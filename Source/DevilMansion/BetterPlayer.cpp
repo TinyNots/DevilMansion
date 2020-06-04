@@ -223,7 +223,7 @@ void ABetterPlayer::TurnAtRate(float Rate)
 
 void ABetterPlayer::Attack()
 {
-	if (EquippedWeapon)
+	if (LeftEquippedWeapon || RightEquippedWeapon)
 	{
 		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount && !bIsRolling)
 		{
@@ -324,21 +324,47 @@ void ABetterPlayer::AttackEnd()
 	}*/
 }
 
-void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet)
+void ABetterPlayer::SetEquippedWeapon(AWeapon * WeaponToSet, EEquippedWeapon Arm)
 {
-	EquippedWeapon = WeaponToSet;
-	if (EquippedWeapon)
+	if (Arm == EEquippedWeapon::EMS_LeftEquippedWeapon)
 	{
-		CombatMontage = EquippedWeapon->AnimMontage;
-		MaxComboCount = EquippedWeapon->MaxCombo;
-		WeaponType = EquippedWeapon->WeaponType;
-		bWeapon = true;
+		LeftEquippedWeapon = WeaponToSet;
+		if (LeftEquippedWeapon)
+		{
+			CombatMontage = LeftEquippedWeapon->AnimMontage;
+			MaxComboCount = LeftEquippedWeapon->MaxCombo;
+			WeaponType = LeftEquippedWeapon->WeaponType;
+			bWeapon = true;
+		}
+	}
+	else
+	{
+		RightEquippedWeapon = WeaponToSet;
+		if (RightEquippedWeapon)
+		{
+			CombatMontage = RightEquippedWeapon->AnimMontage;
+			MaxComboCount = RightEquippedWeapon->MaxCombo;
+			WeaponType = RightEquippedWeapon->WeaponType;
+			bWeapon = true;
+		}
+	}
+}
+
+AWeapon * ABetterPlayer::GetEquippedWeapon(EEquippedWeapon EEquippedWeapon)
+{
+	if (EEquippedWeapon == EEquippedWeapon::EMS_LeftEquippedWeapon)
+	{
+		return LeftEquippedWeapon;
+	}
+	else
+	{
+		return RightEquippedWeapon;
 	}
 }
 
 void ABetterPlayer::DebugEquip()
 {
-	if (EquippedWeapon == nullptr)
+	/*if (EquippedWeapon == nullptr)
 	{
 		AWeapon* Weapon = GetWorld()->SpawnActor<AWeapon>();
 		if (Weapon)
@@ -355,14 +381,14 @@ void ABetterPlayer::DebugEquip()
 			Weapon->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SetEquippedWeapon(Weapon);
 		}
-	}
+	}*/
 }
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance && EquippedWeapon)
+	if (AnimInstance && RightEquippedWeapon)
 	{
-		if (EquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
+		if (RightEquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
 		{
 			AttackEnd();
 			bDefending = true;
@@ -383,7 +409,7 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::Skill()
 {
-	if (AnimInstance && EquippedWeapon)
+	if (AnimInstance && RightEquippedWeapon)
 	{
 		AttackEnd();
 		SetInterpToEnemy(true);
@@ -427,7 +453,10 @@ void ABetterPlayer::Pickup()
 		{
 			Weapon->Equip(this);
 		}
-
+		else
+		{
+			HighlightActor[0]->Pickup();
+		}
 	}
 
 	//Click E to open door or activate switch

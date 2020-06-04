@@ -38,9 +38,9 @@ void AShield::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 void AShield::Equip(ABetterPlayer* Char)
 {
-	if (Char && Char->GetEquippedWeapon() != nullptr)
+	if (Char && Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon) != nullptr)
 	{
-		if (Char->GetEquippedWeapon()->WeaponType == EWeaponType::EMS_SwordShield &&
+		if (Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon)->WeaponType == EWeaponType::EMS_SwordShield &&
 			Char->GetEquippedShield() == nullptr)
 		{
 			const USkeletalMeshSocket* LeftWeaponShield = Char->GetMesh()->GetSocketByName("LeftWeaponShield");

@@ -10,6 +10,14 @@
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 
+UENUM(BlueprintType)
+enum class EEquippedWeapon :uint8
+{
+	EMS_LeftEquippedWeapon UMETA(DeplayName = "LeftEquippedWeapon"),
+	EMS_RightEquippedWeapon UMETA(DeplayName = "RightEquippedWeapon"),
+	EMS_MAX UMETA(DeplayName = "DefaultMax")
+};
+
 UCLASS()
 class DEVILMANSION_API ABetterPlayer : public ACharacter
 {
@@ -111,12 +119,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
-	class AWeapon* EquippedWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	class AWeapon* LeftEquippedWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	class AWeapon* RightEquippedWeapon;
 
 	UFUNCTION()
-	void SetEquippedWeapon(AWeapon* WeaponToSet);
-	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
+	void SetEquippedWeapon(AWeapon* WeaponToSet, EEquippedWeapon Arm);
+	AWeapon* GetEquippedWeapon(EEquippedWeapon Arm);
 
 	void DebugEquip();
 
