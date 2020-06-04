@@ -25,9 +25,6 @@ class DEVILMANSION_API AWeapon : public AItem
 public:
 	AWeapon();
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category = "SkeletalMesh")
-	class USkeletalMeshComponent* SkeletalMesh;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
 	class UBoxComponent* CombatCollision;
 
@@ -72,4 +69,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	int MaxCombo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
+	bool bCanBePickUp;
 };

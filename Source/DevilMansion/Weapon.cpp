@@ -12,15 +12,14 @@
 
 AWeapon::AWeapon()
 {
-	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
-	SkeletalMesh->SetupAttachment(GetRootComponent());
-
 	CombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollision"));
 	CombatCollision->SetupAttachment(GetRootComponent());
 
 	Damage = 100.0f;
 	WeaponType = EWeaponType::EMS_NoWeapon;
 	MaxCombo = 3;
+	bCanBePickUp = true;
+	bRotate = true;
 }
 
 void AWeapon::BeginPlay()
@@ -64,14 +63,6 @@ void AWeapon::Tick(float DeltaTime)
 void AWeapon::OnOverlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	/*if (OtherActor)
-	{
-		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
-		if (Player)
-		{
-			Equip(Player);
-		}
-	}*/
 }
 
 void AWeapon::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -81,7 +72,7 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * O
 
 void AWeapon::Equip(ABetterPlayer* Char)
 {
-	if (Char)
+	if (Char && bCanBePickUp)
 	{
 		SetInstigator(Char->GetController());
 
@@ -103,9 +94,14 @@ void AWeapon::Equip(ABetterPlayer* Char)
 				VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				Char->SetEquippedWeapon(this, CurrentSide);
 			}
+
+			if (OutlineRef)
+			{
+				OutlineRef->bEnableOutline = false;
+				bCanBePickUp = false;
+			}
 		}
-		else if (Char->GetEquippedWeapon(EEquippedWeapon::EMS_LeftEquippedWeapon) != nullptr || 
-				 Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon) != nullptr)
+		else
 		{
 			if (WeaponType == EWeaponType::EMS_DoubleSword)
 			{
@@ -117,10 +113,16 @@ void AWeapon::Equip(ABetterPlayer* Char)
 					VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 					Char->SetEquippedWeapon(this, EEquippedWeapon::EMS_LeftEquippedWeapon);
 				}
+
+				if (OutlineRef)
+				{
+					OutlineRef->bEnableOutline = false;
+					bCanBePickUp = false;
+				}
 			}
-			if (OutlineRef)
-				OutlineRef->bEnableOutline = false;
+			else
 			{
+
 			}
 		}
 
