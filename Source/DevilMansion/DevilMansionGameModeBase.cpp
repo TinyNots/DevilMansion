@@ -17,15 +17,14 @@ void ADevilMansionGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetCurrentState(EGamePlayState::ETitle);
-
+		
 }
 //
 void ADevilMansionGameModeBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	GetWorld()->GetMapName();
+
 	if (CurrentState == EGamePlayState::EPlaying)
 	{
 		if (!Player)
@@ -60,19 +59,23 @@ void ADevilMansionGameModeBase::HandleNewState(EGamePlayState NewState)
 
 	case EGamePlayState::ETitle:
 	{
-		UGameplayStatics::OpenLevel(this, "TitleScene", false);
+		UGameplayStatics::OpenLevel(this, "TitleScene");
+		break;
+
 	}
 	case EGamePlayState::EPlaying:
 	{
-		// do nothing
+		UGameplayStatics::OpenLevel(this, "Map1");
+		break;
+
 	}
-	break;
 	// Unknown/default state
 	case EGamePlayState::EGameOver:
 	{
-		UGameplayStatics::OpenLevel(this, "ResultScene", false);
+		UGameplayStatics::OpenLevel(this, "ResultScene");
+		break;
+
 	}
-	break;
 	// Unknown/default state
 	default:
 	{

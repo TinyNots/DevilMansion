@@ -11,12 +11,13 @@
  * 
  */
 
-UENUM()
-enum class EGamePlayState
+UENUM(BlueprintType)
+enum class EGamePlayState :uint8
 {
-	ETitle,
-	EPlaying,
-	EGameOver,
+	ETitle UMETA(DeplayName = "Title"), 
+	EPlaying UMETA(DeplayName = "Playing"),
+	EGameOver UMETA(DeplayName = "GameOver"),
+	EMAX UMETA(DeplayName = "DefaultMax"),
 };
 
 UCLASS()
@@ -33,10 +34,11 @@ public:
 	ABetterPlayer* Player;
 
 	// Returns the current playing state 
-	UFUNCTION(BlueprintPure, Category = "Health")
+	UFUNCTION(BlueprintPure)
 		EGamePlayState GetCurrentState() const;
 
 	// Sets a new playing state 
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentState(EGamePlayState NewState);
 
 private:
