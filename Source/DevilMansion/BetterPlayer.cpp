@@ -112,13 +112,26 @@ ABetterPlayer::ABetterPlayer()
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	bCombo = false;
+	bAttacking = false;
+	ComboCount = 0;
+	bComboTime = false;
+	bIsRolling = false;
+
 	Health -= DamageAmount;
 	AnimInstance->Montage_Play(CombatMontage);
 	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
 	{
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Die");
 		//Die
 	}
+
+	// Retarget to attacked bad guy
+	/*ABadGuy* BadGuy = Cast<ABadGuy>(DamageCauser);
+	SetCombatTarget(BadGuy);
+	SetHasCombatTarget(true);*/
 
 	return DamageAmount;
 }

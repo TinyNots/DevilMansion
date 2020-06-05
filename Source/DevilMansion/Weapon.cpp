@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BadGuy.h"
 #include "ObjectOutline.h"
+#include "Components/SphereComponent.h"
 
 
 AWeapon::AWeapon()
@@ -33,6 +34,11 @@ void AWeapon::BeginPlay()
 	CombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	CombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	if (Outline)
+	{
+		OutlineRef->CollisionVolume->SetRelativeTransform(CollisionVolume->GetRelativeTransform());
+	}
 
 	/*if (Outline)
 	{
@@ -76,108 +82,65 @@ void AWeapon::Equip(ABetterPlayer* Char)
 	{
 		SetInstigator(Char->GetController());
 
-		if (Char->GetEquippedWeapon(EEquippedWeapon::EMS_LeftEquippedWeapon) == nullptr && 
-			Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon) == nullptr)
+		const USkeletalMeshSocket* HandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
+		EEquippedWeapon CurrentSide = EEquippedWeapon::EMS_RightEquippedWeapon;
+		if (WeaponType == EWeaponType::EMS_SingleTwohand)
 		{
-			const USkeletalMeshSocket* HandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
-			EEquippedWeapon CurrentSide = EEquippedWeapon::EMS_RightEquippedWeapon;
-			if (WeaponType == EWeaponType::EMS_SingleTwohand)
+			HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
+			CurrentSide = EEquippedWeapon::EMS_LeftEquippedWeapon;
+		}
+
+		AWeapon* OldWeaponLeft = Char->GetEquippedWeapon(EEquippedWeapon::EMS_LeftEquippedWeapon);
+		AWeapon* OldWeaponRight = Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon);
+
+		if (WeaponType == EWeaponType::EMS_DoubleSword && OldWeaponRight)
+		{
+			if (OldWeaponRight->WeaponType == EWeaponType::EMS_DoubleSword)
 			{
 				HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
 				CurrentSide = EEquippedWeapon::EMS_LeftEquippedWeapon;
 			}
-
-			if (HandSocket)
-			{
-				bRotate = false;
-				HandSocket->AttachActor(this, Char->GetMesh());
-				VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-				Char->SetEquippedWeapon(this, CurrentSide);
-			}
-
-			if (OutlineRef)
-			{
-				OutlineRef->bEnableOutline = false;
-				bCanBePickUp = false;
-			}
 		}
 		else
 		{
-			if (WeaponType == EWeaponType::EMS_DoubleSword)
+			if (OldWeaponLeft)
 			{
-				const USkeletalMeshSocket* HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
-				if (HandSocket)
-				{
-					bRotate = false;
-					HandSocket->AttachActor(this, Char->GetMesh());
-					VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-					Char->SetEquippedWeapon(this, EEquippedWeapon::EMS_LeftEquippedWeapon);
-				}
+				Char->LeftEquippedWeapon = nullptr;
+				OldWeaponLeft->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OldWeaponLeft->SetActorTransform(this->GetTransform());
+				OldWeaponLeft->WeaponInstigator = nullptr;
+				OldWeaponLeft->bCanBePickUp = true;
+				OldWeaponLeft->bRotate = true;
 
-				if (OutlineRef)
-				{
-					OutlineRef->bEnableOutline = false;
-					bCanBePickUp = false;
-				}
+				OldWeaponLeft->OutlineRef->bEnableOutline = true;
 			}
-			else
-			{
 
+			if (OldWeaponRight)
+			{
+				Char->RightEquippedWeapon = nullptr;
+				OldWeaponRight->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OldWeaponRight->SetActorTransform(this->GetTransform());
+				OldWeaponRight->WeaponInstigator = nullptr;
+				OldWeaponRight->bCanBePickUp = true;
+				OldWeaponRight->bRotate = true;
+
+				OldWeaponRight->OutlineRef->bEnableOutline = true;
 			}
 		}
 
+		if (HandSocket)
+		{
+			bRotate = false;
+			HandSocket->AttachActor(this, Char->GetMesh());
+			VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Char->SetEquippedWeapon(this, CurrentSide);
+		}
 
-		//if (Char->GetEquippedWeapon() == nullptr)
-		//{
-		//	SetInstigator(Char->GetController());
-		//	/*SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-		//	SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		//	SkeletalMesh->SetSimulatePhysics(false);*/
-
-		//	const USkeletalMeshSocket* HandSocket;
-		//	if (WeaponType == EWeaponType::EMS_SingleTwohand)
-		//	{
-		//		HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
-		//	}
-		//	else
-		//	{
-		//		HandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
-		//	}
-
-		//	if (HandSocket)
-		//	{
-		//		HandSocket->AttachActor(this, Char->GetMesh());
-		//		VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//		bRotate = false;
-		//		Char->SetEquippedWeapon(this,EEquippedWeapon::EMS_LeftEquippedWeapon);
-		//	}
-		//}
-		//else if(Char->GetEquippedWeapon(EEquippedWeapon::EMS_LeftEquippedWeapon) != this || Char->GetEquippedWeapon(EEquippedWeapon::EMS_RightEquippedWeapon) != this)
-		//{
-		//	SetInstigator(Char->GetController());
-		//	const USkeletalMeshSocket* HandSocket;
-		//	if (WeaponType == EWeaponType::EMS_SingleTwohand)
-		//	{
-		//		HandSocket = Char->GetMesh()->GetSocketByName("LeftWeaponShield");
-		//	}
-		//	else
-		//	{
-		//		HandSocket = Char->GetMesh()->GetSocketByName("RightWeaponShield");
-		//	}
-
-		//	AWeapon* OldWeapon = Char->GetEquippedWeapon();
-		//	OldWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		//	OldWeapon->SetActorTransform(this->GetTransform());
-
-		//	if (HandSocket)
-		//	{
-		//		HandSocket->AttachActor(this, Char->GetMesh());
-		//		VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//		bRotate = false;
-		//		Char->SetEquippedWeapon(this);
-		//	}
-		//}
-		
+		if (OutlineRef)
+		{
+			OutlineRef->bEnableOutline = false;
+			bCanBePickUp = false;
+		}
 	}
 }
 
