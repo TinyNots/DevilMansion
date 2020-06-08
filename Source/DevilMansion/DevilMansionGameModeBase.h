@@ -33,18 +33,7 @@ public:
 
 	ABetterPlayer* Player;
 
-	// Returns the current playing state 
-	UFUNCTION(BlueprintPure)
-		EGamePlayState GetCurrentState() const;
-
-	// Sets a new playing state 
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentState(EGamePlayState NewState);
-
 private:
-	//Keeps track of the current playing state 
-	EGamePlayState CurrentState;
-
-	//Handle any function calls that rely upon changing the playing state of our game 
-	void HandleNewState(EGamePlayState NewState);
+	UPROPERTY()
+	class UMyGameInstance* Instance;
 };
