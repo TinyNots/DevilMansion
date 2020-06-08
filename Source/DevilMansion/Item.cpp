@@ -115,3 +115,14 @@ void AItem::PickupEffect()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
 }
+
+void AItem::PickUp(ABetterPlayer* Player)
+{
+	if (OutlineRef->bOutlining)
+	{
+		if (OutlineRef->bCanPickup)
+		{
+			PickupEffect();
+		}
+	}
+}

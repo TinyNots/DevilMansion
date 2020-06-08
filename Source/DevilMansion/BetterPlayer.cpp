@@ -128,11 +128,6 @@ float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageE
 		//Die
 	}
 
-	// Retarget to attacked bad guy
-	/*ABadGuy* BadGuy = Cast<ABadGuy>(DamageCauser);
-	SetCombatTarget(BadGuy);
-	SetHasCombatTarget(true);*/
-
 	return DamageAmount;
 }
 
@@ -486,15 +481,9 @@ void ABetterPlayer::Pickup()
 	if (HighlightActor[0])
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
-		AWeapon* Weapon = Cast<AWeapon>(HighlightActor[0]->GetOwner());
-		if (Weapon)
-		{
-			Weapon->Equip(this);
-		}
-		else
-		{
-			//HighlightActor[0]->GetOwner().Pickup();
-		}
+
+		AItem* SelectedItem = Cast<AItem>(HighlightActor[0]->GetOwner());
+		SelectedItem->PickUp(this);
 	}
 
 	//Click E to open door or activate switch

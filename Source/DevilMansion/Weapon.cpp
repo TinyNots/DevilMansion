@@ -76,6 +76,11 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * O
 	Super::OnOverlapEnd(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
 }
 
+void AWeapon::PickUp(ABetterPlayer* Player)
+{
+
+}
+
 void AWeapon::Equip(ABetterPlayer* Char)
 {
 	if (Char && bCanBePickUp)
