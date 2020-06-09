@@ -591,12 +591,20 @@ void ABetterPlayer::Save()
 
 			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
 		}
-		TArray<AActor*> outActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
-		for (auto& actor : outActors)
+		TArray<AActor*> outLightActors;
+		TArray<AActor*> outEnemyActors;
+
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outLightActors);
+		for (auto& actor : outLightActors)
 		{
 			ATorch* torch = Cast<ATorch>(actor);
 			SaveGameInstance->SaveInfo.LightedUpTorch.Add(torch->GetName(), torch->bLightUp);
+		}
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
+		for (auto& actor : outEnemyActors)
+		{
+			ABadGuy* badguy = Cast<ABadGuy>(actor);
+			SaveGameInstance->SaveInfo.EnemyDeathInfo.Add(badguy->GetName(), badguy->bIsDeath);
 		}
 
 		// Save the data immediately.
@@ -643,6 +651,25 @@ void ABetterPlayer::Load()
 					{
 						torch->bPlaySound = true;
 						torch->SpawnFire();
+					}
+					break;
+				}
+			}
+		}
+
+		TArray<AActor*> outEnemyActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
+		for (auto& actor : outEnemyActors)
+		{
+			ABadGuy* badguy = Cast<ABadGuy>(actor);
+			for (auto& badguydata : LoadedGame->SaveInfo.EnemyDeathInfo)
+			{
+				if (badguy->GetName() == badguydata.Key)
+				{
+					badguy->bIsDeath = badguydata.Value;
+					if (badguy->bIsDeath)
+					{
+						badguy->Destroy();
 					}
 					break;
 				}

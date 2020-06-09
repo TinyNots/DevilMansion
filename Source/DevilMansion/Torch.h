@@ -24,9 +24,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision | Particles")
 	bool bLightUp;
 
+	//lighted up fire position when player overlap with trigger collision
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Location")
 	TArray<struct FVector> FirePosition;
 
+	//register to fog of war manager if it has been lighted up 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> FowManager;
 

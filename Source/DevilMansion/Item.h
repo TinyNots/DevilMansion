@@ -49,12 +49,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
 
+	//replace normal material index with outline material index
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	uint8 OutlineMaterialIndex;
 
 	UPROPERTY()
 	AObjectOutline* OutlineRef;
 
+	//item drop rate as weight value (deafult as 100)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	int ItemDropRate;
 

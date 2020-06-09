@@ -32,6 +32,7 @@ public:
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	//bool bIsNearestObject;
 
+	//can it be pickup by player
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Outline")
 	bool bCanPickup;
 

@@ -41,6 +41,7 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	if (bCanOutline && Outline)
 	{
+		//duplicate object for outlining (non-transparent)
 		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, VisualMesh->GetRelativeTransform());
 
 

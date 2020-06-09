@@ -154,9 +154,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		bool bDefending;
 
+	//check is the object has reach the requirement to outline for interactable action
 	UFUNCTION()
 		void OutlineCheck(class USphereComponent* CollisionVolume, int objectTypeIdx);
 
+	//interact with outlined object(pickup)
 	void Pickup();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")

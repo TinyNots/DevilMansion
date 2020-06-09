@@ -13,6 +13,7 @@ struct FSaveInfo
 {
 	GENERATED_BODY()
 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector PlayerLocation;
 
@@ -39,6 +40,9 @@ struct FSaveInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
 	TMap<FString, bool> LightedUpTorch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
+	TMap<FString, bool> EnemyDeathInfo;
 
 	FSaveInfo() {};
 };
