@@ -2,6 +2,7 @@
 
 
 #include "BasePlayer.h"
+#include "MonsterTrigger.h"
 
 // Sets default values
 ABasePlayer::ABasePlayer()

@@ -2,6 +2,7 @@
 
 
 #include "BadGuy.h"
+#include "MonsterTrigger.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BetterPlayer.h"
@@ -204,11 +205,9 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 	}
 
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
-	UE_LOG(LogTemp, Warning, TEXT("1"));
 
 	if (AIController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("2"));
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Targetone);
 		MoveRequest.SetAcceptanceRadius(25.f);
@@ -220,10 +219,14 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 
 void ABadGuy::Death()
 {
+	// Check if it's already dead
+	if (bIsDeath)
+	{
+		return;
+	}
+
 	// Set Status
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
-
-
 
 	// Stop Action
 	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -231,10 +234,16 @@ void ABadGuy::Death()
 	if (AIController)
 	{
 		AIController->StopMovement();
-		AIController->SetActorTickEnabled(false);
 	}
 
+	// Tell the spawner its death
+	AMonsterTrigger* trigger = Cast<AMonsterTrigger>(ParentActor);
+	if (trigger)
+	{
+		trigger->SpawnedEnemyDeath();
+	}
 
+	this->SetActorTickEnabled(false);
 	bIsDeath = true;
 }
 
@@ -328,6 +337,12 @@ void ABadGuy::Die()
 
 float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	// Check if it's already dead
+	if (bIsDeath)
+	{
+		return 0.0f;
+	}
+
 	Health -= DamageAmount;
 	if (Health <= 0.0f)
 	{
@@ -383,6 +398,7 @@ void ABadGuy::NextAction()
 		}
 	}
 }
+
 void ABadGuy::HealthDecrementSystem()
 {
 	if (OldHealth != Health)
@@ -401,4 +417,9 @@ void ABadGuy::HealthDecrementSystem()
 			}
 		}
 	}
+}
+
+void ABadGuy::SetParentSpawner(AActor* source)
+{
+	ParentActor = source;
 }

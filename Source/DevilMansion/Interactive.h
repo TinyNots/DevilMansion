@@ -62,6 +62,9 @@ public:
 	//From 0.1 to 1
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraRotate")
 	float CameraRotateRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DoorSetting")
+	bool Locked;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -81,4 +84,8 @@ public:
 
 	UFUNCTION(Category = "Interact")
 	void InteractDoorOpen(float Rotation);
+
+	UFUNCTION(Category = "Interact")
+	void UnlockDoor(bool lock);
+
 };
