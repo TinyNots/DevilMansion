@@ -78,7 +78,7 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * O
 
 void AWeapon::PickUp(ABetterPlayer* Player)
 {
-
+	Equip(Player);
 }
 
 void AWeapon::Equip(ABetterPlayer* Char)
