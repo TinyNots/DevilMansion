@@ -51,10 +51,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		TArray<class AObjectOutline*> HighlightActor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool bIsSave;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool bIsLoad;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -175,7 +171,7 @@ public:
 	FORCEINLINE float GetHealth() { return Health; }
 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void UpdateHealth(float AddValue);
 
 
@@ -262,11 +258,6 @@ private:
 
 	void Die();
 
-
-	UFUNCTION(BlueprintCallable)
-		void Save();
-	UFUNCTION(BlueprintCallable)
-		void Load();
 
 
 };

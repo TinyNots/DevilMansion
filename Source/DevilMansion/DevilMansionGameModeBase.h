@@ -31,7 +31,9 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "GameMode")
 	ABetterPlayer* Player;
+
 
 private:
 	UPROPERTY()

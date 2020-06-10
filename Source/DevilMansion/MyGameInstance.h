@@ -24,6 +24,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetCurrentState(EGamePlayState NewState);
 
+	UFUNCTION(BlueprintCallable)
+		void Save();
+	UFUNCTION(BlueprintCallable)
+		void Load();
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bIsSave = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bIsLoad = false;
+
 private:
     //Keeps track of the current playing state 
    EGamePlayState CurrentState;

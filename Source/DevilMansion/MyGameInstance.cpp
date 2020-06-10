@@ -5,7 +5,11 @@
 #include "Engine/Engine.h"
 #include "DevilMansionGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Checkpoint.h"
+#include "Torch.h"
+#include "FogOfWarManager.h"
+#include "BadGuy.h"
+#include "BetterPlayer.h"
 
 UMyGameInstance* UMyGameInstance::GetInstance()
 {
@@ -61,5 +65,135 @@ void UMyGameInstance::HandleNewState(EGamePlayState NewState)
 	{
 		break;
 	}
+	}
+}
+
+void UMyGameInstance::Save()
+{
+	UCheckpoint* SaveGameInstance = Cast<UCheckpoint>(UGameplayStatics::CreateSaveGameObject(UCheckpoint::StaticClass()));
+	if (SaveGameInstance)
+	{
+		bIsSave = false;
+		ABetterPlayer* Player = Cast<ABetterPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), ABetterPlayer::StaticClass()));
+		if (Player)
+		{
+			SaveGameInstance->SaveInfo.PlayerLocation = Player->GetActorLocation();
+			SaveGameInstance->SaveInfo.PlayerRotation = Player->GetActorRotation();
+			SaveGameInstance->SaveInfo.Health = Player->Health;
+			SaveGameInstance->SaveInfo.MaxHealth = Player->MaxHealth;
+			SaveGameInstance->SaveInfo.bWeapon = Player->bWeapon;
+			//SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+			SaveGameInstance->SaveInfo.WeaponType = Player->WeaponType;
+		}
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+
+			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
+		}
+		TArray<AActor*> outLightActors;
+		TArray<AActor*> outEnemyActors;
+
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outLightActors);
+		for (auto& actor : outLightActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			SaveGameInstance->SaveInfo.LightedUpTorch.Add(torch->GetName(), torch->bLightUp);
+		}
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
+		for (auto& actor : outEnemyActors)
+		{
+			ABadGuy* badguy = Cast<ABadGuy>(actor);
+			SaveGameInstance->SaveInfo.EnemyDeathInfo.Add(badguy->GetName(), badguy->bIsDeath);
+		}
+
+		// Save the data immediately.
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex))
+		{
+			bIsSave = true;
+			UE_LOG(LogTemp, Warning, TEXT("Saved"));
+
+		}
+		else
+		{
+			bIsSave = false;
+		}
+	}
+}
+
+void UMyGameInstance::Load()
+{
+	UCheckpoint* LoadedGame = Cast<UCheckpoint>(UGameplayStatics::LoadGameFromSlot(TEXT("Test"), 0));
+	bIsLoad = false;
+	if (LoadedGame)
+	{
+		// The operation was successful, so LoadedGame now contains the data we saved earlier.
+		bIsLoad = true;
+
+		ABetterPlayer* Player = Cast<ABetterPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), ABetterPlayer::StaticClass()));
+		if (Player)
+		{
+			Player->SetActorLocation(LoadedGame->SaveInfo.PlayerLocation);
+			Player->SetActorRotation(LoadedGame->SaveInfo.PlayerRotation);
+			Player->Health = LoadedGame->SaveInfo.Health;
+			Player->MaxHealth = LoadedGame->SaveInfo.MaxHealth;
+			Player->bWeapon = LoadedGame->SaveInfo.bWeapon;
+			//EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+			Player->WeaponType = LoadedGame->SaveInfo.WeaponType;
+		}
+
+		TArray<AActor*> outActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outActors);
+		for (auto& actor : outActors)
+		{
+			ATorch* torch = Cast<ATorch>(actor);
+			for (auto& torchdata : LoadedGame->SaveInfo.LightedUpTorch)
+			{
+				if (torch->GetName() == torchdata.Key)
+				{
+					torch->bLightUp = torchdata.Value;
+					if (torch->bLightUp)
+					{
+						torch->bPlaySound = true;
+						torch->SpawnFire();
+					}
+					break;
+				}
+			}
+		}
+
+		TArray<AActor*> outEnemyActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
+		for (auto& actor : outEnemyActors)
+		{
+			ABadGuy* badguy = Cast<ABadGuy>(actor);
+			for (auto& badguydata : LoadedGame->SaveInfo.EnemyDeathInfo)
+			{
+				if (badguy->GetName() == badguydata.Key)
+				{
+					badguy->bIsDeath = badguydata.Value;
+					if (badguy->bIsDeath)
+					{
+						badguy->Destroy();
+					}
+					break;
+				}
+			}
+		}
+
+
+		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
+		if (FOWMng)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FOWMng Found"));
+			FOWMng->UnfoggedData.Init(false, FOWMng->TextureSize * FOWMng->TextureSize);
+			FOWMng->UnfoggedData = LoadedGame->SaveInfo.UnfoggedData;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Loaded"));
+	}
+	else
+	{
+		bIsLoad = false;
 	}
 }
