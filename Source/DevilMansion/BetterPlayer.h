@@ -222,6 +222,12 @@ public:
 	void SetEquippedShield(AShield* ShieldToSet);
 	AShield* GetEquippedShield();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
+	USkeletalMesh* SkeletalHair;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
+	USkeletalMesh* SkeletalHalfHair;
+
 private:
 	UPROPERTY()
 		UAnimInstance* AnimInstance;

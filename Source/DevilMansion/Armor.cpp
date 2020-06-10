@@ -55,6 +55,19 @@ void AArmor::PickUp(ABetterPlayer* Player)
 		}
 		else if (ArmorType == EArmorType::EMS_HeadGears)
 		{
+			Player->HeadGears->SetRelativeLocation(FVector(0.0f, 5.5f, 0.0f));
+			Player->HeadGears->SetSkeletalMesh(ArmorSkeletalMesh);
+			Player->Hair->SetSkeletalMesh(nullptr);
+		}
+		else if (ArmorType == EArmorType::EMS_HeadGearsHalf)
+		{
+			Player->HeadGears->SetRelativeLocation(FVector::ZeroVector);
+			Player->HeadGears->SetSkeletalMesh(ArmorSkeletalMesh);
+			Player->Hair->SetSkeletalMesh(Player->SkeletalHalfHair);
+		}
+		else if (ArmorType == EArmorType::EMS_HeadGearsNone)
+		{
+			Player->HeadGears->SetRelativeLocation(FVector::ZeroVector);
 			Player->HeadGears->SetSkeletalMesh(ArmorSkeletalMesh);
 		}
 		else if (ArmorType == EArmorType::EMS_Shoes)
@@ -65,5 +78,7 @@ void AArmor::PickUp(ABetterPlayer* Player)
 		{
 			Player->ShoulderPad->SetSkeletalMesh(ArmorSkeletalMesh);
 		}
+
+		Destroy();
 	}
 }

@@ -14,6 +14,8 @@ enum class EArmorType :uint8
 	EMS_Belt UMETA(DeplayName = "Belt"),
 	EMS_Shoes UMETA(DeplayName = "Shoes"),
 	EMS_HeadGears UMETA(DeplayName = "HeadGears"),
+	EMS_HeadGearsHalf UMETA(DeplayName = "HeadGearsHalf"),
+	EMS_HeadGearsNone UMETA(DeplayName = "HeadGearsNone"),
 	EMS_ShoulderPad UMETA(DeplayName = "ShoulderPad"),
 	EMS_MAX UMETA(DeplayName = "DefaultMax")
 };
