@@ -33,9 +33,17 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "TriggerPoint")
 	class UBoxComponent* TriggerBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnPoint")
+	AActor* ActivationObject;
+
+	UPROPERTY()
+	int SpawnedEnemyCount;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	bool activated;
 
 public:	
 	// Called every frame
@@ -43,4 +51,7 @@ public:
 
 	UFUNCTION()
 	virtual void TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void SpawnedEnemyDeath();
 };

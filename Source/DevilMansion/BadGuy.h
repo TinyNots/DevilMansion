@@ -40,7 +40,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class AAIController* AIController;
 
-	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; };
+	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
@@ -107,8 +107,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	bool bInterpToPlayer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	AActor* ParentActor;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
 	bool bIsDeath;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
+	float Deathfall;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
+	float DeathfallRate;
 
 	UFUNCTION(Category = "Item")
 	void DropItem();
@@ -147,6 +156,9 @@ public:
 
 	UFUNCTION(Category = "AI")
 	FRotator GetLookAtRotationYaw(FVector Target);
+
+	UFUNCTION(Category = "AI")
+	void SetParentSpawner(AActor * source);
 
 	UFUNCTION(Category = "AI")
 	void NextAction();

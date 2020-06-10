@@ -2,6 +2,7 @@
 
 
 #include "BadGuy.h"
+#include "MonsterTrigger.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BetterPlayer.h"
@@ -35,6 +36,8 @@ ABadGuy::ABadGuy()
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 
 	bCanDropItem = true;
+	DeathfallRate = 0.2f;
+	Deathfall = 0.0f;
 
 	//default
 	// Health setting init
@@ -47,12 +50,17 @@ ABadGuy::ABadGuy()
 	DelayCounter = 0.0f;
 }
 
+void ABadGuy::SetEnemyMovementStatus(EEnemyMovementStatus Status)
+{
+	if (EnemyMovementStatus == EEnemyMovementStatus::EMS_Dying) return;
+	EnemyMovementStatus = Status;
+}
+
 // Called when the game starts or when spawned
 void ABadGuy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("beginplayinitialization"));
 	AIController = Cast<AAIController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &ABadGuy::AgroSphereOnOverlapBegin);
@@ -77,7 +85,6 @@ void ABadGuy::BeginPlay()
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel1);
-		UE_LOG(LogTemp, Warning, TEXT("Spawn Outline"));
 	}
 }
 
@@ -93,7 +100,6 @@ void ABadGuy::Tick(float DeltaTime)
 	else
 	{
 		AttackTimer -= DeltaTime;
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), AttackTimer);
 	}
 
 	if (OutlineRef)
@@ -115,6 +121,17 @@ void ABadGuy::Tick(float DeltaTime)
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
 
 		SetActorRotation(InterpRotation);
+	}
+
+	if (bIsDeath)
+	{
+		FVector originalPos = this->GetTargetLocation();
+		this->SetActorRelativeLocation(FVector(originalPos.X, originalPos.Y, originalPos.Z - DeathfallRate));
+		Deathfall += DeathfallRate;
+		if (Deathfall >= 100.0f)
+		{
+			this->SetActorTickEnabled(false);
+		}
 	}
 
 	HealthDecrementSystem();
@@ -214,11 +231,9 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 	}
 
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);
-	UE_LOG(LogTemp, Warning, TEXT("1"));
 
 	if (AIController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("2"));
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Targetone);
 		MoveRequest.SetAcceptanceRadius(25.f);
@@ -230,6 +245,12 @@ void ABadGuy::MoveToTarget(ABetterPlayer* Targetone)
 
 void ABadGuy::Death()
 {
+	// Check if it's already dead
+	if (bIsDeath)
+	{
+		return;
+	}
+
 	// Set Status
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dying);
 
@@ -239,9 +260,16 @@ void ABadGuy::Death()
 	if (AIController)
 	{
 		AIController->StopMovement();
-		AIController->SetActorTickEnabled(false);
 	}
 
+	// Tell the spawner its death
+	AMonsterTrigger* trigger = Cast<AMonsterTrigger>(ParentActor);
+	if (trigger)
+	{
+		trigger->SpawnedEnemyDeath();
+	}
+
+	this->SetActorEnableCollision(false);
 	// CombatTarget is player class
 	if(CombatTarget->CombatTarget == this)
 	{
@@ -323,7 +351,6 @@ void ABadGuy::DropItem()
 		{
 			GetWorld()->SpawnActor<AItem>(ItemList[rollOutCome], GetTransform());
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Spawn Item"));
 
 		bCanDropItem = false;
 	}
@@ -337,6 +364,12 @@ void ABadGuy::Die()
 
 float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	// Check if it's already dead
+	if (bIsDeath)
+	{
+		return 0.0f;
+	}
+
 	Health -= DamageAmount;
 	if (Health <= 0.0f)
 	{
@@ -355,7 +388,6 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 		CombatTarget = Cast<ABetterPlayer>(DamageCauser);
 		if (CombatTarget)
 		{
-			UE_LOG(LogTemp, Log, TEXT("CombatTargetSet"));
 			SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
 		}
 	}
@@ -379,7 +411,6 @@ void ABadGuy::NextAction()
 {
 	if (CombatTarget)
 	{
-		UE_LOG(LogTemp, Log, TEXT("CombatTargetAvailable"));
 		MoveToTarget(CombatTarget);
 		if (FVector::Dist(this->GetActorLocation(), CombatTarget->GetActorLocation()) < (CombatSphere->GetScaledSphereRadius() * 2))
 		{
@@ -392,6 +423,7 @@ void ABadGuy::NextAction()
 		}
 	}
 }
+
 void ABadGuy::HealthDecrementSystem()
 {
 	if (OldHealth != Health)
@@ -410,4 +442,9 @@ void ABadGuy::HealthDecrementSystem()
 			}
 		}
 	}
+}
+
+void ABadGuy::SetParentSpawner(AActor* source)
+{
+	ParentActor = source;
 }

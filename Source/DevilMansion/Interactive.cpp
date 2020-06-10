@@ -135,9 +135,12 @@ void AInteractive::TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* Overlapped
 
 void AInteractive::InteractDoorOpen(float Rotation)
 {
-	TargetRotation = Rotation;
-	Delta = 0.0f;
-	this->SetActorTickEnabled(true);
+	if (!Locked)
+	{
+		TargetRotation = Rotation;
+		Delta = 0.0f;
+		this->SetActorTickEnabled(true);
+	}
 }
 
 void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -173,4 +176,9 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 		// Enable Loop
 		this->SetActorTickEnabled(true);
 	}
+}
+
+void AInteractive::UnlockDoor(bool lock)
+{
+	Locked = lock;
 }

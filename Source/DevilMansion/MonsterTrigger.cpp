@@ -2,6 +2,8 @@
 
 
 #include "MonsterTrigger.h"
+#include "ElevatorSwitch.h"
+#include "Interactive.h"
 #include "BetterPlayer.h"
 #include "BadGuy.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -30,6 +32,10 @@ void AMonsterTrigger::BeginPlay()
 	Super::BeginPlay();
 
 	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AMonsterTrigger::TriggerBoxOnOverlapBegin);
+
+	activated = false;
+
+	SpawnedEnemyCount = 0;
 }
 
 // Called every frame
@@ -42,7 +48,7 @@ void AMonsterTrigger::Tick(float DeltaTime)
 
 void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor && !activated)
 	{
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
@@ -55,11 +61,7 @@ void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedCo
 
 				// Spawn
 				ABadGuy* InstancedTarget = GetWorld()->SpawnActor<ABadGuy>(spawns.TargetActor, spawns.SpawnPosition, LookAtRotationYaw);
-				/*InstancedTarget->AutoPossessAI = */
 		
-
-
-
 				// Chase player who triggered this
 				if (spawns.ChasePlayer)
 				{
@@ -67,10 +69,40 @@ void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedCo
 					if (Badguy)
 					{
 						Badguy->MoveToTarget(Main);
-						UE_LOG(LogTemp, Warning, TEXT("0"));
+						Badguy->SetParentSpawner(this);
+						SpawnedEnemyCount++;
 					}
 				}
+
+				// Disable this trigger
+				activated = true;
+				TriggerBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			}
 		}
+	}
+}
+
+void AMonsterTrigger::SpawnedEnemyDeath()
+{
+	SpawnedEnemyCount--;
+
+	UE_LOG(LogTemp, Warning, TEXT("%d"), SpawnedEnemyCount);
+	if (SpawnedEnemyCount <= 0 && ActivationObject)
+	{
+		AInteractive* Object = Cast<AInteractive>(ActivationObject);
+		if (Object)
+		{
+			Object->UnlockDoor(false);
+		}
+		else
+		{
+			AElevatorSwitch* Switch = Cast<AElevatorSwitch>(ActivationObject);
+			if (Switch)
+			{
+				Switch->ActivateSwitch();
+				UE_LOG(LogTemp, Warning, TEXT("switch activate"));
+			}
+		}
+		Destroy();
 	}
 }
