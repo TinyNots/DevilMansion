@@ -51,10 +51,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		TArray<class AObjectOutline*> HighlightActor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool bIsSave;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		bool bIsLoad;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -124,6 +120,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		int ComboCount;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+		bool bDeath;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anims")
 		class UAnimMontage* CombatMontage;
 
@@ -151,9 +150,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		bool bDefending;
 
+	//check is the object has reach the requirement to outline for interactable action
 	UFUNCTION()
 		void OutlineCheck(class USphereComponent* CollisionVolume, int objectTypeIdx);
 
+	//interact with outlined object(pickup)
 	void Pickup();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -170,7 +171,7 @@ public:
 	FORCEINLINE float GetHealth() { return Health; }
 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void UpdateHealth(float AddValue);
 
 
@@ -232,17 +233,20 @@ private:
 	UPROPERTY()
 		UAnimInstance* AnimInstance;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float Health;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float MaxHealth;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float HealthPercentage;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float PreviousHealth;
+private:
+	UPROPERTY()
+		UAnimInstance* AnimInstance;
 
 	//Mary's
 	UPROPERTY()
@@ -265,8 +269,5 @@ private:
 	void Die();
 
 
-	UFUNCTION(BlueprintCallable)
-		void Save();
-	UFUNCTION(BlueprintCallable)
-		void Load();
+
 };

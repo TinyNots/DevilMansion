@@ -11,12 +11,13 @@
  * 
  */
 
-UENUM()
-enum class EGamePlayState
+UENUM(BlueprintType)
+enum class EGamePlayState :uint8
 {
-	EPlaying,
-	EGameOver,
-	EUnknown
+	ETitle UMETA(DeplayName = "Title"), 
+	EPlaying UMETA(DeplayName = "Playing"),
+	EGameOver UMETA(DeplayName = "GameOver"),
+	EMAX UMETA(DeplayName = "DefaultMax"),
 };
 
 UCLASS()
@@ -30,19 +31,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "GameMode")
 	ABetterPlayer* Player;
 
-	// Returns the current playing state 
-	UFUNCTION(BlueprintPure, Category = "Health")
-		EGamePlayState GetCurrentState() const;
-
-	// Sets a new playing state 
-	void SetCurrentState(EGamePlayState NewState);
 
 private:
-	//Keeps track of the current playing state 
-	EGamePlayState CurrentState;
-
-	//Handle any function calls that rely upon changing the playing state of our game 
-	void HandleNewState(EGamePlayState NewState);
+	UPROPERTY()
+	class UMyGameInstance* Instance;
 };

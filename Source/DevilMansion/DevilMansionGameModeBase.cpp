@@ -4,6 +4,8 @@
 #include "DevilMansionGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainHUD.h"
+#include "MyGameInstance.h"
+
 
 
 ADevilMansionGameModeBase::ADevilMansionGameModeBase()
@@ -16,59 +18,31 @@ ADevilMansionGameModeBase::ADevilMansionGameModeBase()
 void ADevilMansionGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetCurrentState(EGamePlayState::EPlaying);
-
-	Player = Cast<ABetterPlayer>(UGameplayStatics::GetPlayerPawn(this, 0));
+	Instance = UMyGameInstance::GetInstance();
+		
 }
 //
 void ADevilMansionGameModeBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	GetWorld()->GetMapName();
-
-	if (Player)
+	
+	if (Instance)
 	{
-		if (FMath::IsNearlyZero(Player->GetHealth(), 0.001f))
+
+		if (Instance->GetCurrentState() == EGamePlayState::EPlaying)
 		{
-			//SetCurrentState(EGamePlayState::EGameOver);
+			if (!Player)
+			{
+				Player = Cast<ABetterPlayer>(UGameplayStatics::GetPlayerPawn(this, 0));
+			}
+		}
+		if (Player)
+		{
+			if (FMath::IsNearlyZero(Player->GetHealth(), 0.001f))
+			{
+				Instance->SetCurrentState(EGamePlayState::EGameOver);
+			}
 		}
 	}
 }
 
-EGamePlayState ADevilMansionGameModeBase::GetCurrentState() const
-{
-	return CurrentState;
-}
-
-void ADevilMansionGameModeBase::SetCurrentState(EGamePlayState NewState)
-{
-	CurrentState = NewState;
-	HandleNewState(CurrentState);
-}
-
-void ADevilMansionGameModeBase::HandleNewState(EGamePlayState NewState)
-{
-	switch (NewState)
-	{
-	case EGamePlayState::EPlaying:
-	{
-		// do nothing
-	}
-	break;
-	// Unknown/default state
-	case EGamePlayState::EGameOver:
-	{
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-	}
-	break;
-	// Unknown/default state
-	default:
-	case EGamePlayState::EUnknown:
-	{
-		// do nothing
-	}
-	break;
-	}
-}
