@@ -40,11 +40,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class AAIController* AIController;
 
-	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { 
-		const TEnumAsByte<EEnemyMovementStatus> SurfaceEnum = Status;
-		FString EnumAsString = UEnum::GetValueAsString(SurfaceEnum.GetValue());
-		UE_LOG(LogTemp, Warning, TEXT("%s"), EnumAsString);
-		EnemyMovementStatus = Status; };
+	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;
@@ -116,6 +112,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
 	bool bIsDeath;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
+	float Deathfall;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status")
+	float DeathfallRate;
 
 	UFUNCTION(Category = "Item")
 	void DropItem();

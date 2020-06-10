@@ -71,7 +71,6 @@ void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedCo
 						Badguy->MoveToTarget(Main);
 						Badguy->SetParentSpawner(this);
 						SpawnedEnemyCount++;
-						UE_LOG(LogTemp, Warning, TEXT("%d"), SpawnedEnemyCount);
 					}
 				}
 
