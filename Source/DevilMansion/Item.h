@@ -69,4 +69,6 @@ public:
 	UFUNCTION()
 	virtual void PickupEffect();
 
+	UFUNCTION()
+	virtual void PickUp(class ABetterPlayer* Player);
 };

@@ -17,11 +17,11 @@ AItem::AItem()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
-	RootComponent = CollisionVolume;
-
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	VisualMesh->SetupAttachment(GetRootComponent());
+	SetRootComponent(VisualMesh);
+
+	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
+	CollisionVolume->SetupAttachment(GetRootComponent());
 
 	IdleParticles = CreateDefaultSubobject<UParticleSystemComponent>("IdleParticles");
 	IdleParticles->SetupAttachment(GetRootComponent());
@@ -41,12 +41,12 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	if (bCanOutline && Outline)
 	{
-		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, VisualMesh->GetRelativeTransform());
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline);
 
 
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
-		OutlineRef->SetActorRelativeLocation(VisualMesh->GetRelativeLocation());
+		OutlineRef->SetActorRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
 		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
@@ -114,4 +114,15 @@ void AItem::PickupEffect()
 		Destroy();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Destroy Item"));
+}
+
+void AItem::PickUp(ABetterPlayer* Player)
+{
+	if (OutlineRef->bOutlining)
+	{
+		if (OutlineRef->bCanPickup)
+		{
+			PickupEffect();
+		}
+	}
 }

@@ -17,11 +17,11 @@ AObjectOutline::AObjectOutline()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
-	RootComponent = CollisionVolume;
-
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	VisualMesh->SetupAttachment(GetRootComponent());
+	SetRootComponent(VisualMesh);
+
+	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
+	CollisionVolume->SetupAttachment(GetRootComponent());
 
 	OutlineMaterial = CreateDefaultSubobject<UMaterial>(TEXT("OutlineMaterial"));
 
@@ -63,7 +63,3 @@ void AObjectOutline::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 		}
 	}
 }
-
-
-
-

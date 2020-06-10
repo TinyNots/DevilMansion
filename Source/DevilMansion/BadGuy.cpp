@@ -146,6 +146,16 @@ void ABadGuy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
+			if (Main->CombatTarget == this)
+			{
+				Main->SetHasCombatTarget(false);
+				Main->SetCombatTarget(nullptr);
+				if (Main->BetterPlayerController)
+				{
+					Main->BetterPlayerController->RemoveEnemyHealthBar();
+				}
+			}
+
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			CombatTarget = nullptr;
 			if (AIController)
@@ -163,12 +173,17 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
-			Main->SetCombatTarget(this);
-			Main->SetHasCombatTarget(true);
-			if (Main->BetterPlayerController)
+			// Set player combat traget
+			if (!Main->bHasCombatTarget)
 			{
-				Main->BetterPlayerController->DisplayEnemyHealthBar();
+				Main->SetCombatTarget(this);
+				Main->SetHasCombatTarget(true);
+				if (Main->BetterPlayerController)
+				{
+					Main->BetterPlayerController->DisplayEnemyHealthBar();
+				}
 			}
+
 			CombatTarget = Main;
 			Attack();
 		}
@@ -182,11 +197,6 @@ void ABadGuy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
 		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
 		if (Main)
 		{
-			Main->SetHasCombatTarget(false);
-			if (Main->BetterPlayerController)
-			{
-				Main->BetterPlayerController->RemoveEnemyHealthBar();
-			}
 			bOverlappingCombatSphere = false;
 			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
@@ -232,6 +242,17 @@ void ABadGuy::Death()
 		AIController->SetActorTickEnabled(false);
 	}
 
+	// CombatTarget is player class
+	if(CombatTarget->CombatTarget == this)
+	{
+		CombatTarget->SetHasCombatTarget(false);
+		CombatTarget->SetCombatTarget(nullptr);
+		if (CombatTarget->BetterPlayerController)
+		{
+			CombatTarget->BetterPlayerController->RemoveEnemyHealthBar();
+		}
+	}
+
 	bIsDeath = true;
 }
 
@@ -244,7 +265,6 @@ void ABadGuy::Attack()
 
 		AttackTimer = ResetAttackTimer();
 		
-
 		if (DamageTypeClass)
 		{
 			UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
@@ -253,14 +273,6 @@ void ABadGuy::Attack()
 		if (AIController)
 		{
 			AIController->StopMovement();
-		}
-
-		// Player
-		CombatTarget->SetCombatTarget(this);
-		if (CombatTarget->BetterPlayerController)
-		{
-			CombatTarget->BetterPlayerController->DisplayEnemyHealthBar();
-			CombatTarget->SetHasCombatTarget(true);
 		}
 	}
 }

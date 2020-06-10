@@ -124,7 +124,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		int ComboCount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anims")
 		class UAnimMontage* CombatMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
@@ -221,6 +221,13 @@ public:
 
 	void SetEquippedShield(AShield* ShieldToSet);
 	AShield* GetEquippedShield();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
+	USkeletalMesh* SkeletalHair;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
+	USkeletalMesh* SkeletalHalfHair;
+
 private:
 	UPROPERTY()
 		UAnimInstance* AnimInstance;
@@ -262,6 +269,4 @@ private:
 		void Save();
 	UFUNCTION(BlueprintCallable)
 		void Load();
-
-
 };

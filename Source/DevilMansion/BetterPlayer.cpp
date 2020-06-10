@@ -112,11 +112,19 @@ ABetterPlayer::ABetterPlayer()
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	bCombo = false;
+	bAttacking = false;
+	ComboCount = 0;
+	bComboTime = false;
+	bIsRolling = false;
+
 	Health -= DamageAmount;
 	AnimInstance->Montage_Play(CombatMontage);
 	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
 	{
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("Die");
 		//Die
 	}
 
@@ -473,15 +481,9 @@ void ABetterPlayer::Pickup()
 	if (HighlightActor[0])
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
-		AWeapon* Weapon = Cast<AWeapon>(HighlightActor[0]->GetOwner());
-		if (Weapon)
-		{
-			Weapon->Equip(this);
-		}
-		else
-		{
-			HighlightActor[0]->Pickup();
-		}
+
+		AItem* SelectedItem = Cast<AItem>(HighlightActor[0]->GetOwner());
+		SelectedItem->PickUp(this);
 	}
 
 	//Click E to open door or activate switch
@@ -578,7 +580,7 @@ void ABetterPlayer::Save()
 		SaveGameInstance->SaveInfo.Health = Health;
 		SaveGameInstance->SaveInfo.MaxHealth = MaxHealth;
 		SaveGameInstance->SaveInfo.bWeapon = bWeapon;
-		SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
+		//SaveGameInstance->SaveInfo.EquippedWeapon = EquippedWeapon;
 		SaveGameInstance->SaveInfo.WeaponType = WeaponType;
 		AFogOfWarManager* FOWMng = Cast<AFogOfWarManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AFogOfWarManager::StaticClass()));
 		if (FOWMng)
@@ -622,7 +624,7 @@ void ABetterPlayer::Load()
 		Health = LoadedGame->SaveInfo.Health;
 		MaxHealth = LoadedGame->SaveInfo.MaxHealth;
 		bWeapon = LoadedGame->SaveInfo.bWeapon;
-		EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
+		//EquippedWeapon = LoadedGame->SaveInfo.EquippedWeapon;
 		WeaponType = LoadedGame->SaveInfo.WeaponType;
 
 		TArray<AActor*> outActors;

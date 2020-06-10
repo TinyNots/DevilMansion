@@ -32,7 +32,7 @@ void ADevilMansionGameModeBase::Tick(float DeltaTime)
 	{
 		if (FMath::IsNearlyZero(Player->GetHealth(), 0.001f))
 		{
-			SetCurrentState(EGamePlayState::EGameOver);
+			//SetCurrentState(EGamePlayState::EGameOver);
 		}
 	}
 }
