@@ -123,7 +123,6 @@ float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageE
 	{
 		AnimInstance->Montage_Play(CombatMontage);
 		AnimInstance->Montage_JumpToSection("Die");
-		//Die
 	}
 
 	return DamageAmount;
