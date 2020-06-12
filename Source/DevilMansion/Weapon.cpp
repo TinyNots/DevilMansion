@@ -9,7 +9,7 @@
 #include "BadGuy.h"
 #include "ObjectOutline.h"
 #include "Components/SphereComponent.h"
-
+#include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
 {
@@ -160,6 +160,10 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			{
 
 			}*/
+			if (Enemy->GetHitSound)
+			{
+				UGameplayStatics::PlaySound2D(this, Enemy->GetHitSound);
+			}
 		}
 		if (DamageTypeClass)
 		{

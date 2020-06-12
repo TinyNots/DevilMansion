@@ -229,40 +229,36 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
 	USkeletalMesh* SkeletalHalfHair;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	float HealthPercentage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	float PreviousHealth;
 private:
 	UPROPERTY()
-		UAnimInstance* AnimInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float Health;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float MaxHealth;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float HealthPercentage;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float PreviousHealth;
-private:
-	UPROPERTY()
-		UAnimInstance* AnimInstance;
+	UAnimInstance* AnimInstance;
 
 	//Mary's
 	UPROPERTY()
-		float DoorOpenRotate;
+	float DoorOpenRotate;
 	UPROPERTY()
-		bool bDoorNearby;
+	bool bDoorNearby;
 	UPROPERTY()
-		bool bIsCameraRotating;
+	bool bIsCameraRotating;
 	UPROPERTY()
-		AActor* InteractingDoor;
+	AActor* InteractingDoor;
 	UPROPERTY()
-		AActor* InteractingRotator;
+	AActor* InteractingRotator;
 	UPROPERTY()
-		AActor* InteractingSwitch;
+	AActor* InteractingSwitch;
 	UPROPERTY()
-		bool bSwitchNearby;
+	bool bSwitchNearby;
 
 	void Skill();
 

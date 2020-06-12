@@ -271,7 +271,7 @@ void ABadGuy::Death()
 
 	this->SetActorEnableCollision(false);
 	// CombatTarget is player class
-	if(CombatTarget->CombatTarget == this)
+	if(CombatTarget && CombatTarget->CombatTarget == this)
 	{
 		CombatTarget->SetHasCombatTarget(false);
 		CombatTarget->SetCombatTarget(nullptr);
@@ -295,7 +295,7 @@ void ABadGuy::Attack()
 		
 		if (DamageTypeClass)
 		{
-			UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+			UGameplayStatics::ApplyDamage(CombatTarget, -10.0f, AIController, this, DamageTypeClass);
 		}
 
 		if (AIController)

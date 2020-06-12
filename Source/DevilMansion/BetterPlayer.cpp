@@ -116,7 +116,7 @@ float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageE
 	bComboTime = false;
 	bIsRolling = false;
 
-	Health -= DamageAmount;
+	UpdateHealth(DamageAmount);
 	AnimInstance->Montage_Play(CombatMontage);
 	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
@@ -144,7 +144,7 @@ void ABetterPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
-	UpdateHealth(-0.1f);
+
 	if (CombatTarget)
 	{
 		CombatTargetLocation = CombatTarget->GetActorLocation();
