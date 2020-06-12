@@ -95,7 +95,9 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
-	HealthPercentage = 100.0f;
+	PreviousHealth = 1.0f;
+	HealthPercentage = 1.0f;
+	HealthLerp = 1;
 
 	MontageBlendOutTime = 0.25f;
 	bWeapon = false;
@@ -116,7 +118,7 @@ float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageE
 	bComboTime = false;
 	bIsRolling = false;
 
-	Health -= DamageAmount;
+	UpdateHealth(DamageAmount);
 	AnimInstance->Montage_Play(CombatMontage);
 	AnimInstance->Montage_JumpToSection("GetHit");
 	if (Health < 0.0f)
@@ -145,7 +147,11 @@ void ABetterPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
-	UpdateHealth(-0.1f);
+	//UpdateHealth(-0.1f);
+	HealthLerp += DeltaTime;
+	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
+	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);
+
 	if (CombatTarget)
 	{
 		CombatTargetLocation = CombatTarget->GetActorLocation();
@@ -216,7 +222,6 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Save", EInputEvent::IE_Pressed, UMyGameInstance::GetInstance(), &UMyGameInstance::Save);
 	PlayerInputComponent->BindAction("Load", EInputEvent::IE_Pressed, UMyGameInstance::GetInstance(), &UMyGameInstance::Load);
 	
-
 }
 
 void ABetterPlayer::MoveForward(float Value)
@@ -430,10 +435,14 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::UpdateHealth(float AddValue)
 {
+	PreviousHealth = Health/MaxHealth;
+
 	Health += AddValue;
 	Health = FMath::Clamp(Health, 0.0f, MaxHealth);
-	PreviousHealth = HealthPercentage;
-	HealthPercentage = Health / MaxHealth;
+	HealthLerp = 0;
+	
+
+
 }
 
 void ABetterPlayer::Skill()
@@ -445,6 +454,7 @@ void ABetterPlayer::Skill()
 		AnimInstance->Montage_Play(CombatMontage);
 		AnimInstance->Montage_JumpToSection("Skill");
 	}
+
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)

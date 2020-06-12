@@ -8,7 +8,7 @@
 #include "Checkpoint.h"
 #include "Torch.h"
 #include "FogOfWarManager.h"
-#include "BadGuy.h"
+#include "ElevatorSwitch.h"
 #include "BetterPlayer.h"
 
 UMyGameInstance* UMyGameInstance::GetInstance()
@@ -93,7 +93,7 @@ void UMyGameInstance::Save()
 			SaveGameInstance->SaveInfo.UnfoggedData = FOWMng->UnfoggedData;
 		}
 		TArray<AActor*> outLightActors;
-		TArray<AActor*> outEnemyActors;
+		TArray<AActor*> outSwitchActors;
 
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATorch::StaticClass(), outLightActors);
 		for (auto& actor : outLightActors)
@@ -101,11 +101,11 @@ void UMyGameInstance::Save()
 			ATorch* torch = Cast<ATorch>(actor);
 			SaveGameInstance->SaveInfo.LightedUpTorch.Add(torch->GetName(), torch->bLightUp);
 		}
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
-		for (auto& actor : outEnemyActors)
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AElevatorSwitch::StaticClass(), outSwitchActors);
+		for (auto& actor : outSwitchActors)
 		{
-			ABadGuy* badguy = Cast<ABadGuy>(actor);
-			SaveGameInstance->SaveInfo.EnemyDeathInfo.Add(badguy->GetName(), badguy->bIsDeath);
+			AElevatorSwitch* switchs = Cast<AElevatorSwitch>(actor);
+			SaveGameInstance->SaveInfo.DoorTriggerInfo.Add(switchs->GetName(), switchs->bActivated);
 		}
 
 		// Save the data immediately.
@@ -163,19 +163,19 @@ void UMyGameInstance::Load()
 			}
 		}
 
-		TArray<AActor*> outEnemyActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABadGuy::StaticClass(), outEnemyActors);
-		for (auto& actor : outEnemyActors)
+		TArray<AActor*> outSwitchActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AElevatorSwitch::StaticClass(), outSwitchActors);
+		for (auto& actor : outSwitchActors)
 		{
-			ABadGuy* badguy = Cast<ABadGuy>(actor);
-			for (auto& badguydata : LoadedGame->SaveInfo.EnemyDeathInfo)
+			AElevatorSwitch* switchs = Cast<AElevatorSwitch>(actor);
+			for (auto& switchdata : LoadedGame->SaveInfo.DoorTriggerInfo)
 			{
-				if (badguy->GetName() == badguydata.Key)
+				if (switchs->GetName() == switchdata.Key)
 				{
-					badguy->bIsDeath = badguydata.Value;
-					if (badguy->bIsDeath)
+					switchs->bActivated = switchdata.Value;
+					if (switchs->bActivated)
 					{
-						badguy->Destroy();
+						switchs->ActivateSwitch();
 					}
 					break;
 				}

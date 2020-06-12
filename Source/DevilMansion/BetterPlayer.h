@@ -229,9 +229,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hair")
 	USkeletalMesh* SkeletalHalfHair;
 
-private:
-	UPROPERTY()
-		UAnimInstance* AnimInstance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float HealthLerp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float Health;
@@ -239,7 +238,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 		float MaxHealth;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 		float HealthPercentage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")

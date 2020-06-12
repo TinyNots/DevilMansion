@@ -271,7 +271,7 @@ void ABadGuy::Death()
 
 	this->SetActorEnableCollision(false);
 	// CombatTarget is player class
-	if(CombatTarget->CombatTarget == this)
+	if(CombatTarget && CombatTarget->CombatTarget == this)
 	{
 		CombatTarget->SetHasCombatTarget(false);
 		CombatTarget->SetCombatTarget(nullptr);

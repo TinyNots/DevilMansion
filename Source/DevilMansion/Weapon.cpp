@@ -165,6 +165,7 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 		{
 			UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this->GetAttachParentActor(), DamageTypeClass);
 		}
+		
 	}
 }
 
