@@ -117,7 +117,7 @@ void AItem::PickupEffect()
 }
 
 void AItem::PickUp(ABetterPlayer* Player)
-{
+{
 	if (OutlineRef->bOutlining)
 	{
 		if (OutlineRef->bCanPickup)
