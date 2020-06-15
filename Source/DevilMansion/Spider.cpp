@@ -13,7 +13,8 @@ ASpider::ASpider()
 
 	AgroSphere->InitSphereRadius(1000.f);
 	CombatSphere->InitSphereRadius(40.f);
-	AttackTimerMax = 3.0f;
+	AttackTimerMax = 1.5f;
+	AttackRange = 50.f;
 }
 
 // Called when the game starts or when spawned

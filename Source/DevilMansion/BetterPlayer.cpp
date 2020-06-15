@@ -126,6 +126,7 @@ float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageE
 		//Die
 	}
 
+	UpdateHealth(Health);
 	return DamageAmount;
 }
 
@@ -145,7 +146,6 @@ void ABetterPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
-	UpdateHealth(-0.1f);
 	if (CombatTarget)
 	{
 		CombatTargetLocation = CombatTarget->GetActorLocation();

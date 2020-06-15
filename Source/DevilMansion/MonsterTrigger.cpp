@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/BoxComponent.h"
 #include "AIController.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMonsterTrigger::AMonsterTrigger()
@@ -73,11 +74,22 @@ void AMonsterTrigger::TriggerBoxOnOverlapBegin(UPrimitiveComponent* OverlappedCo
 						SpawnedEnemyCount++;
 					}
 				}
-
-				// Disable this trigger
-				activated = true;
-				TriggerBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			}
+
+			// PlaySound
+			if (SpawnSound)
+			{
+				UGameplayStatics::PlaySound2D(this, SpawnSound);
+				UE_LOG(LogTemp, Warning, TEXT("sound activate"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("sound = null"));
+			}
+
+			// Disable this trigger
+			activated = true;
+			TriggerBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
 }
@@ -100,7 +112,6 @@ void AMonsterTrigger::SpawnedEnemyDeath()
 			if (Switch)
 			{
 				Switch->ActivateSwitch();
-				UE_LOG(LogTemp, Warning, TEXT("switch activate"));
 			}
 		}
 		Destroy();
