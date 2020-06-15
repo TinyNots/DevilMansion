@@ -28,6 +28,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "MyGameInstance.h"
+#include "Camera/PlayerCameraManager.h"
+
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -148,7 +150,7 @@ void ABetterPlayer::Tick(float DeltaTime)
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
 	//UpdateHealth(-0.1f);
-	HealthLerp += DeltaTime;
+	HealthLerp += DeltaTime * 2;
 	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
 	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);
 
@@ -230,6 +232,7 @@ void ABetterPlayer::MoveForward(float Value)
 	{
 		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction * 2.0f, Value);
+
 	}
 }
 
@@ -320,6 +323,7 @@ void ABetterPlayer::Roll()
 			float YawDegree = UKismetMathLibrary::DegAtan2(SideValue, ForwardValue);
 			SetActorRelativeRotation(FRotator(0.0f, YawDegree + CameraBoom->GetRelativeRotation().Yaw, 0.0f));
 		}
+
 	}
 }
 
@@ -435,14 +439,18 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::UpdateHealth(float AddValue)
 {
-	PreviousHealth = Health/MaxHealth;
+	if (FMath::IsNearlyEqual(HealthLerp, 1.0f))
+	{
+		PreviousHealth = Health / MaxHealth;
+	}
+	else
+	{
+		PreviousHealth = HealthPercentage;
+	}
+	HealthLerp = 0;
 
 	Health += AddValue;
 	Health = FMath::Clamp(Health, 0.0f, MaxHealth);
-	HealthLerp = 0;
-	
-
-
 }
 
 void ABetterPlayer::Skill()
@@ -549,6 +557,8 @@ void ABetterPlayer::Die()
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Death");
+		BetterPlayerController->PlayerCameraManager->StartCameraFade(0, 1, 1, FLinearColor::Black, true, true);
+
 	}
 }
 
