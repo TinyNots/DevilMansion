@@ -30,10 +30,8 @@ void ABetterPlayerController::Tick(float DeltaTime)
 		FVector2D PositionInViewport;
 		ProjectWorldLocationToScreen(EnemyLocation, PositionInViewport);
 
-		FVector2D SizeInViewport = FVector2D(200.0f, 25.0f);
-		PositionInViewport -= FVector2D(100.0f, 20.0f) / 2.0f;
-		PositionInViewport.Y -= 100.0f;
-
+		//FVector2D SizeInViewport = FVector2D(200.0f, 25.0f);
+		PositionInViewport -= FVector2D(CenterPointOffset, (EnemyHeight / 2.0f) - GapBetweenEnemyAndHealth);
 		EnemyHealthBar->SetPositionInViewport(PositionInViewport);
 		//EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewport);
 	}
@@ -63,4 +61,9 @@ void ABetterPlayerController::SetHealthBarSize(FVector2D SizeInViewPort)
 	{
 		EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewPort);
 	}
+}
+
+void ABetterPlayerController::SetEnemyHeight(float Height)
+{
+	EnemyHeight = Height;
 }

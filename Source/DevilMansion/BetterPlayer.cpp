@@ -106,25 +106,29 @@ ABetterPlayer::ABetterPlayer()
 
 	bIsRolling = false;
 	bComboTime = false;
+	bDeath = false;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
-	bCombo = false;
-	bAttacking = false;
-	ComboCount = 0;
-	bComboTime = false;
-	bIsRolling = false;
-
-	UpdateHealth(DamageAmount);
-	AnimInstance->Montage_Play(CombatMontage);
-	AnimInstance->Montage_JumpToSection("GetHit");
-	if (Health < 0.0f)
+	if (!bIsRolling)
 	{
-		AnimInstance->Montage_Play(CombatMontage);
-		AnimInstance->Montage_JumpToSection("Die");
-	}
+		bCombo = false;
+		bAttacking = false;
+		ComboCount = 0;
+		bComboTime = false;
+		bIsRolling = false;
+		bInterpToEnemy = false;
 
+		UpdateHealth(DamageAmount);
+		AnimInstance->Montage_Play(CombatMontage);
+		AnimInstance->Montage_JumpToSection("GetHit");
+		if (Health <= 0.0f)
+		{
+			Die();
+		}
+
+	}
 	return DamageAmount;
 }
 
@@ -144,6 +148,11 @@ void ABetterPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
+
+	if (bDeath)
+	{
+		return;
+	}
 
 	if (CombatTarget)
 	{
@@ -220,7 +229,7 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void ABetterPlayer::MoveForward(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending && !bDeath)
 	{
 		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction * 2.0f, Value);
@@ -229,7 +238,7 @@ void ABetterPlayer::MoveForward(float Value)
 
 void ABetterPlayer::MoveSide(float Value)
 {
-	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking && !bDefending && !bDeath)
 	{
 		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
@@ -245,7 +254,7 @@ void ABetterPlayer::Attack()
 {
 	if (LeftEquippedWeapon || RightEquippedWeapon)
 	{
-		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount && !bIsRolling)
+		if (AnimInstance && CombatMontage && ComboCount < MaxComboCount && !bIsRolling && !bDeath)
 		{
 			if (AnimInstance->Montage_IsPlaying(CombatMontage) && !bCombo)
 			{
@@ -299,7 +308,7 @@ void ABetterPlayer::Attack()
 
 void ABetterPlayer::Roll()
 {
-	if (AnimInstance && !bIsRolling)
+	if (AnimInstance && !bIsRolling && !bDeath)
 	{
 		AttackEnd();
 		bIsRolling = true;
@@ -406,7 +415,7 @@ void ABetterPlayer::DebugEquip()
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance && RightEquippedWeapon)
+	if (AnimInstance && RightEquippedWeapon && !bDeath)
 	{
 		if (RightEquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
 		{
@@ -437,7 +446,7 @@ void ABetterPlayer::UpdateHealth(float AddValue)
 
 void ABetterPlayer::Skill()
 {
-	if (AnimInstance && RightEquippedWeapon)
+	if (AnimInstance && RightEquippedWeapon && !bDeath)
 	{
 		AttackEnd();
 		SetInterpToEnemy(true);
@@ -476,24 +485,27 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 
 void ABetterPlayer::Pickup()
 {
-	if (HighlightActor[0])
+	if (!bDeath)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
+		if (HighlightActor[0])
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HActor Acquired"));
 
-		AItem* SelectedItem = Cast<AItem>(HighlightActor[0]->GetOwner());
-		SelectedItem->PickUp(this);
-	}
+			AItem* SelectedItem = Cast<AItem>(HighlightActor[0]->GetOwner());
+			SelectedItem->PickUp(this);
+		}
 
-	//Click E to open door or activate switch
-	if (bDoorNearby && InteractingDoor != nullptr)
-	{
-		AInteractive* Door = Cast<AInteractive>(InteractingDoor);
-		Door->InteractDoorOpen(DoorOpenRotate);
-	}
-	else if (bSwitchNearby && InteractingSwitch != nullptr)
-	{
-		AElevatorSwitch* Switch = Cast<AElevatorSwitch>(InteractingSwitch);
-		Switch->ActivateSwitch();
+		//Click E to open door or activate switch
+		if (bDoorNearby && InteractingDoor != nullptr)
+		{
+			AInteractive* Door = Cast<AInteractive>(InteractingDoor);
+			Door->InteractDoorOpen(DoorOpenRotate);
+		}
+		else if (bSwitchNearby && InteractingSwitch != nullptr)
+		{
+			AElevatorSwitch* Switch = Cast<AElevatorSwitch>(InteractingSwitch);
+			Switch->ActivateSwitch();
+		}
 	}
 }
 
@@ -537,7 +549,8 @@ void ABetterPlayer::Die()
 	if (AnimInstance && CombatMontage)
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
-		AnimInstance->Montage_JumpToSection("Death");
+		AnimInstance->Montage_JumpToSection("Die");
+		bDeath = true;
 	}
 }
 
@@ -566,3 +579,8 @@ FRotator ABetterPlayer::GetLookAtRotationYaw(FVector Target)
 	return LookAtRotationYaw;
 }
 
+void ABetterPlayer::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+}

@@ -120,9 +120,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		int ComboCount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-		bool bDeath;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anims")
 		class UAnimMontage* CombatMontage;
 
@@ -240,6 +237,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float PreviousHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool bDeath;
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
@@ -263,7 +266,4 @@ private:
 	void Skill();
 
 	void Die();
-
-
-
 };

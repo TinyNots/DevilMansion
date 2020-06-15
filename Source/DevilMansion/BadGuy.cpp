@@ -45,7 +45,7 @@ ABadGuy::ABadGuy()
 	InterpSpeed = 15.0f;
 	Health = MaxHealth;
 	OldHealth = Health;
-	HealthDecrementSpeed = 0.75f;
+	HealthDecrementSpeed = 3.0f;
 	HealthDelay = 1.0f;
 	DelayCounter = 0.0f;
 }
@@ -198,6 +198,9 @@ void ABadGuy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponen
 				if (Main->BetterPlayerController)
 				{
 					Main->BetterPlayerController->DisplayEnemyHealthBar();
+
+					float CurrentEnemyHeight = GetMesh()->Bounds.GetBox().GetSize().Z;
+					Main->BetterPlayerController->SetEnemyHeight(CurrentEnemyHeight);
 				}
 			}
 
@@ -434,7 +437,7 @@ void ABadGuy::HealthDecrementSystem()
 		}
 		else
 		{
-			OldHealth -= 0.5f;
+			OldHealth -= HealthDecrementSpeed;
 			if (OldHealth <= Health)
 			{
 				OldHealth = Health;
