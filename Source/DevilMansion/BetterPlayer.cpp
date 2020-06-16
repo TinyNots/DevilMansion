@@ -111,7 +111,7 @@ ABetterPlayer::ABetterPlayer()
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
-	if (!bIsRolling)
+	if (!bIsRolling && !bDeath)
 	{
 		bCombo = false;
 		bAttacking = false;
