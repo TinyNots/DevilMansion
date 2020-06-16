@@ -65,6 +65,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DoorSetting")
 	bool Locked;
+
+	UPROPERTY(EditAnywhere, Category = "DoorSetting")
+	class USoundBase* DoorOpenSound;
+
+	UPROPERTY(EditAnywhere, Category = "DoorSetting")
+	class USoundBase* DoorCloseSound;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

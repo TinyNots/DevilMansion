@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -104,6 +105,13 @@ void AInteractive::Tick(float DeltaTime)
 				}
 			}
 
+
+			// PlaySound
+			if (DoorCloseSound && TargetRotation == 0.0f)
+			{
+				UGameplayStatics::PlaySound2D(this, DoorCloseSound);
+			}
+
 			this->SetActorTickEnabled(false);
 		}
 	}
@@ -139,6 +147,13 @@ void AInteractive::InteractDoorOpen(float Rotation)
 	{
 		TargetRotation = Rotation;
 		Delta = 0.0f;
+
+		// PlaySound
+		if (DoorOpenSound && this->IsActorTickEnabled() == false && Door->GetRelativeRotation().Yaw == 0.0f)
+		{
+			UGameplayStatics::PlaySound2D(this, DoorOpenSound, 0.5f);
+		}
+
 		this->SetActorTickEnabled(true);
 	}
 }
