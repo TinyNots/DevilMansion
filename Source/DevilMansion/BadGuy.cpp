@@ -339,7 +339,7 @@ void ABadGuy::DealDamage()
 			UE_LOG(LogTemp, Warning, TEXT("Hit! %f"), target->GetTargetLocation().X);
 			if (DamageTypeClass)
 			{
-				UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+				UGameplayStatics::ApplyDamage(CombatTarget, -10.0f, AIController, this, DamageTypeClass);
 			}
 		}
 	}

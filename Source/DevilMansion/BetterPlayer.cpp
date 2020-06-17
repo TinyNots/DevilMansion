@@ -29,6 +29,7 @@
 #include "TimerManager.h"
 #include "MyGameInstance.h"
 #include "Camera/PlayerCameraManager.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -111,6 +112,7 @@ ABetterPlayer::ABetterPlayer()
 	bIsRolling = false;
 	bComboTime = false;
 	bDeath = false;
+	FadeOutDelayTime = 1.0f;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -570,7 +572,10 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Die");
 		bDeath = true;
-		BetterPlayerController->PlayerCameraManager->StartCameraFade(0, 1, 1, FLinearColor::Black, true, true);
+		FTimerHandle handle;
+		GetWorldTimerManager().SetTimer(handle, [this]() {
+			BetterPlayerController->PlayerCameraManager->StartCameraFade(0, 1, 1, FLinearColor::Black, true, true);
+			}, FadeOutDelayTime, false);
 	}
 }
 

@@ -3,6 +3,8 @@
 
 #include "MainHUD.h"
 #include "Blueprint/UserWidget.h"
+#include "MyGameInstance.h"
+#include "DevilMansionGameModeBase.h"
 
 
 AMainHUD::AMainHUD()
@@ -20,13 +22,50 @@ void AMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HUDWidgetClass != nullptr)
-	{
-		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
+	UMyGameInstance* gameInst = UMyGameInstance::GetInstance();
 
-		if (CurrentWidget)
+
+	switch (gameInst->GetCurrentState())
+	{
+
+	case EGamePlayState::ETitle:
+	{
+
+		if (TitleHUDWidget != nullptr)
 		{
-			CurrentWidget->AddToViewport();
+			CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), TitleHUDWidget);
 		}
+		break;
+
 	}
+	case EGamePlayState::EPlaying:
+	{
+		if (MainHUDWidget != nullptr)
+		{
+			CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), MainHUDWidget);
+		}
+		break;
+
+	}
+	// Unknown/default state
+	case EGamePlayState::EGameOver:
+	{
+		if (ResultHUDWidget != nullptr)
+		{
+			CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), ResultHUDWidget);
+		}
+		break;
+	}
+	// Unknown/default state
+	default:
+	{
+		break;
+	}
+	}
+	
+	if (CurrentWidget)
+	{
+		CurrentWidget->AddToViewport();
+	}
+	
 }

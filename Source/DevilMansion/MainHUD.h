@@ -21,9 +21,15 @@ public:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Health")
-		TSubclassOf<class UUserWidget> HUDWidgetClass;
+	UPROPERTY(EditAnywhere )
+		TSubclassOf<class UUserWidget> MainHUDWidget;
 
-	UPROPERTY(EditAnywhere, Category = "Health")
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> TitleHUDWidget;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> ResultHUDWidget;
+
+	UPROPERTY(EditAnywhere)
 		class UUserWidget* CurrentWidget;
 };

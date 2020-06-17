@@ -9,6 +9,16 @@
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EGamePlayState :uint8
+{
+	ETitle UMETA(DeplayName = "Title"),
+	EPlaying UMETA(DeplayName = "Playing"),
+	EGameOver UMETA(DeplayName = "GameOver"),
+	EMAX UMETA(DeplayName = "DefaultMax"),
+};
+
+
 UCLASS()
 class DEVILMANSION_API UMyGameInstance : public UGameInstance
 {
