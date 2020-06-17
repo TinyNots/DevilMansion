@@ -36,4 +36,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
 	float WaveTimeMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	float ForcePower;
 };

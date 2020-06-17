@@ -158,7 +158,6 @@ void ABetterPlayer::Tick(float DeltaTime)
 		return;
 	}
 
-	//UpdateHealth(-0.1f);
 	HealthLerp += DeltaTime * 2;
 	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
 	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);

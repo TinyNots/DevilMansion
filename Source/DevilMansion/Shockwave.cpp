@@ -3,6 +3,9 @@
 
 #include "Shockwave.h"
 #include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "BadGuy.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AShockwave::AShockwave()
@@ -12,9 +15,15 @@ AShockwave::AShockwave()
 
 	WaveCollision = CreateDefaultSubobject<USphereComponent>(TEXT("WaveCollision"));
 	WaveCollision->SetupAttachment(GetRootComponent());
+
+	WaveCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WaveCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	WaveCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
 	WaveSpeed = 0.1f;
 	WaveTime = 0.0f;
-	WaveTimeMax = 1.0;
+	WaveTimeMax = 1.0f;
+	ForcePower = 1.0f;
 }
 
 // Called when the game starts or when spawned
@@ -46,6 +55,14 @@ void AShockwave::Tick(float DeltaTime)
 
 void AShockwave::OnOverlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	if (OtherActor)
+	{
+		ABadGuy* BadGuy = Cast<ABadGuy>(OtherActor);
+
+		FVector DirectionForce = BadGuy->GetActorLocation() - this->GetActorLocation();
+
+		BadGuy->GetCapsuleComponent()->AddForce(DirectionForce * ForcePower);
+	}
 }
 
 void AShockwave::OnOverlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
