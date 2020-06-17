@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
 	void AttackingEnd();
 
+	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
+	void DamageFrame();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MovementSpeed;
 

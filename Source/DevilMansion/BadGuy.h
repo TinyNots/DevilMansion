@@ -90,6 +90,9 @@ public:
 	void Attack();
 
 	UFUNCTION(BlueprintCallable)
+	void DealDamage();
+
+	UFUNCTION(BlueprintCallable)
 	void SetMovementSpeed(float Speed);
 
 	UFUNCTION(BlueprintCallable)
@@ -145,6 +148,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float AttackTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AttackRange;
+
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UDamageType> DamageTypeClass;

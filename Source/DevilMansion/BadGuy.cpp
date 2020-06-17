@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "HealthWidget.h"
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values
@@ -273,6 +274,7 @@ void ABadGuy::Death()
 	}
 
 	this->SetActorEnableCollision(false);
+
 	// CombatTarget is player class
 	if(CombatTarget && CombatTarget->CombatTarget == this)
 	{
@@ -283,7 +285,7 @@ void ABadGuy::Death()
 			CombatTarget->BetterPlayerController->RemoveEnemyHealthBar();
 		}
 	}
-
+	
 	bIsDeath = true;
 }
 
@@ -295,15 +297,50 @@ void ABadGuy::Attack()
 		bOverlappingCombatSphere = true;
 
 		AttackTimer = ResetAttackTimer();
-		
-		if (DamageTypeClass)
-		{
-			UGameplayStatics::ApplyDamage(CombatTarget, -10.0f, AIController, this, DamageTypeClass);
-		}
 
 		if (AIController)
 		{
 			AIController->StopMovement();
+		}
+	}
+}
+
+void ABadGuy::DealDamage()
+{
+	if (CombatTarget)
+	{
+		// check if the player should be attacked
+		FVector Loc;
+		FRotator Rot;
+		FHitResult Hit;
+
+		Loc = this->GetTargetLocation();
+		Rot = this->GetActorRotation();
+
+		FVector Start = Loc;
+		FVector End = Start + (Rot.Vector() * AttackRange);
+
+		FCollisionQueryParams TraceParams;
+		TraceParams.AddIgnoredActor(this);
+		bool isHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_PhysicsBody, TraceParams);
+		
+		if (isHit)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f);
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+		}
+		if (isHit)
+		{
+			AActor* target = Hit.GetActor();
+			
+			UE_LOG(LogTemp, Warning, TEXT("Hit! %f"), target->GetTargetLocation().X);
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+			}
 		}
 	}
 }
