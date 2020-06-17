@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "MainHUD.h"
 #include "MyGameInstance.h"
+#include "Camera/PlayerCameraManager.h"
+#include "BetterPlayerController.h"
 
 
 
@@ -38,9 +40,12 @@ void ADevilMansionGameModeBase::Tick(float DeltaTime)
 		}
 		if (Player)
 		{
-			if (FMath::IsNearlyZero(Player->GetHealth(), 0.001f))
+			if (Player->BetterPlayerController->PlayerCameraManager->bEnableFading)
 			{
-				Instance->SetCurrentState(EGamePlayState::EGameOver);
+				if (FMath::IsNearlyZero(Player->BetterPlayerController->PlayerCameraManager->FadeTimeRemaining))
+				{
+					Instance->SetCurrentState(EGamePlayState::EGameOver);
+				}
 			}
 		}
 	}

@@ -28,6 +28,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "MyGameInstance.h"
+#include "Camera/PlayerCameraManager.h"
+
 
 // Sets default values
 ABetterPlayer::ABetterPlayer()
@@ -95,7 +97,9 @@ ABetterPlayer::ABetterPlayer()
 
 	MaxHealth = 100.0f;
 	Health = MaxHealth;
-	HealthPercentage = 100.0f;
+	PreviousHealth = 1.0f;
+	HealthPercentage = 1.0f;
+	HealthLerp = 1;
 
 	MontageBlendOutTime = 0.25f;
 	bWeapon = false;
@@ -153,6 +157,11 @@ void ABetterPlayer::Tick(float DeltaTime)
 	{
 		return;
 	}
+
+	//UpdateHealth(-0.1f);
+	HealthLerp += DeltaTime * 2;
+	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
+	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);
 
 	if (CombatTarget)
 	{
@@ -224,7 +233,6 @@ void ABetterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Save", EInputEvent::IE_Pressed, UMyGameInstance::GetInstance(), &UMyGameInstance::Save);
 	PlayerInputComponent->BindAction("Load", EInputEvent::IE_Pressed, UMyGameInstance::GetInstance(), &UMyGameInstance::Load);
 	
-
 }
 
 void ABetterPlayer::MoveForward(float Value)
@@ -233,6 +241,7 @@ void ABetterPlayer::MoveForward(float Value)
 	{
 		const FVector Direction = FRotationMatrix(CameraBoom->GetRelativeRotation()).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction * 2.0f, Value);
+
 	}
 }
 
@@ -323,6 +332,7 @@ void ABetterPlayer::Roll()
 			float YawDegree = UKismetMathLibrary::DegAtan2(SideValue, ForwardValue);
 			SetActorRelativeRotation(FRotator(0.0f, YawDegree + CameraBoom->GetRelativeRotation().Yaw, 0.0f));
 		}
+
 	}
 }
 
@@ -438,10 +448,18 @@ void ABetterPlayer::DefendEnd()
 
 void ABetterPlayer::UpdateHealth(float AddValue)
 {
+	if (FMath::IsNearlyEqual(HealthLerp, 1.0f))
+	{
+		PreviousHealth = Health / MaxHealth;
+	}
+	else
+	{
+		PreviousHealth = HealthPercentage;
+	}
+	HealthLerp = 0;
+
 	Health += AddValue;
 	Health = FMath::Clamp(Health, 0.0f, MaxHealth);
-	PreviousHealth = HealthPercentage;
-	HealthPercentage = Health / MaxHealth;
 }
 
 void ABetterPlayer::Skill()
@@ -453,6 +471,7 @@ void ABetterPlayer::Skill()
 		AnimInstance->Montage_Play(CombatMontage);
 		AnimInstance->Montage_JumpToSection("Skill");
 	}
+
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)
@@ -551,6 +570,7 @@ void ABetterPlayer::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection("Die");
 		bDeath = true;
+		BetterPlayerController->PlayerCameraManager->StartCameraFade(0, 1, 1, FLinearColor::Black, true, true);
 	}
 }
 

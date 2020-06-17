@@ -227,13 +227,16 @@ public:
 	USkeletalMesh* SkeletalHalfHair;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		float HealthLerp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float Health;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float MaxHealth;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-	float HealthPercentage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
+		float HealthPercentage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float PreviousHealth;

@@ -38,11 +38,11 @@ struct FSaveInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<bool> UnfoggedData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FString, bool> LightedUpTorch;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FogOfWar)
-	TMap<FString, bool> EnemyDeathInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FString, bool> DoorTriggerInfo;
 
 	FSaveInfo() {};
 };
