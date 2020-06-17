@@ -151,7 +151,7 @@ void AInteractive::InteractDoorOpen(float Rotation)
 		// PlaySound
 		if (DoorOpenSound && this->IsActorTickEnabled() == false && Door->GetRelativeRotation().Yaw == 0.0f)
 		{
-			UGameplayStatics::PlaySound2D(this, DoorOpenSound, 0.5f);
+			UGameplayStatics::PlaySound2D(this, DoorOpenSound, SoundVolume);
 		}
 
 		this->SetActorTickEnabled(true);
@@ -187,6 +187,12 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 		Delta = 0.0f;
 		CameraDelta = 0.0f;
 		Player->InteractStart(0.f, false, nullptr);
+
+		// PlaySound
+		if (DoorOpenSound && this->IsActorTickEnabled() == false && PlaySoundDuringClose && Door->GetRelativeRotation().Yaw != 0.0f)
+		{
+			UGameplayStatics::PlaySound2D(this, DoorOpenSound, SoundVolume);
+		}
 
 		// Enable Loop
 		this->SetActorTickEnabled(true);
