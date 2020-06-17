@@ -22,7 +22,7 @@ void AElevatorSwitch::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
+	bActivated = false;
 	// Initialization
 	if (bEnableByDefault)
 	{
@@ -108,6 +108,7 @@ void AElevatorSwitch::ActivateSwitch()
 
 		// Disable
 		bEnabled = false;
+		bActivated = true;
 
 		// Start Looping
 		this->SetActorTickEnabled(true);

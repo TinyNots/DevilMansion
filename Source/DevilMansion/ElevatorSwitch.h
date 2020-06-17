@@ -36,6 +36,9 @@ public:
 	bool bEnabled;
 
 	UPROPERTY(BlueprintReadOnly)
+	bool bActivated;
+
+	UPROPERTY(BlueprintReadOnly)
 	float MovedDistance;
 
 	// Visible

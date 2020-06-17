@@ -29,6 +29,18 @@ public:
 	FVector EnemyLocation;
 
 	void SetHealthBarSize(FVector2D SizeInViewPort);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float EnemyHeight;
+
+	UFUNCTION()
+	void SetEnemyHeight(float Height);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+	float GapBetweenEnemyAndHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+	float CenterPointOffset;
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

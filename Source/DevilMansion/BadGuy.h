@@ -169,6 +169,9 @@ public:
 
 	UFUNCTION(Category = "AI")
 	void NextAction();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	class USoundBase* GetHitSound;
 private:
 	void HealthDecrementSystem();
 };

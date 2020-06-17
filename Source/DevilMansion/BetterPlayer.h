@@ -120,9 +120,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 		int ComboCount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
-		bool bDeath;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anims")
 		class UAnimMontage* CombatMontage;
 
@@ -230,40 +227,46 @@ public:
 	USkeletalMesh* SkeletalHalfHair;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float Health;
+		float HealthLerp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float MaxHealth;
+	float Health;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 		float HealthPercentage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		float PreviousHealth;
+	float PreviousHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool bDeath;
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
 private:
 	UPROPERTY()
-		UAnimInstance* AnimInstance;
+	UAnimInstance* AnimInstance;
 
 	//Mary's
 	UPROPERTY()
-		float DoorOpenRotate;
+	float DoorOpenRotate;
 	UPROPERTY()
-		bool bDoorNearby;
+	bool bDoorNearby;
 	UPROPERTY()
-		bool bIsCameraRotating;
+	bool bIsCameraRotating;
 	UPROPERTY()
-		AActor* InteractingDoor;
+	AActor* InteractingDoor;
 	UPROPERTY()
-		AActor* InteractingRotator;
+	AActor* InteractingRotator;
 	UPROPERTY()
-		AActor* InteractingSwitch;
+	AActor* InteractingSwitch;
 	UPROPERTY()
-		bool bSwitchNearby;
+	bool bSwitchNearby;
 
 	void Skill();
 
 	void Die();
-
-
-
 };
