@@ -18,6 +18,7 @@
 #include "TimerManager.h"
 #include "HealthWidget.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -332,14 +333,18 @@ void ABadGuy::DealDamage()
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
 		}
+
 		if (isHit)
 		{
 			AActor* target = Hit.GetActor();
 			
-			UE_LOG(LogTemp, Warning, TEXT("Hit! %f"), target->GetTargetLocation().X);
+			if (AIController)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit! %f"), AttackDamage);
+			}
 			if (DamageTypeClass)
 			{
-				UGameplayStatics::ApplyDamage(CombatTarget, 10.0f, AIController, this, DamageTypeClass);
+				UGameplayStatics::ApplyDamage(CombatTarget, -AttackDamage, AIController, this, DamageTypeClass);
 			}
 		}
 	}
@@ -411,9 +416,16 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	}
 
 	Health -= DamageAmount;
+
 	if (Health <= 0.0f)
 	{
 		Death();
+
+		// PlaySound
+		if (DeathSound)
+		{
+			UGameplayStatics::PlaySound2D(this, DeathSound, DeathSoundVolume);
+		}
 	}
 	else
 	{
@@ -429,6 +441,11 @@ float ABadGuy::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 		if (CombatTarget)
 		{
 			SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+		}
+		// PlaySound
+		if (GetHitSound)
+		{
+			UGameplayStatics::PlaySound2D(this, GetHitSound, 0.15f);
 		}
 	}
 
