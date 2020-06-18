@@ -133,6 +133,7 @@ void ABadGuy::Tick(float DeltaTime)
 		if (Deathfall >= 100.0f)
 		{
 			this->SetActorTickEnabled(false);
+			Destroy();
 		}
 	}
 
@@ -325,14 +326,14 @@ void ABadGuy::DealDamage()
 		TraceParams.AddIgnoredActor(this);
 		bool isHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_PhysicsBody, TraceParams);
 		
-		if (isHit)
+		/*if (isHit)
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f);
 		}
 		else
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
-		}
+		}*/
 
 		if (isHit)
 		{
@@ -468,6 +469,11 @@ void ABadGuy::NextAction()
 {
 	if (CombatTarget)
 	{
+		// face to player
+		if (CombatTarget)
+		{
+			SetActorRotation(GetLookAtRotationYaw(CombatTarget->GetActorLocation()));
+		}
 		MoveToTarget(CombatTarget);
 		if (FVector::Dist(this->GetActorLocation(), CombatTarget->GetActorLocation()) < (CombatSphere->GetScaledSphereRadius() * 2))
 		{

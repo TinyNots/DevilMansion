@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnPoint")
 	AActor* ActivationObject;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnPoint")
+	bool BossRoom;
+
 	UPROPERTY()
 	int SpawnedEnemyCount;
 

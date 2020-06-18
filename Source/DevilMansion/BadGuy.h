@@ -40,7 +40,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class AAIController* AIController;
 
-	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status);
+	UFUNCTION()
+	void SetEnemyMovementStatus(EEnemyMovementStatus Status);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TSubclassOf<class AObjectOutline> Outline;

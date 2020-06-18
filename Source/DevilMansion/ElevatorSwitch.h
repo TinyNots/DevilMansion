@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Item.h"
 #include "GameFramework/Actor.h"
 #include "ElevatorSwitch.generated.h"
 
@@ -18,16 +19,13 @@ enum class ESwitchType :uint8
 
 
 UCLASS()
-class DEVILMANSION_API AElevatorSwitch : public AActor
+class DEVILMANSION_API AElevatorSwitch : public AItem
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AElevatorSwitch();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* VisualMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USphereComponent* TriggerSphere;

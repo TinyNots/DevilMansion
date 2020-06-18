@@ -30,6 +30,7 @@
 #include "MyGameInstance.h"
 #include "Camera/PlayerCameraManager.h"
 #include "TimerManager.h"
+#include "Shockwave.h"
 
 
 // Sets default values
@@ -156,8 +157,8 @@ void ABetterPlayer::BeginPlay()
 void ABetterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
+	OutlineCheck(EnemyCollisionVolume,1);
 
 	HealthLerp += DeltaTime * 2;
 	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
@@ -439,7 +440,7 @@ void ABetterPlayer::DebugEquip()
 
 void ABetterPlayer::Defend()
 {
-	if (AnimInstance && RightEquippedWeapon && !bDeath)
+	if (AnimInstance && RightEquippedWeapon && !bDeath && !bIsRolling)
 	{
 		if (RightEquippedWeapon->WeaponType == EWeaponType::EMS_SwordShield)
 		{

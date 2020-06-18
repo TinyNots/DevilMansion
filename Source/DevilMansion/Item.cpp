@@ -66,6 +66,17 @@ void AItem::Tick(float DeltaTime)
 		Rotation.Yaw += DeltaTime * RotationRate;
 		SetActorRotation(Rotation);
 	}
+	if (OutlineRef)
+	{
+		if (OutlineRef->bOutlining)
+		{
+			VisualMesh->SetRenderCustomDepth(true);
+		}
+		else
+		{
+			VisualMesh->SetRenderCustomDepth(false);
+		}
+	}
 
 }
 

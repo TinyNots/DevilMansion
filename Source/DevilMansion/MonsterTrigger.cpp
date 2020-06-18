@@ -9,7 +9,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/BoxComponent.h"
 #include "AIController.h"
+#include "MyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
+
 
 // Sets default values
 AMonsterTrigger::AMonsterTrigger()
@@ -114,6 +117,12 @@ void AMonsterTrigger::SpawnedEnemyDeath()
 				Switch->ActivateSwitch();
 			}
 		}
+		Destroy();
+	}
+	else if (SpawnedEnemyCount <= 0 && !ActivationObject && BossRoom)
+	{
+	
+		UMyGameInstance::GetInstance()->SetCurrentState(EGamePlayState::EGameOver);
 		Destroy();
 	}
 }
