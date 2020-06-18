@@ -152,6 +152,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float AttackRange;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AttackDamage;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UDamageType> DamageTypeClass;
@@ -172,6 +174,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
 	class USoundBase* GetHitSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	class USoundBase* DeathSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	float DeathSoundVolume;
 private:
 	void HealthDecrementSystem();
 };

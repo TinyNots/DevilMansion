@@ -3,6 +3,7 @@
 #include "BetterPlayer.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AElevatorSwitch::AElevatorSwitch()
@@ -72,6 +73,7 @@ void AElevatorSwitch::Tick(float DeltaTime)
 	}
 
 	MovedDistance += MoveRate;
+
 	if (MovedDistance >= TargetMoveDistance)
 	{
 		this->SetActorTickEnabled(false);
@@ -109,6 +111,12 @@ void AElevatorSwitch::ActivateSwitch()
 		// Disable
 		bEnabled = false;
 		bActivated = true;
+
+		// PlaySound
+		if (LoopSound)
+		{
+			UGameplayStatics::PlaySound2D(this, LoopSound, SoundVolume);
+		}
 
 		// Start Looping
 		this->SetActorTickEnabled(true);

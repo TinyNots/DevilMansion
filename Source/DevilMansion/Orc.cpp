@@ -1,43 +1,45 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Spider.h"
+
+#include "Orc.h"
 #include "Components/SphereComponent.h"
-#include "BetterPlayer.h"
-#include "AIController.h"
 
 // Sets default values
-ASpider::ASpider()
+AOrc::AOrc()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	AgroSphere->InitSphereRadius(1000.f);
-	CombatSphere->InitSphereRadius(40.f);
-	AttackTimerMax = 1.5f;
-	AttackRange = 50.f;
-	AttackDamage = 2.0f;
+	CombatSphere->InitSphereRadius(75.f);
+	AttackTimerMax = 3.f;
+	AttackRange = 250.f;
+	AttackDamage = 30.0f;
 }
 
 // Called when the game starts or when spawned
-void ASpider::BeginPlay()
+void AOrc::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void ASpider::Tick(float DeltaTime)
+void AOrc::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
+
 // Called to bind functionality to input
-void ASpider::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AOrc::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 }
 
-float ASpider::ResetAttackTimer()
+float AOrc::ResetAttackTimer()
 {
 	return AttackTimerMax;
 }
+

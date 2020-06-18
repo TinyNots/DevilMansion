@@ -15,6 +15,7 @@ ASkeletonboy::ASkeletonboy()
 	CombatSphere->InitSphereRadius(75.f);
 	AttackTimerMax = 1.5f;
 	AttackRange = 250.f;
+	AttackDamage = 10.0f;
 }
 
 // Called when the game starts or when spawned
