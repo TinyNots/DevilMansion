@@ -43,6 +43,7 @@ void UMyGameInstance::HandleNewState(EGamePlayState NewState)
 
 	case EGamePlayState::ETitle:
 	{
+		
 		UGameplayStatics::OpenLevel(this, "TitleScene");
 		break;
 
