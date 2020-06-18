@@ -246,6 +246,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DeathEnd();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	TSubclassOf<class AShockwave> Shockwave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat | Skill")
+	float SkillTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat | Skill")
+	float SkillTimeCounter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool bSkillReady;
 private:
 	UPROPERTY()
 	UAnimInstance* AnimInstance;

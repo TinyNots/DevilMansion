@@ -111,6 +111,10 @@ ABetterPlayer::ABetterPlayer()
 	bIsRolling = false;
 	bComboTime = false;
 	bDeath = false;
+	
+	SkillTime = 2.0f;
+	SkillTimeCounter = SkillTime * 60.0f;
+	bSkillReady = true;
 }
 
 float ABetterPlayer::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -153,14 +157,14 @@ void ABetterPlayer::Tick(float DeltaTime)
 	OutlineCheck(EnemyCollisionVolume,1);
 	OutlineCheck(ItemCollisionVolume,0);
 
+	HealthLerp += DeltaTime * 2;
+	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
+	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);
+
 	if (bDeath)
 	{
 		return;
 	}
-
-	HealthLerp += DeltaTime * 2;
-	HealthLerp = FMath::Clamp(HealthLerp, 0.0f, 1.0f);
-	HealthPercentage = FMath::Lerp(PreviousHealth, Health / MaxHealth, HealthLerp);
 
 	if (CombatTarget)
 	{
@@ -168,6 +172,15 @@ void ABetterPlayer::Tick(float DeltaTime)
 		if (BetterPlayerController)
 		{
 			BetterPlayerController->EnemyLocation = CombatTargetLocation;
+		}
+	}
+
+	if (!bSkillReady)
+	{
+		SkillTimeCounter++;
+		if (SkillTimeCounter >= SkillTime * 60.0f)
+		{
+			bSkillReady = true;
 		}
 	}
 
@@ -463,14 +476,12 @@ void ABetterPlayer::UpdateHealth(float AddValue)
 
 void ABetterPlayer::Skill()
 {
-	if (AnimInstance && RightEquippedWeapon && !bDeath)
+	if (Shockwave && bSkillReady)
 	{
-		AttackEnd();
-		SetInterpToEnemy(true);
-		AnimInstance->Montage_Play(CombatMontage);
-		AnimInstance->Montage_JumpToSection("Skill");
+		GetWorld()->SpawnActor<AShockwave>(Shockwave, GetActorTransform());
+		bSkillReady = false;
+		SkillTimeCounter = 0.0f;
 	}
-
 }
 
 void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTypeIdx)
