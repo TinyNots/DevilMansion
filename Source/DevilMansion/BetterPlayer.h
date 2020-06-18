@@ -9,7 +9,6 @@
 #include "Components/BoxComponent.h"
 #include "BetterPlayer.generated.h"
 
-
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 

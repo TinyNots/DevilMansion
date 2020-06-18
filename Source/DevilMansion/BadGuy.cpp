@@ -83,7 +83,8 @@ void ABadGuy::BeginPlay()
 
 	if (Outline)
 	{
-		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline, GetTransform());
+		
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(AObjectOutline::StaticClass(), GetTransform());
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel1);

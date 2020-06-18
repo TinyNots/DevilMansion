@@ -41,12 +41,13 @@ void AItem::BeginPlay()
 	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 	if (bCanOutline && Outline)
 	{
-		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(Outline,VisualMesh->GetRelativeTransform());
+		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(AObjectOutline::StaticClass(),VisualMesh->GetRelativeTransform());
 
 
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->SetActorRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel2);
 
 		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
 		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
