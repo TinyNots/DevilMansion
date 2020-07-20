@@ -128,6 +128,7 @@ void ABadGuy::Tick(float DeltaTime)
 
 	if (bIsDeath)
 	{
+		OutlineRef->Destroy();
 		FVector originalPos = this->GetTargetLocation();
 		this->SetActorRelativeLocation(FVector(originalPos.X, originalPos.Y, originalPos.Z - DeathfallRate));
 		Deathfall += DeathfallRate;
