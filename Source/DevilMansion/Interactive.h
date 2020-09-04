@@ -77,6 +77,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DoorSetting")
 	bool PlaySoundDuringClose;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info Text")
+	FText InfoText;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -99,5 +102,4 @@ public:
 
 	UFUNCTION(Category = "Interact")
 	void UnlockDoor(bool lock);
-
 };

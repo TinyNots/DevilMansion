@@ -3,6 +3,16 @@
 
 #include "BetterPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Containers/Array.h"
+#include "Components/TextBlock.h"
+
+void ABetterPlayerController::PlayWidgetAnimaiton(FString AnimationName)
+{
+	if (InfoWidget && WidgetAnimationMap.Contains(AnimationName) && !bIsShowingInfo)
+	{
+		InfoWidget->PlayAnimation(WidgetAnimationMap[AnimationName]);
+	}
+}
 
 void ABetterPlayerController::BeginPlay()
 {
@@ -18,6 +28,30 @@ void ABetterPlayerController::BeginPlay()
 		}
 		FVector2D Alignment(0.0f, 0.0f);
 		EnemyHealthBar->SetAlignmentInViewport(Alignment);
+	}
+
+	bIsShowingInfo = false;
+	if (ClassInfoWidget)
+	{
+		InfoWidget = CreateWidget<UUserWidget>(this, ClassInfoWidget);
+		if (InfoWidget)
+		{
+			InfoWidget->AddToViewport();
+
+			UWidgetBlueprintGeneratedClass* WidgetClass = InfoWidget->GetWidgetTreeOwningClass();
+			for (int i = 0; i < WidgetClass->Animations.Num(); i++)
+			{
+				FString AnimationName = WidgetClass->Animations[i]->GetDisplayLabel();
+				WidgetAnimationMap.Emplace(AnimationName, WidgetClass->Animations[i]);
+			}
+
+			UObjectProperty* ObjectProperty = Cast<UObjectProperty>(WidgetClass->FindPropertyByName("Text"));
+			InfoTextBlock = Cast<UTextBlock>(ObjectProperty->GetObjectPropertyValue_InContainer(InfoWidget));
+			if (!InfoTextBlock)
+			{
+				UE_LOG(LogTemp, Error, TEXT("InfoTextBlock fail to init."));
+			}
+		}
 	}
 }
 

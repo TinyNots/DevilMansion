@@ -16,9 +16,6 @@ public:
 	AShockwave();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class USphereComponent* WaveCollision;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* StaticMeshComponent;
 
 protected:
@@ -29,15 +26,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
 	float WaveSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
 	float MaxRadius;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float SphereRadiusSize;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float OriginalRaidusSize;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Timer;
 };
