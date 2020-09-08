@@ -95,7 +95,6 @@ void ABadGuy::BeginPlay()
 void ABadGuy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	DropItem();
 	if (AttackTimer <= 0.0f)
 	{
 		NextAction();
@@ -128,7 +127,7 @@ void ABadGuy::Tick(float DeltaTime)
 
 	if (bIsDeath)
 	{
-		OutlineRef->Destroy();
+		DropItem();
 		FVector originalPos = this->GetTargetLocation();
 		this->SetActorRelativeLocation(FVector(originalPos.X, originalPos.Y, originalPos.Z - DeathfallRate));
 		Deathfall += DeathfallRate;
@@ -277,6 +276,8 @@ void ABadGuy::Death()
 		trigger->SpawnedEnemyDeath();
 	}
 
+	OutlineRef->SetActorEnableCollision(false);
+	OutlineRef->Destroy();
 	this->SetActorEnableCollision(false);
 
 	// CombatTarget is player class

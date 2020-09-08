@@ -76,7 +76,6 @@ void AFogOfWarManager::BeginPlay()
 	AFogOfWarManager::StartFOWTextureUpdate();
 	
 	RegisterFowActor(GetWorld()->GetFirstPlayerController()->GetPawn(),0);
-
 }
 
 // Called every frame

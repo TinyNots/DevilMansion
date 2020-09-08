@@ -500,10 +500,17 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 			continue;
 		}
 		float dist = FVector::DistXY(GetActorLocation(), actor->GetActorLocation());
-		if (dist < nearestDistance)
+		if (dist < nearestDistance )
 		{
-			nearestDistance = dist;
 			HighlightActor[objectTypeIdx] = Cast<AObjectOutline>(actor);
+			if (HighlightActor[objectTypeIdx])
+			{
+				if (HighlightActor[objectTypeIdx]->bEnableOutline)
+				{
+					nearestDistance = dist;
+
+				}
+			}
 		}
 	}
 	if (HighlightActor[objectTypeIdx])

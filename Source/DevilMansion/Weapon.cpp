@@ -145,6 +145,7 @@ void AWeapon::Equip(ABetterPlayer* Char)
 		{
 			OutlineRef->bEnableOutline = false;
 			bCanBePickUp = false;
+			OutlineRef->bOutlining = false;
 		}
 	}
 }

@@ -26,6 +26,12 @@ void APickup::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 }
 
+void APickup::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void APickup::Pick()
 {
 	if (OutlineRef->bOutlining)
