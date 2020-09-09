@@ -29,7 +29,7 @@ AItem::AItem()
 	bRotate = false;
 	RotationRate = 45.f;
 	bCanOutline = true;
-	OutlineMaterialIndex = 1;
+	//OutlineMaterialIndex = 1;
 	ItemDropRate = 100;
 }
 
@@ -42,15 +42,11 @@ void AItem::BeginPlay()
 	if (bCanOutline && Outline)
 	{
 		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(AObjectOutline::StaticClass(),VisualMesh->GetRelativeTransform());
-
-
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->SetActorRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 		OutlineRef->CollisionVolume->SetCollisionObjectType(ECC_GameTraceChannel2);
 
-		OutlineRef->VisualMesh->SetStaticMesh(this->VisualMesh->GetStaticMesh());
-		OutlineRef->VisualMesh->SetMaterial(0, OutlineRef->VisualMesh->GetMaterial(OutlineMaterialIndex));
 		OutlineRef->VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		OutlineRef->bCanPickup = true;
 	}
@@ -61,12 +57,6 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bRotate)
-	{
-		FRotator Rotation = GetActorRotation();
-		Rotation.Yaw += DeltaTime * RotationRate;
-		SetActorRotation(Rotation);
-	}
 	if (OutlineRef)
 	{
 		if (OutlineRef->bOutlining)
@@ -78,6 +68,13 @@ void AItem::Tick(float DeltaTime)
 			VisualMesh->SetRenderCustomDepth(false);
 		}
 	}
+	if (bRotate)
+	{
+		FRotator Rotation = GetActorRotation();
+		Rotation.Yaw += DeltaTime * RotationRate;
+		SetActorRotation(Rotation);
+	}
+
 
 }
 

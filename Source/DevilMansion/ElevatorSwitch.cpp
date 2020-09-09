@@ -32,7 +32,8 @@ void AElevatorSwitch::BeginPlay()
 		bEnabled = false;
 	}
 
-	this->SetActorTickEnabled(false);
+	bTickEnabled = false;
+	//this->SetActorTickEnabled(false);
 
 	TriggerSphere->OnComponentBeginOverlap.AddDynamic(this, &AElevatorSwitch::TriggerSphereOnOverlapBegin);
 	TriggerSphere->OnComponentEndOverlap.AddDynamic(this, &AElevatorSwitch::TriggerSphereOnOverlapEnd);
@@ -43,6 +44,10 @@ void AElevatorSwitch::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bTickEnabled == false)
+	{
+		return;
+	}
 	// Rotate the switch
 	FTransform DoorTrans = VisualMesh->GetRelativeTransform();
 	FQuat Rot = DoorTrans.GetRotation();
@@ -66,7 +71,8 @@ void AElevatorSwitch::Tick(float DeltaTime)
 		break;
 	default:
 		//end the loop
-		this->SetActorTickEnabled(false);
+		bTickEnabled = false;
+		//this->SetActorTickEnabled(false);
 		break;
 	}
 
@@ -74,7 +80,8 @@ void AElevatorSwitch::Tick(float DeltaTime)
 
 	if (MovedDistance >= TargetMoveDistance)
 	{
-		this->SetActorTickEnabled(false);
+		bTickEnabled = false;
+		//this->SetActorTickEnabled(false);
 		bEnabled = true;
 
 		//Set to reverse direction
@@ -94,7 +101,8 @@ void AElevatorSwitch::Tick(float DeltaTime)
 			break;
 		default:
 			//end
-			this->SetActorTickEnabled(false);
+			bTickEnabled = false;
+			//this->SetActorTickEnabled(false);
 			break;
 		}
 	}
@@ -117,7 +125,8 @@ void AElevatorSwitch::ActivateSwitch()
 		}
 
 		// Start Looping
-		this->SetActorTickEnabled(true);
+		bTickEnabled = true;
+		//this->SetActorTickEnabled(true);
 	}
 }
 

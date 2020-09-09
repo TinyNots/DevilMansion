@@ -45,7 +45,7 @@ void AObjectOutline::BeginPlay()
 void AObjectOutline::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	bOutlining = false;
+	//bOutlining = false;
 }
 
 void AObjectOutline::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

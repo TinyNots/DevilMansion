@@ -31,6 +31,9 @@ public:
 	class USphereComponent* TriggerSphere;
 
 	UPROPERTY(BlueprintReadOnly)
+	bool bTickEnabled;
+
+	UPROPERTY(BlueprintReadOnly)
 	bool bEnabled;
 
 	UPROPERTY(BlueprintReadOnly)
