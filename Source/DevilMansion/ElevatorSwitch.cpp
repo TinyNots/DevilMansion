@@ -4,6 +4,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "BetterPlayerController.h"
+#include "Components/TextBlock.h"
 
 // Sets default values
 AElevatorSwitch::AElevatorSwitch()
@@ -11,6 +13,7 @@ AElevatorSwitch::AElevatorSwitch()
 
 	TriggerSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	TriggerSphere->SetupAttachment(GetRootComponent());
+	InfoText = FText::FromString("Please wirte info here.");
 }
 
 // Called when the game starts or when spawned
@@ -122,10 +125,19 @@ void AElevatorSwitch::TriggerSphereOnOverlapBegin(UPrimitiveComponent* Overlappe
 {
 	if (OtherActor)	//check nullptr
 	{
-		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
-		if (Main)
+		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
+		if (Player)
 		{
-			Main->InteractStartSwitch(true, this);
+			Player->InteractStartSwitch(true, this);
+
+			// Fade in the info about this interactable object
+			ABetterPlayerController* PlayerController = Player->BetterPlayerController;
+			if (!PlayerController->bIsShowingInfo)
+			{
+				PlayerController->InfoTextBlock->SetText(InfoText);
+				PlayerController->PlayWidgetAnimaiton("FadeIn");
+				PlayerController->bIsShowingInfo = true;
+			}
 		}
 	}
 }
@@ -134,10 +146,18 @@ void AElevatorSwitch::TriggerSphereOnOverlapEnd(UPrimitiveComponent* OverlappedC
 {
 	if (OtherActor)	//check nullptr
 	{
-		ABetterPlayer* Main = Cast<ABetterPlayer>(OtherActor);
-		if (Main)
+		ABetterPlayer* Player = Cast<ABetterPlayer>(OtherActor);
+		if (Player)
 		{
-			Main->InteractStartSwitch(false, nullptr);
+			Player->InteractStartSwitch(false, nullptr);
+
+			// Fade out the info about this interactable object
+			ABetterPlayerController* PlayerController = Player->BetterPlayerController;
+			if (PlayerController->bIsShowingInfo)
+			{
+				PlayerController->bIsShowingInfo = false;
+				PlayerController->PlayWidgetAnimaiton("FadeOut");
+			}
 		}
 	}
 }

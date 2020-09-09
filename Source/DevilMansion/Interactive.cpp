@@ -6,7 +6,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "BetterPlayerController.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/TextBlock.h"
 
 // Sets default values
 AInteractive::AInteractive()
@@ -49,6 +51,8 @@ AInteractive::AInteractive()
 
 	RotateRate = 0.95f;
 	//bRotateEnable = false;
+
+	InfoText = FText::FromString("Please wirte info here.");
 }
 
 // Called when the game starts or when spawned
@@ -125,6 +129,12 @@ void AInteractive::TriggerBoxLeftOnOverlapBegin(UPrimitiveComponent* OverlappedC
 		if (Player)
 		{
 			Player->InteractStart(-90.0f, true, this);
+			if (!Player->BetterPlayerController->bIsShowingInfo)
+			{
+				Player->BetterPlayerController->InfoTextBlock->SetText(InfoText);
+				Player->BetterPlayerController->PlayWidgetAnimaiton("FadeIn");
+				Player->BetterPlayerController->bIsShowingInfo = true;
+			}
 		}
 	}
 }
@@ -137,6 +147,14 @@ void AInteractive::TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* Overlapped
 		if (Player)
 		{
 			Player->InteractStart(90.0f, true, this);
+
+			ABetterPlayerController* PlayerController = Player->BetterPlayerController;
+			if (!PlayerController->bIsShowingInfo)
+			{
+				PlayerController->InfoTextBlock->SetText(InfoText);
+				PlayerController->PlayWidgetAnimaiton("FadeIn");
+				PlayerController->bIsShowingInfo = true;
+			}
 		}
 	}
 }
@@ -196,6 +214,14 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 
 		// Enable Loop
 		this->SetActorTickEnabled(true);
+	}
+
+	// Fadeout the info widget
+	ABetterPlayerController* PlayerController = Player->BetterPlayerController;
+	if (PlayerController->bIsShowingInfo)
+	{
+		PlayerController->bIsShowingInfo = false;
+		PlayerController->PlayWidgetAnimaiton("FadeOut");
 	}
 }
 

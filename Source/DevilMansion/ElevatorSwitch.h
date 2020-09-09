@@ -63,6 +63,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ElevatorSwitch")
 	float SoundVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info Text")
+	FText InfoText;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

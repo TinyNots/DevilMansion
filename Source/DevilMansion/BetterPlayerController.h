@@ -41,6 +41,26 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 	float CenterPointOffset;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Text")
+	TSubclassOf<UUserWidget> ClassInfoWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Text")
+	UUserWidget* InfoWidget;
+
+	UPROPERTY(VisibleAnywhere, Category = "InfoWidgetAnim")
+	TMap<FString, class UWidgetAnimation*> WidgetAnimationMap;
+
+	UFUNCTION()
+	void PlayWidgetAnimaiton(FString AnimationName);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "InfoWidgetAnim")
+	bool bIsShowingInfo;
+
+	UPROPERTY(BlueprintReadOnly)
+	class UTextBlock* InfoTextBlock;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
