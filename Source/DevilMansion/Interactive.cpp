@@ -147,11 +147,13 @@ void AInteractive::TriggerBoxRightOnOverlapBegin(UPrimitiveComponent* Overlapped
 		if (Player)
 		{
 			Player->InteractStart(90.0f, true, this);
-			if (!Player->BetterPlayerController->bIsShowingInfo)
+
+			ABetterPlayerController* PlayerController = Player->BetterPlayerController;
+			if (!PlayerController->bIsShowingInfo)
 			{
-				Player->BetterPlayerController->InfoTextBlock->SetText(InfoText);
-				Player->BetterPlayerController->PlayWidgetAnimaiton("FadeIn");
-				Player->BetterPlayerController->bIsShowingInfo = true;
+				PlayerController->InfoTextBlock->SetText(InfoText);
+				PlayerController->PlayWidgetAnimaiton("FadeIn");
+				PlayerController->bIsShowingInfo = true;
 			}
 		}
 	}
@@ -218,8 +220,8 @@ void AInteractive::TriggerBoxOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 	ABetterPlayerController* PlayerController = Player->BetterPlayerController;
 	if (PlayerController->bIsShowingInfo)
 	{
-		PlayerController->PlayWidgetAnimaiton("FadeOut");
 		PlayerController->bIsShowingInfo = false;
+		PlayerController->PlayWidgetAnimaiton("FadeOut");
 	}
 }
 
