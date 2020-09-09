@@ -492,6 +492,7 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 	TArray<AActor*> actors;
 	CollisionVolume->GetOverlappingActors(actors, TSubclassOf<AObjectOutline>());
 	float nearestDistance = FLT_MAX;
+	TArray<AObjectOutline*> oldActor = HighlightActor;
 	HighlightActor[objectTypeIdx] = nullptr;
 	for (auto actor : actors)
 	{
@@ -508,7 +509,6 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 				if (HighlightActor[objectTypeIdx]->bEnableOutline)
 				{
 					nearestDistance = dist;
-
 				}
 			}
 		}
@@ -518,6 +518,13 @@ void ABetterPlayer::OutlineCheck(USphereComponent* CollisionVolume, int objectTy
 		if (HighlightActor[objectTypeIdx]->bEnableOutline)
 		{
 			HighlightActor[objectTypeIdx]->bOutlining = true;
+		}
+	}
+	if (oldActor[objectTypeIdx])
+	{
+		if (oldActor[objectTypeIdx] != HighlightActor[objectTypeIdx])
+		{
+			oldActor[objectTypeIdx]->bOutlining = false;
 		}
 	}
 }

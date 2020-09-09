@@ -42,8 +42,6 @@ void AItem::BeginPlay()
 	if (bCanOutline && Outline)
 	{
 		OutlineRef = GetWorld()->SpawnActor<AObjectOutline>(AObjectOutline::StaticClass(),VisualMesh->GetRelativeTransform());
-
-
 		OutlineRef->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OutlineRef->SetOwner(this);
 		OutlineRef->SetActorRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
